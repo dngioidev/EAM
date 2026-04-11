@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { readWikiFile } from '@/lib/wiki';
 
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Dashboard' };
 
 interface Dashboard {

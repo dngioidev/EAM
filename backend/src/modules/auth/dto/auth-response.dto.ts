@@ -1,0 +1,19 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '../../users/entities/user.entity';
+
+export class AuthResponseDto {
+  @ApiProperty()
+  accessToken: string;
+
+  @ApiProperty()
+  refreshToken: string;
+
+  @ApiProperty()
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: UserRole;
+    storeId: string | null;
+  };
+}

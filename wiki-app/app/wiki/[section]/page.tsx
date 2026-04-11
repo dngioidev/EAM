@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { readWikiFile, listWikiFiles } from '@/lib/wiki';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: { section: string };
 }

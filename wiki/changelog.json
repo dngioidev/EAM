@@ -6,11 +6,39 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.3.0",
-    "total_entries": 3
+    "current_version": "0.4.0",
+    "total_entries": 4
   },
   "content": {
     "entries": [
+      {
+        "version": "0.4.0",
+        "date": "2026-04-12",
+        "sprint": "1",
+        "tags": ["implementation", "backend", "auth", "store", "docker", "migrations", "tests"],
+        "summary": "Sprint 1 backend implementation complete. Full NestJS 10.x backend with auth (JWT/Redis) and store management modules. Build passing, 11 unit tests green.",
+        "features_added": ["auth (login, refresh, logout, me — JWT + Redis rotation)", "stores (CRUD, taxCode immutable, deactivate with session flush)"],
+        "artifacts_created": [
+          "docker-compose.yml", ".env.example", ".env",
+          "backend/package.json", "backend/tsconfig.json", "backend/nest-cli.json",
+          "backend/src/main.ts", "backend/src/app.module.ts",
+          "backend/src/common/entities/base.entity.ts",
+          "backend/src/common/guards/jwt-auth.guard.ts", "backend/src/common/guards/roles.guard.ts",
+          "backend/src/common/decorators/roles.decorator.ts", "backend/src/common/decorators/public.decorator.ts", "backend/src/common/decorators/current-user.decorator.ts",
+          "backend/src/common/filters/http-exception.filter.ts", "backend/src/common/interceptors/transform.interceptor.ts",
+          "backend/src/modules/users/entities/user.entity.ts", "backend/src/modules/users/users.service.ts", "backend/src/modules/users/users.module.ts",
+          "backend/src/modules/auth/auth.service.ts", "backend/src/modules/auth/auth.controller.ts", "backend/src/modules/auth/auth.module.ts",
+          "backend/src/modules/auth/strategies/jwt.strategy.ts",
+          "backend/src/modules/stores/entities/store.entity.ts", "backend/src/modules/stores/stores.service.ts", "backend/src/modules/stores/stores.controller.ts", "backend/src/modules/stores/stores.module.ts",
+          "backend/src/database/migrations/1713830400000-CreateStoreTable.ts", "backend/src/database/migrations/1713830410000-CreateUserTable.ts",
+          "backend/src/database/seeds/admin.seed.ts",
+          "backend/src/config/database.config.ts",
+          "wiki/api-contracts/auth.json", "wiki/api-contracts/store.json"
+        ],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "bcryptjs used instead of bcrypt (no native compilation required on Windows). Build: nest build passing. Tests: 11/11 pass (auth.service.spec, stores.service.spec)."
+      },
       {
         "version": "0.3.0",
         "date": "2026-04-12",

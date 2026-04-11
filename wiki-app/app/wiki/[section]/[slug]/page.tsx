@@ -4,6 +4,8 @@ import { readWikiFile } from '@/lib/wiki';
 import { JsonBlock } from '@/components/JsonBlock';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: { section: string; slug: string };
 }

@@ -1,23 +1,102 @@
 {
   "meta": {
-    "version": 1,
-    "last_updated": "2025-01-01",
+    "version": 3,
+    "last_updated": "2026-04-12",
     "title": "DevOps Rules",
     "owner": "vibe-devops-general"
   },
   "content": {
-    "rules": [
-      "All services run in Docker. No direct host installs for postgresql/redis",
-      "Port assignments are fixed: backend=3000, frontend=5173, wiki=3001, postgres=5432, redis=6379",
-      "Separate postgres instance for tests on port 5433. Never run tests against main DB",
-      "All containers have health checks defined in docker-compose.yml",
-      "Backend Docker image: multi-stage. Final stage FROM node:20-alpine, USER node, dumb-init as PID 1",
-      "Environment variables are never baked into Docker images. Injected at runtime via .env files",
-      "docker-compose.yml is the source of truth for local development service config",
-      "Migrations run automatically on container start in development. Manual run in production",
-      "Database volumes are named volumes (not bind mounts) to avoid permission issues on Windows",
-      "All backend/frontend/wiki Dockerfiles include .dockerignore excluding node_modules and .env"
-    ]
+    "port_exposure_policy": {
+      "title": "Port Exposure Policy � expose the minimum necessary",
+      "principle": "Only expose host ports that humans or external tools directly access. Internal service-to-service communication uses the Docker network � those ports are NEVER published to the host.",
+      "exposed_ports": {
+        "80":   "nginx � single public API gateway (/api/*, /health, /api/docs)",
+        "3001": "wiki-app � documentation viewer (Next.js)",
+        "5050": "pgAdmin � database admin UI (dev tooling, never in production)",
+        "5433": "postgres-test � test DB only, required for host-side npm test",
+        "5173": "frontend Vite (profile=frontend only, direct for HMR WebSocket)"
+      },
+      "internal_only": {
+        "3000": "backend NestJS (nginx routes to it � no direct host port)",
+        "5432": "postgres main DB (pgAdmin connects via Docker network)",
+        "6379": "redis (backend connects via Docker network)"
+      },
+      "rules": [
+        "PORT-RULE-01: Never expose postgres main (5432) on host. Use pgAdmin at port 5050 for DB inspection.",
+        "PORT-RULE-02: Never expose redis (6379) on host. Use docker exec eam_redis redis-cli if needed.",
+        "PORT-RULE-03: Never expose backend (3000) on host. All API traffic goes through nginx:80.",
+        "PORT-RULE-04: postgres-test (5433) MUST be exposed � host test runner requires it.",
+        "PORT-RULE-05: Any new service added to docker-compose.yml must be classified as exposed or internal-only before the task is marked complete."
+      ]
+    },
+    "nginx_patterns": {
+      "title": "Nginx Reverse Proxy Patterns",
+      "config_location": "nginx/nginx.conf � bind-mounted read-only into eam_nginx at /etc/nginx/conf.d/default.conf",
+      "image": "nginx:1.27-alpine",
+      "routing_convention": {
+        "/api/":     "backend:3000 (REST API)",
+        "/api/docs": "backend:3000 (Swagger UI)",
+        "/health":   "backend:3000 (health check)"
+      },
+      "rules": [
+        "NGINX-RULE-01: Use named upstreams (upstream backend { server backend:3000; }) � never hardcode IPs.",
+        "NGINX-RULE-02: Set proxy_http_version 1.1 and proxy_set_header Connection empty string for keepalive.",
+        "NGINX-RULE-03: Always set X-Real-IP, X-Forwarded-For, X-Forwarded-Proto headers on every location block.",
+        "NGINX-RULE-04: Set server_tokens off to hide nginx version in responses.",
+        "NGINX-RULE-05: For WebSocket proxying (Vite HMR) add Upgrade and Connection upgrade headers.",
+        "NGINX-RULE-06: Test before reloading: docker exec eam_nginx nginx -t. Reload: docker exec eam_nginx nginx -s reload.",
+        "NGINX-RULE-07: nginx config changes do NOT require image rebuild � edit nginx/nginx.conf then reload."
+      ]
+    },
+    "env_host_override_rule": {
+      "title": "Docker Service Hostname Override",
+      "rule": "ENV-RULE-01: Backend .env uses localhost for local dev. Inside Docker, postgres/redis are only reachable by service name. Always inject hostname overrides via docker-compose.yml environment block.",
+      "required_pattern_in_compose": "backend service must have: environment: { DATABASE_HOST: postgres, REDIS_HOST: redis }",
+      "lesson_learned": {
+        "date": "2026-04-12",
+        "incident": "backend container crashed with ECONNREFUSED � DATABASE_HOST=localhost in backend/.env was used inside the container. postgres is only reachable at hostname postgres via Docker network.",
+        "fix": "Added environment overrides in docker-compose.yml backend service."
+      }
+    },
+    "validation_checklist": {
+      "title": "MANDATORY � Docker Compose / Dockerfile Pre-Completion Checklist",
+      "description": "Every time docker-compose.yml or any Dockerfile is created OR updated, ALL items below MUST pass before the task is marked complete.",
+      "items": [
+        "[ ] Every service with build: has a matching Dockerfile at the referenced path",
+        "[ ] Every Dockerfile has a matching .dockerignore in the same directory",
+        "[ ] All target: stage names exist as actual stages in the Dockerfile",
+        "[ ] All env_file paths referenced in docker-compose.yml exist on disk",
+        "[ ] Every new service is classified as exposed or internal-only in port_exposure_policy",
+        "[ ] Services with localhost in .env have Docker hostname overrides in compose environment: block",
+        "[ ] docker compose config runs without error",
+        "[ ] docker compose up -d starts and all containers reach running/healthy state",
+        "[ ] docker compose logs <service> --tail 30 shows no fatal connection errors",
+        "[ ] nginx config validated with docker exec eam_nginx nginx -t after any nginx.conf change"
+      ],
+      "failure_mode": "BLOCK � do not mark task complete until all items pass",
+      "lessons_learned": [
+        {
+          "date": "2026-04-12",
+          "incident": "docker-compose.yml created referencing backend/Dockerfile which did not exist � docker compose up failed immediately.",
+          "fix": "Created backend/Dockerfile (4-stage: deps->development->builder->production) and .dockerignore in the same task."
+        },
+        {
+          "date": "2026-04-12",
+          "incident": "backend container crashed with ECONNREFUSED � DATABASE_HOST=localhost in .env used inside Docker container.",
+          "fix": "Added environment: DATABASE_HOST: postgres / REDIS_HOST: redis in docker-compose.yml backend service."
+        }
+      ]
+    },
+    "service_registry": {
+      "postgres":      { "image": "postgres:15-alpine",  "host_port": null, "internal_port": 5432 },
+      "postgres-test": { "image": "postgres:15-alpine",  "host_port": 5433, "internal_port": 5432 },
+      "redis":         { "image": "redis:7-alpine",       "host_port": null, "internal_port": 6379 },
+      "backend":       { "image": "build:./backend",      "host_port": null, "internal_port": 3000 },
+      "nginx":         { "image": "nginx:1.27-alpine",    "host_port": 80,   "internal_port": 80   },
+      "wiki":          { "image": "build:./wiki-app",     "host_port": 3001, "internal_port": 3001 },
+      "pgadmin":       { "image": "dpage/pgadmin4:8",     "host_port": 5050, "internal_port": 80   },
+      "frontend":      { "image": "build:./frontend",     "host_port": 5173, "internal_port": 5173, "profile": "frontend" }
+    }
   },
   "audit": [
     {
@@ -26,6 +105,20 @@
       "author": "vibe-devops-general",
       "action": "created",
       "note": "Initial DevOps rules"
+    },
+    {
+      "version": 2,
+      "timestamp": "2026-04-12T19:00:00Z",
+      "author": "vibe-devops-general",
+      "action": "lesson-learned",
+      "note": "Added DOCKER-RULE-01/02/03 and validation_checklist after backend/Dockerfile was missing."
+    },
+    {
+      "version": 3,
+      "timestamp": "2026-04-12T20:00:00Z",
+      "author": "vibe-devops-general",
+      "action": "nginx-pgadmin-port-policy",
+      "note": "Added nginx reverse proxy (port 80), pgAdmin (port 5050). Port exposure policy defined. ENV-RULE-01 for Docker hostname overrides. NGINX-RULE-01 through 07. Fixed backend ECONNREFUSED crash (DATABASE_HOST=localhost inside Docker)."
     }
   ]
 }

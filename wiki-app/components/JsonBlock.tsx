@@ -104,7 +104,7 @@ export function JsonBlock({ data }: JsonBlockProps) {
                 <span className="text-gray-500">{String(entry.author)}</span>
                 {' · '}
                 <span className="text-gray-400">{String(entry.timestamp)}</span>
-                {entry.note && (
+                {!!entry.note && (
                   <p className="mt-0.5 text-gray-500">{String(entry.note)}</p>
                 )}
               </li>
