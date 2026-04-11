@@ -83,7 +83,17 @@
       "created wiki-app/components/JsonBlock.tsx — recursive JSON renderer with audit timeline",
       "created wiki-app/.env.local + .env.example + .gitignore + .dockerignore",
       "created wiki-app/Dockerfile — 3-stage multi-stage build, dumb-init, USER node, port 3001",
-      "updated wiki/dashboard.json — version 2, last_updated 2026-04-12"
+      "updated wiki/dashboard.json — version 2, last_updated 2026-04-12",
+      "WIKI-APP UX SESSION — vibe-project-manager orchestrated human-friendly views + admin actions",
+      "updated wiki-app/lib/wiki.ts — added writeWikiFile, patchWikiFile (deep-merge + auto last_updated)",
+      "created wiki-app/app/api/wiki-update/route.ts — POST endpoint: path + patches → patchWikiFile",
+      "created wiki-app/components/StatusBadge.tsx — colour-coded status pill (16 statuses)",
+      "created wiki-app/components/AdminActions.tsx — client component: Approve/Reject/Accept/Resolve buttons, calls /api/wiki-update then router.refresh()",
+      "created wiki-app/components/views/FeatureView.tsx — full feature renderer: status badge, tags, quick fact, summary, do-not rules, Actors table, User Story accordions (details/summary), Business Rules list, RBAC Matrix table, Open Questions, approval box, audit trail",
+      "created wiki-app/components/views/ApiContractView.tsx — contract renderer: status, baseUrl, business rules, endpoint cards (method badge, auth badge, expandable schema table + response list)",
+      "updated wiki-app/app/wiki/[section]/[slug]/page.tsx — section routing: features→FeatureView, api-contracts→ApiContractView, default→JsonBlock; title resolves from meta.title/content.title/module",
+      "updated .claude/skills/vibe-wiki-app-nextjs/SKILL.md — documented new components, section routing, admin actions, StatusBadge, write/patch API",
+      "updated .claude/skills/vibe-wiki-app-nextjs/references/json-reader.md — added writeWikiFile/patchWikiFile docs"
     ],
     "files_created": [
       "wiki-app/package.json",
@@ -108,7 +118,20 @@
       "wiki-app/.dockerignore",
       "wiki-app/Dockerfile"
     ],
-    "files_updated": ["wiki/dashboard.json"]
+    "files_updated": [
+      "wiki/dashboard.json",
+      "wiki-app/lib/wiki.ts",
+      "wiki-app/app/wiki/[section]/[slug]/page.tsx",
+      ".claude/skills/vibe-wiki-app-nextjs/SKILL.md",
+      ".claude/skills/vibe-wiki-app-nextjs/references/json-reader.md"
+    ],
+    "files_created_session3": [
+      "wiki-app/app/api/wiki-update/route.ts",
+      "wiki-app/components/StatusBadge.tsx",
+      "wiki-app/components/AdminActions.tsx",
+      "wiki-app/components/views/FeatureView.tsx",
+      "wiki-app/components/views/ApiContractView.tsx"
+    ]
   },
   "audit": [
     {

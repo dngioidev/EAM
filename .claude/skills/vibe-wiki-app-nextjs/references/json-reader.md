@@ -35,6 +35,23 @@ export async function readSectionIndex(section: string): Promise<SectionIndex> {
 }
 ```
 
+## Wiki File Writer
+
+```typescript
+// wiki-app/lib/wiki.ts
+
+// Full overwrite
+export async function writeWikiFile(relativePath: string, data: unknown): Promise<void>
+
+// Deep-merge patch — also auto-sets meta.last_updated / updatedAt to today
+export async function patchWikiFile(
+  relativePath: string,
+  patches: Record<string, unknown>
+): Promise<void>
+```
+
+Called only from `app/api/wiki-update/route.ts` (server-side). Never call from client components.
+
 ## Environment Variables
 
 ```env

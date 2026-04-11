@@ -12,6 +12,53 @@ function assertSafe(filePath: string): void {
   }
 }
 
+export async function writeWikiFile(relativePath: string, data: unknown): Promise<void> {
+  const filePath = path.join(WIKI_ROOT, relativePath);
+  assertSafe(filePath);
+  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...target };
+  for (const [key, value] of Object.entries(source)) {
+    if (
+      value !== null &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      target[key] !== null &&
+      typeof target[key] === 'object' &&
+      !Array.isArray(target[key])
+    ) {
+      result[key] = deepMerge(
+        target[key] as Record<string, unknown>,
+        value as Record<string, unknown>
+      );
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+export async function patchWikiFile(
+  relativePath: string,
+  patches: Record<string, unknown>
+): Promise<void> {
+  const current = await readWikiFile<Record<string, unknown>>(relativePath);
+  const merged = deepMerge(current, patches);
+  const today = new Date().toISOString().split('T')[0];
+  if (merged.meta && typeof merged.meta === 'object' && !Array.isArray(merged.meta)) {
+    (merged.meta as Record<string, unknown>).last_updated = today;
+  }
+  if ('updatedAt' in merged) {
+    merged.updatedAt = today;
+  }
+  await writeWikiFile(relativePath, merged);
+}
+
 export async function readWikiFile<T = unknown>(relativePath: string): Promise<T> {
   const filePath = path.join(WIKI_ROOT, relativePath);
   assertSafe(filePath);

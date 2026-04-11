@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { readWikiFile } from '@/lib/wiki';
 import { JsonBlock } from '@/components/JsonBlock';
+import { FeatureView } from '@/components/views/FeatureView';
+import { ApiContractView } from '@/components/views/ApiContractView';
 import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -12,13 +14,30 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
-    const data = await readWikiFile<{ meta?: { title?: string } }>(
+    const data = await readWikiFile<Record<string, unknown>>(
       `${params.section}/${params.slug}.json`
     );
-    return { title: data.meta?.title ?? params.slug };
+    const title = resolveTitle(data, params.slug);
+    return { title };
   } catch {
     return { title: params.slug };
   }
+}
+
+function resolveTitle(data: Record<string, unknown>, fallback: string): string {
+  const meta = data.meta as Record<string, unknown> | undefined;
+  const content = data.content as Record<string, unknown> | undefined;
+  return (
+    (meta?.title as string | undefined) ??
+    (content?.title as string | undefined) ??
+    (data.module as string | undefined) ??
+    fallback
+  );
+}
+
+function resolveLastUpdated(data: Record<string, unknown>): string | undefined {
+  const meta = data.meta as Record<string, unknown> | undefined;
+  return (meta?.last_updated as string | undefined) ?? (data.updatedAt as string | undefined);
 }
 
 export default async function WikiEntryPage({ params }: PageProps) {
@@ -31,33 +50,38 @@ export default async function WikiEntryPage({ params }: PageProps) {
     notFound();
   }
 
-  const title = (data.meta as { title?: string } | undefined)?.title ?? slug;
-  const lastUpdated = (data.meta as { last_updated?: string } | undefined)?.last_updated;
+  const title = resolveTitle(data, slug);
+  const lastUpdated = resolveLastUpdated(data);
 
   return (
     <div>
-      <nav className="mb-4 text-sm text-gray-500">
-        <Link href="/wiki" className="hover:text-blue-600">
-          Wiki
+      {/* ── Breadcrumb ── */}
+      <nav className="mb-4 flex items-center gap-1 text-sm text-gray-400">
+        <Link href="/wiki" className="hover:text-blue-600 transition-colors">Wiki</Link>
+        <span>/</span>
+        <Link href={`/wiki/${section}`} className="capitalize hover:text-blue-600 transition-colors">
+          {section.replace('-', ' ')}
         </Link>
-        {' / '}
-        <Link href={`/wiki/${section}`} className="capitalize hover:text-blue-600">
-          {section}
-        </Link>
-        {' / '}
-        <span className="text-gray-800">{slug}</span>
+        <span>/</span>
+        <span className="text-gray-700">{title}</span>
       </nav>
 
-      <div className="flex items-baseline justify-between">
+      {/* ── Page title ── */}
+      <div className="flex items-baseline justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
         {lastUpdated && (
-          <span className="text-xs text-gray-400">Updated {lastUpdated}</span>
+          <span className="text-xs text-gray-400 shrink-0 ml-4">Updated {lastUpdated}</span>
         )}
       </div>
 
-      <div className="mt-6">
+      {/* ── Section-specific view ── */}
+      {section === 'features' ? (
+        <FeatureView data={data} section={section} slug={slug} />
+      ) : section === 'api-contracts' ? (
+        <ApiContractView data={data} section={section} slug={slug} />
+      ) : (
         <JsonBlock data={data} />
-      </div>
+      )}
     </div>
   );
 }

@@ -12,6 +12,23 @@
   "content": {
     "entries": [
       {
+        "version": "0.5.0",
+        "date": "2026-04-12",
+        "sprint": "1",
+        "tags": ["wiki-app", "ux", "admin", "views", "frontend"],
+        "summary": "Wiki-app upgraded with human-friendly section views and admin action buttons (approve/reject/resolve). Features and API contracts now render with rich, structured layouts instead of raw JSON.",
+        "features_added": [
+          "wiki-app: FeatureView — actors table, collapsible user story cards, RBAC matrix, business rules list, open questions, approval box, audit trail",
+          "wiki-app: ApiContractView — method badges, expandable endpoint cards, schema tables, response codes",
+          "wiki-app: AdminActions — Approve/Reject/Accept/Resolve buttons per entity type, deep-patch via /api/wiki-update",
+          "wiki-app: StatusBadge — colour-coded status pills for 16 statuses",
+          "wiki-app: patchWikiFile — deep-merge patching with auto last_updated"
+        ],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "Section routing in [slug]/page.tsx dispatches to specialized views. Falls back to JsonBlock for sections without a dedicated view. Admin writes are server-side only via /api/wiki-update route."
+      },
+      {
         "version": "0.4.0",
         "date": "2026-04-12",
         "sprint": "1",
