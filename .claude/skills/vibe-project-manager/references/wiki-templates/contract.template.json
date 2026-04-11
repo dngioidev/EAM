@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "id": "module-name-contract",
+    "type": "contract",
+    "status": "draft",
+    "owner": "api-contractor",
+    "sprint": 0,
+    "last_updated": "YYYY-MM-DD",
+    "created": "YYYY-MM-DD",
+    "version": 1,
+    "depends_on": [],
+    "related_to": [],
+    "affects": [],
+    "tags": [],
+    "blocked_by": null,
+    "unblock_condition": null
+  },
+  "quick_facts": {
+    "one_line": "API contract for {module} module",
+    "contract_version": "1.0",
+    "status_reason": "draft | approved | implemented | deprecated",
+    "endpoint_count": 0,
+    "last_change": "YYYY-MM-DD"
+  },
+  "content": {
+    "title": "{Module} API Contract",
+    "tldr": "3 lines max — what endpoints does this contract define",
+    "summary": "Module purpose and what it exposes",
+    "module": "module-name",
+    "version": "1.0",
+    "base_path": "/api/module-name",
+    "endpoints": [
+      {
+        "id": "POST /api/module-name",
+        "method": "POST",
+        "path": "/api/module-name",
+        "auth_required": true,
+        "roles": [],
+        "request": {
+          "body": {
+            "field": "string — description"
+          }
+        },
+        "response": {
+          "201": {
+            "id": "uuid",
+            "field": "string",
+            "createdAt": "ISO-8601",
+            "updatedAt": "ISO-8601"
+          }
+        },
+        "errors": {
+          "400": "Validation error — invalid request body",
+          "401": "Unauthenticated — missing or expired JWT",
+          "409": "Conflict — duplicate resource"
+        }
+      }
+    ],
+    "schemas": {
+      "CreateModuleDto": {
+        "type": "object",
+        "properties": {
+          "field": { "type": "string", "description": "" }
+        },
+        "required": ["field"]
+      },
+      "ModuleResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "field": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "skip_if": {
+      "description": "Skip if working on a completely unrelated module",
+      "conditions": []
+    },
+    "do_not": [
+      "Never implement before status is approved",
+      "Never deviate from contract without bumping version"
+    ],
+    "see_also": [],
+    "sections": []
+  },
+  "approval": {
+    "required": true,
+    "approved_by": null,
+    "approved_at": null,
+    "status": "pending",
+    "notes": ""
+  },
+  "audit": [
+    {
+      "date": "YYYY-MM-DD",
+      "role": "api-contractor",
+      "action": "created",
+      "description": "Contract draft created",
+      "version_before": 0,
+      "version_after": 1
+    }
+  ]
+}

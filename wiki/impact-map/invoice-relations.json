@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "id": "invoice-relations",
+    "feature": "invoice",
+    "type": "impact-map",
+    "version": 1,
+    "last_updated": "2026-04-12"
+  },
+  "goal": {
+    "statement": "Every completed sale automatically produces a unique, immutable, legally compliant Vietnamese hóa đơn điện tử. Zero completed orders without an invoice. Zero duplicate invoice numbers.",
+    "metric": "Invoice issuance rate = 100% of completed orders. invoiceNumber collision count = 0. VAT calculation accuracy = 100%.",
+    "deadline": "2026-05-24 (Sprint 3 — MVP)"
+  },
+  "actors": [
+    {
+      "id": "A-INV-01",
+      "name": "System (automatically triggered)",
+      "goal": "Issue an invoice the moment payment is confirmed — no human intervention",
+      "impacts": [
+        { "action": "React to OrderCompletedEvent and create invoice atomically", "deliverable": "InvoiceModule.onOrderCompleted() handler + DB transaction", "hinders_if_not_done": "Orders complete without invoices — legal violation" },
+        { "action": "Assign a unique sequential invoice number per store per year", "deliverable": "invoiceNumber sequence — format '{YYYY}/{seq:06d}'", "hinders_if_not_done": "Duplicate or gap invoice numbers — tax audit failure" },
+        { "action": "Calculate VAT correctly per tax rate group", "deliverable": "vatCalculationService: group by taxRatePercent, floor integer math", "hinders_if_not_done": "Incorrect VAT amounts on invoice — regulatory penalty" }
+      ]
+    },
+    {
+      "id": "A-INV-02",
+      "name": "Cashier / Thu ngân",
+      "goal": "Present the invoice to the customer after payment",
+      "impacts": [
+        { "action": "View invoice for a completed order", "deliverable": "GET /api/v1/orders/:id/invoice", "hinders_if_not_done": "Cashier cannot show legal receipt to customer" }
+      ]
+    },
+    {
+      "id": "A-INV-03",
+      "name": "Accountant / Kế toán",
+      "goal": "Reconcile all invoices for monthly VAT declaration",
+      "impacts": [
+        { "action": "List all invoices filtered by date range and status", "deliverable": "GET /api/v1/invoices?from=...&to=...&status=...", "hinders_if_not_done": "Cannot produce monthly VAT report — file incorrect tax return" },
+        { "action": "Cancel invoice after refund is approved", "deliverable": "PATCH /api/v1/invoices/:id/cancel", "hinders_if_not_done": "Refunded sales still appear as revenue in tax books" }
+      ]
+    },
+    {
+      "id": "A-INV-04",
+      "name": "Store Manager + Admin",
+      "goal": "Audit invoice records and handle escalated cancellations",
+      "impacts": [
+        { "action": "View all invoices for store (same as accountant)", "deliverable": "GET /api/v1/invoices (manager/admin role)", "hinders_if_not_done": "Cannot audit invoice completeness against order history" }
+      ]
+    }
+  ],
+  "constraints": [
+    "Invoice number MUST be immutable after creation — LEGAL-01/LEGAL-02",
+    "Invoice cancellation MUST NOT change invoiceNumber — a cancellation note is issued separately",
+    "Only system (via event) may create invoices — no manual POST /invoices endpoint",
+    "All monetary values in đồng (integer) — no decimal values on invoice",
+    "VAT rounding: Math.floor() only — never Math.round() or Math.ceil()"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "doc.schema.json",
+  "title": "General Documentation Schema",
+  "description": "Generic schema for all wiki files not covered by a specific schema (onboarding, glossary, rulebook entries, etc.)",
+  "type": "object",
+  "required": ["meta", "content", "audit"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["version", "last_updated", "title", "owner"],
+      "properties": {
+        "version": { "type": "integer", "minimum": 1 },
+        "last_updated": { "type": "string", "format": "date" },
+        "title": { "type": "string" },
+        "owner": { "type": "string" }
+      }
+    },
+    "quick_facts": {
+      "type": "object",
+      "description": "Optional. Free-form key-value pairs for at-a-glance facts."
+    },
+    "content": {
+      "type": "object",
+      "required": ["tldr"],
+      "properties": {
+        "tldr": { "type": "string", "description": "Single-sentence summary of this document." }
+      },
+      "additionalProperties": true
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["draft", "approved", "deprecated"] },
+        "approved_by": { "type": "string" },
+        "approved_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "audit": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["version", "timestamp", "author", "action", "note"],
+        "properties": {
+          "version": { "type": "integer" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "author": { "type": "string" },
+          "action": { "type": "string", "enum": ["created", "updated", "deprecated"] },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "version": 3,
+    "last_updated": "2026-04-12",
+    "title": "Product Backlog",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "current_sprint": "1",
+    "total_items": 5,
+    "status_summary": {
+      "backlog": 3,
+      "ready": 0,
+      "in_progress": 2,
+      "done": 0
+    }
+  },
+  "content": {
+    "tldr": "Sprint 1: auth + store foundation. Sprint 2: product catalog. Sprint 3: order + invoice core flow.",
+    "epics": [
+      {
+        "id": "epic-foundation",
+        "title": "Foundation",
+        "sprints": [1],
+        "features": ["auth", "store"]
+      },
+      {
+        "id": "epic-catalog",
+        "title": "Product Catalog",
+        "sprints": [2],
+        "features": ["product"]
+      },
+      {
+        "id": "epic-core-flow",
+        "title": "Core Business Flow",
+        "sprints": [3],
+        "features": ["order", "invoice"]
+      }
+    ],
+    "items": [
+      {
+        "id": "auth",
+        "title": "Authentication & RBAC",
+        "epic": "epic-foundation",
+        "priority": 1,
+        "sprint": 1,
+        "status": "in_progress",
+        "size": "M",
+        "depends_on": []
+      },
+      {
+        "id": "store",
+        "title": "Store Management",
+        "epic": "epic-foundation",
+        "priority": 2,
+        "sprint": 1,
+        "status": "in_progress",
+        "size": "S",
+        "depends_on": ["auth"]
+      },
+      {
+        "id": "product",
+        "title": "Product / SKU Catalog",
+        "epic": "epic-catalog",
+        "priority": 3,
+        "sprint": 2,
+        "status": "backlog",
+        "size": "M",
+        "depends_on": ["store"]
+      },
+      {
+        "id": "order",
+        "title": "Order Lifecycle",
+        "epic": "epic-core-flow",
+        "priority": 4,
+        "sprint": 3,
+        "status": "backlog",
+        "size": "L",
+        "depends_on": ["product"]
+      },
+      {
+        "id": "invoice",
+        "title": "Electronic Invoice Generation",
+        "epic": "epic-core-flow",
+        "priority": 5,
+        "sprint": 3,
+        "status": "backlog",
+        "size": "L",
+        "depends_on": ["order"]
+      }
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2025-01-01T00:00:00Z",
+      "author": "vibe-product-owner",
+      "action": "created",
+      "note": "Empty backlog at project init"
+    },
+    {
+      "version": 2,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-product-owner",
+      "action": "sprint-1-planned",
+      "note": "Sprint 1 items committed: auth + store. Roadmap through Sprint 3 defined."
+    },
+    {
+      "version": 3,
+      "timestamp": "2026-04-12T12:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "roadmap-session",
+      "note": "BA analysis completed for all 5 features. sprint-2.json + sprint-3.json created. Feature files: product, order, invoice. Impact maps + business workflows for all new features created."
+    }
+  ]
+}

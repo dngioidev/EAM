@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2025-01-01",
+    "title": "Sprint Plan Index",
+    "owner": "vibe-product-owner"
+  },
+  "files": ["backlog"]
+}

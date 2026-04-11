@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2025-01-01",
+    "title": "Tech Stack Index",
+    "owner": "vibe-project-manager"
+  },
+  "files": ["backend", "frontend", "infrastructure"]
+}

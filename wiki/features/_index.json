@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "version": 3,
+    "last_updated": "2026-04-12",
+    "title": "Feature Index"
+  },
+  "files": [
+    { "id": "auth",    "file": "features/auth.json",    "status": "planning", "sprint": 1 },
+    { "id": "store",   "file": "features/store.json",   "status": "planning", "sprint": 1 },
+    { "id": "product", "file": "features/product.json", "status": "backlog",  "sprint": 2 },
+    { "id": "order",   "file": "features/order.json",   "status": "backlog",  "sprint": 3 },
+    { "id": "invoice", "file": "features/invoice.json", "status": "backlog",  "sprint": 3 }
+  ]
+}

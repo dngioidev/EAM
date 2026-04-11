@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "feature_id": "auth",
+    "sprint": 1,
+    "last_updated": "2026-04-12",
+    "version": 1
+  },
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "Scaffold NestJS backend app (CLI, folder structure, main.ts, AppModule)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": null,
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Prerequisite for all Sprint 1 work. See project-init.md scaffold commands."
+    },
+    {
+      "id": "T002",
+      "title": "Configure TypeORM + PostgreSQL connection (database.config.ts, AppModule)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T001",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": ""
+    },
+    {
+      "id": "T003",
+      "title": "Configure Redis connection (redis.config.ts, ioredis)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T001",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": "Used for refresh token storage."
+    },
+    {
+      "id": "T004",
+      "title": "Create User entity + UsersModule (entity, repository, service, controller)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "Fields: id, email, passwordHash, role, storeId, isActive, createdAt, updatedAt."
+    },
+    {
+      "id": "T005",
+      "title": "Create initial DB migration for users table",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T004",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": "Include unique index on email."
+    },
+    {
+      "id": "T006",
+      "title": "Implement AuthModule: LocalStrategy, JwtStrategy, AuthService (login, refresh, logout)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T004",
+      "estimate_hours": 4,
+      "actual_hours": null,
+      "notes": "Refresh tokens stored in Redis with TTL. Token rotation on refresh."
+    },
+    {
+      "id": "T007",
+      "title": "Implement JwtAuthGuard + RolesGuard + @Roles() decorator",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T006",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Global JwtAuthGuard with @Public() escape hatch for login/refresh/health."
+    },
+    {
+      "id": "T008",
+      "title": "Seed admin user on first boot (ConfigService-driven, not hardcoded)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T005",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": "ADMIN_EMAIL + ADMIN_PASSWORD from .env. Skip if admin already exists."
+    },
+    {
+      "id": "T009",
+      "title": "Write unit tests: AuthService + UsersService",
+      "role": "qa",
+      "status": "not-started",
+      "blocked_by": "T006",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "Vitest. Mock TypeORM repo + ioredis. Cover: login success, wrong password, deactivated user, token refresh, token rotation."
+    },
+    {
+      "id": "T010",
+      "title": "Document API contract: api-contracts/auth.json",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T007",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": "Run vibe-api-contractor skill to finalize contract before frontend integrates."
+    }
+  ],
+  "session_log": [],
+  "handoff_notes": {
+    "last_code_state": "No code written yet. Feature in planning.",
+    "known_issues": [],
+    "resume_instructions": "Start at T001 — scaffold NestJS app per project-init.md. Then T002+T003 in parallel."
+  }
+}

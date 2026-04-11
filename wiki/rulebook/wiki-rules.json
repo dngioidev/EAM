@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2025-01-01",
+    "title": "Wiki Rules",
+    "owner": "vibe-documentation"
+  },
+  "content": {
+    "rules": [
+      "All wiki files must conform to the schema in wiki/_schema/ for their type",
+      "Every JSON file has the top-level keys: meta, quick_facts, content, audit",
+      "meta.version increments by 1 on every file update. Never reset",
+      "audit array records every create/update action with version, timestamp (ISO 8601 UTC), author (skill name), action, note",
+      "All _index.json files list only slug names (no paths). Viewers resolve paths from section prefix",
+      "Never hard-delete wiki entries. Set quick_facts.status = 'deprecated' instead",
+      "Feature files follow wiki/_schema/feature.schema.json strictly",
+      "Bug files follow wiki/_schema/bug.schema.json strictly",
+      "Decision (ADR) files follow wiki/_schema/decision.schema.json strictly",
+      "API contract files follow wiki/_schema/contract.schema.json strictly",
+      "Sprint-end audit checklist must be completed. See skills/vibe-documentation/references/wiki-audit-checklist.md",
+      "Wiki changes committed with message: wiki(section): brief summary of change"
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2025-01-01T00:00:00Z",
+      "author": "vibe-documentation",
+      "action": "created",
+      "note": "Initial wiki rules"
+    }
+  ]
+}

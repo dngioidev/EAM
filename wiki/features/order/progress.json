@@ -1,0 +1,126 @@
+{
+  "meta": {
+    "feature_id": "order",
+    "sprint": 3,
+    "last_updated": "2026-04-12",
+    "version": 1
+  },
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "Create Order + OrderItem entities + migration",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "product:T001",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "Order: id, orderNumber, status, totalVnd, cashierId, storeId, paymentMethod, createdAt. OrderItem: id, orderId, productId, productName, sku, quantity, unitPriceVnd, taxRatePercent, lineTotalVnd. Auto-index on (storeId, createdAt) for list queries."
+    },
+    {
+      "id": "T002",
+      "title": "Implement orderNumber auto-generation per store per day",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T001",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Use DB sequence per store. Format: {storePrefix}-{YYYYMMDD}-{seq:04d}."
+    },
+    {
+      "id": "T003",
+      "title": "Implement OrdersModule: create, add item, remove item, get order",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T001",
+      "estimate_hours": 4,
+      "actual_hours": null,
+      "notes": "POST /orders, POST /orders/:id/items, DELETE /orders/:id/items/:itemId, GET /orders/:id. Price+tax snapshot on item add. totalVnd recalculated on every mutation."
+    },
+    {
+      "id": "T004",
+      "title": "Implement state machine: confirm-payment, cancel, refund-stub",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T003",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "POST /orders/:id/confirm-payment (pending→processing), POST /orders/:id/cancel (pending→cancelled). Refund transition stub for Sprint 4."
+    },
+    {
+      "id": "T005",
+      "title": "Implement internal OrderCompletedEvent (for invoice module trigger)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T004",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Use NestJS EventEmitter2. Order module emits event; Invoice module listens. Decoupled."
+    },
+    {
+      "id": "T006",
+      "title": "Implement GET /orders list with filters (status, date range, cashierId)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T003",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Cashier sees own orders only. Manager/accountant/admin see all store orders. paginated, page=20."
+    },
+    {
+      "id": "T007",
+      "title": "Write unit tests: OrdersService state machine transitions",
+      "role": "qa",
+      "status": "not-started",
+      "blocked_by": "T004",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "Cover all valid + invalid transitions. Cover cross-store isolation. Cover item add after non-pending state."
+    },
+    {
+      "id": "T008",
+      "title": "Document API contract: api-contracts/order.json",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T003",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": "Run vibe-api-contractor."
+    },
+    {
+      "id": "T009",
+      "title": "Frontend: POS cart screen — search product + add to cart",
+      "role": "frontend",
+      "status": "not-started",
+      "blocked_by": "product:T008",
+      "estimate_hours": 6,
+      "actual_hours": null,
+      "notes": "Real-time product search, cart sidebar, line item display with VNĐ formatting."
+    },
+    {
+      "id": "T010",
+      "title": "Frontend: Confirm payment modal + order completion flow",
+      "role": "frontend",
+      "status": "not-started",
+      "blocked_by": "T009",
+      "estimate_hours": 4,
+      "actual_hours": null,
+      "notes": "Payment method selection (cash/card), confirm button, redirect to invoice view on success."
+    },
+    {
+      "id": "T011",
+      "title": "Frontend: Order history list for manager",
+      "role": "frontend",
+      "status": "not-started",
+      "blocked_by": "T006",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "Table with filters: status, date range. Link to order detail."
+    }
+  ],
+  "session_log": [],
+  "handoff_notes": {
+    "last_code_state": "No code written yet. Blocked on product (Sprint 2).",
+    "known_issues": [],
+    "resume_instructions": "Start at T001 after product T001 migration is applied."
+  }
+}

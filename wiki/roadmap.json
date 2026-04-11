@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Product Roadmap — V-Smart Ledger / EAM-Tax",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "product_name": "V-Smart Ledger / EAM-Tax",
+    "current_sprint": "1",
+    "total_sprints_planned": 5,
+    "mvp_sprint": "3",
+    "first_production_candidate": "Sprint 3 end (2026-06-07)"
+  },
+  "content": {
+    "vision": "A Vietnamese-compliant Point-of-Sale and Electronic Invoice platform for retail stores. Every sale automatically produces a legally valid hóa đơn điện tử (Circular 78/2021/TT-BTC). All data is store-scoped, role-protected, and accessible via a real-time dashboard.",
+    "north_star_metric": "Time from product scan to issued tax invoice < 10 seconds per transaction.",
+    "target_users": [
+      { "role": "cashier",       "vn": "Thu ngân",               "pain_point": "Manual invoice creation is slow and error-prone" },
+      { "role": "accountant",    "vn": "Kế toán",                "pain_point": "Tax reconciliation is done by hand from printed receipts" },
+      { "role": "store-manager", "vn": "Quản lý cửa hàng",      "pain_point": "No real-time visibility of daily revenue or stock" },
+      { "role": "admin",         "vn": "Quản trị hệ thống",     "pain_point": "No central system to manage multiple store locations" }
+    ],
+    "epics": [
+      {
+        "id": "epic-foundation",
+        "title": "Foundation — Auth & Multi-tenancy",
+        "goal": "Every user can log in with the correct role. All data is scoped to a store. Nothing leaks across store boundaries.",
+        "sprints": [1],
+        "features": ["auth", "store"],
+        "status": "in_progress",
+        "completion_criteria": "All staff can log in. Admin can manage users and stores. JWT + RBAC enforced on every endpoint."
+      },
+      {
+        "id": "epic-catalog",
+        "title": "Product Catalog",
+        "goal": "Every store has a live, accurate product catalog with VNĐ pricing and VAT rates. Cashiers can look up products by SKU or name.",
+        "sprints": [2],
+        "features": ["product"],
+        "status": "backlog",
+        "completion_criteria": "Admin/manager can create and manage products. Cashiers can search products. priceVnd stored as integer. VAT rate per product."
+      },
+      {
+        "id": "epic-core-flow",
+        "title": "Core POS Flow — Order + Invoice",
+        "goal": "A cashier can process a sale end-to-end: scan products → confirm payment → system auto-issues a compliant hóa đơn điện tử within 10 seconds.",
+        "sprints": [3],
+        "features": ["order", "invoice"],
+        "status": "backlog",
+        "completion_criteria": "Order lifecycle (pending → processing → completed) works. Invoice is auto-issued on order completion. Invoice number is immutable. Tax subtotals calculated correctly in VNĐ."
+      },
+      {
+        "id": "epic-reporting",
+        "title": "Reporting & Tax Reconciliation",
+        "goal": "Accountants can export daily/monthly revenue and VAT summaries. Managers can view live dashboard stats.",
+        "sprints": [4],
+        "features": ["reporting", "dashboard-live"],
+        "status": "future",
+        "completion_criteria": "GET /reports/daily returns revenue + VAT totals. CSV export of invoices for tax authority submission."
+      },
+      {
+        "id": "epic-hardening",
+        "title": "Production Hardening",
+        "goal": "System is ready for real store deployment: E2E tests pass, Docker Compose verified, onboarding guide tested end-to-end.",
+        "sprints": [5],
+        "features": ["e2e-tests", "devops-prod"],
+        "status": "future",
+        "completion_criteria": "Full Playwright E2E suite green. docker compose up produces working system. Onboarding guide verified by a new team member."
+      }
+    ],
+    "sprint_schedule": [
+      {
+        "sprint": 1,
+        "title": "Foundation",
+        "dates": "2026-04-13 → 2026-04-26",
+        "features": ["auth", "store"],
+        "milestone": "Staff can log in. Store multi-tenancy enforced.",
+        "status": "in_progress"
+      },
+      {
+        "sprint": 2,
+        "title": "Product Catalog",
+        "dates": "2026-04-27 → 2026-05-10",
+        "features": ["product"],
+        "milestone": "Store has a live product catalog. Cashier can search products.",
+        "status": "planning"
+      },
+      {
+        "sprint": 3,
+        "title": "Core POS Flow",
+        "dates": "2026-05-11 → 2026-05-24",
+        "features": ["order", "invoice"],
+        "milestone": "MVP: Full sale flow from cart to issued tax invoice.",
+        "status": "planning",
+        "note": "MVP candidate. First sprint where the product delivers real business value."
+      },
+      {
+        "sprint": 4,
+        "title": "Reporting & Tax",
+        "dates": "2026-05-25 → 2026-06-07",
+        "features": ["reporting", "dashboard-live"],
+        "milestone": "Accountants can close the month with a CSV export for the tax authority.",
+        "status": "future"
+      },
+      {
+        "sprint": 5,
+        "title": "Production Hardening",
+        "dates": "2026-06-08 → 2026-06-21",
+        "features": ["e2e-tests", "devops-prod"],
+        "milestone": "System deployed to production. Onboarding guide verified.",
+        "status": "future"
+      }
+    ],
+    "dependency_chain": [
+      "auth → store → product → order → invoice → reporting"
+    ],
+    "frontend_note": "Frontend (React 18 + Vite 5) is deliberately deferred until Sprint 2. Sprint 1 is backend-only to establish the API foundation. Frontend picks up in Sprint 2 with the product catalog UI, and is in full swing from Sprint 3 onward for the POS screen.",
+    "deferred_features": [
+      { "feature": "password-reset", "reason": "Email service not configured", "target_sprint": 4 },
+      { "feature": "token-blacklist", "reason": "15-min TTL accepted as risk", "target_sprint": 4 },
+      { "feature": "multi-device-sessions", "reason": "Single-session model sufficient for Sprint 1", "target_sprint": 4 },
+      { "feature": "promotion-codes", "reason": "Out of MVP scope", "target_sprint": "post-mvp" },
+      { "feature": "stock-management", "reason": "Out of MVP scope — product has price/tax but no inventory tracking", "target_sprint": "post-mvp" },
+      { "feature": "external-invoice-authority-api", "reason": "Integration with Vietnamese tax authority portal — legal/operational dependency", "target_sprint": "post-mvp" }
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-product-owner",
+      "action": "created",
+      "note": "Full 5-sprint roadmap created. MVP at Sprint 3. Dependency chain established."
+    }
+  ]
+}

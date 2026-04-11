@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2025-01-01",
+    "title": "Design System",
+    "owner": "vibe-designer-uxui"
+  },
+  "quick_facts": {
+    "component_library": "shadcn/ui (radix-ui primitives)",
+    "styling": "Tailwind CSS 3.x",
+    "icon_library": "lucide-react",
+    "locale": "vi-VN"
+  },
+  "content": {
+    "color_palette": {
+      "primary": "#1D4ED8 (blue-700) — main actions",
+      "success": "#16A34A (green-600) — paid, active, success states",
+      "warning": "#D97706 (amber-600) — pending, draft, attention needed",
+      "error": "#DC2626 (red-600) — overdue, failed, critical",
+      "neutral": "#6B7280 (gray-500) — cancelled, inactive"
+    },
+    "typography": {
+      "base_font": "system-ui, sans-serif",
+      "heading_weights": "font-bold for h1, font-semibold for h2-h4",
+      "currency_display": "formatVND() — vi-VN locale, no decimals"
+    },
+    "spacing": "Tailwind default scale. Page padding p-8. Card gap gap-4. Form gap gap-3.",
+    "component_conventions": [
+      "All tables use shadcn Table components",
+      "All forms use shadcn + React Hook Form patterns",
+      "All modals use shadcn Dialog",
+      "Status badges use StatusBadge component from skills/vibe-design-tailwind/references/status-badges.md",
+      "Toast notifications use sonner via shadcn toast"
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2025-01-01T00:00:00Z",
+      "author": "vibe-designer-uxui",
+      "action": "created",
+      "note": "Initial design system definition"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "id": "invoice-generation",
+    "type": "business-workflow",
+    "feature": "invoice",
+    "sprint": 3,
+    "version": 1,
+    "last_updated": "2026-04-12"
+  },
+  "overview": {
+    "summary": "Automatic invoice issuance triggered by order payment confirmation. Covers the full invoice lifecycle from draft creation to issued state, including VAT calculation, invoice number assignment, and cancellation on refund.",
+    "legal_basis": "Circular 78/2021/TT-BTC — Electronic Invoice Regulations, Socialist Republic of Vietnam",
+    "state_machine_ref": "wiki/state-map.json → Invoice",
+    "states": ["draft", "issued", "cancelled"]
+  },
+  "workflows": [
+    {
+      "id": "WF-INV-01",
+      "name": "Auto-Issue Invoice on Order Payment",
+      "trigger": "OrderProcessingEvent fired by OrderModule when cashier confirms payment",
+      "actor": "system (InvoiceModule listener)",
+      "preconditions": [
+        "Order is in 'processing' state",
+        "Order has at least 1 OrderItem",
+        "Order.storeId matches a valid active store"
+      ],
+      "steps": [
+        { "step": 1, "actor": "system", "action": "InvoiceModule.onOrderProcessing() receives OrderProcessingEvent { orderId, storeId, cashierId, items[] }", "result": "Handler begins invoice creation" },
+        { "step": 2, "actor": "system", "action": "Acquire next invoiceNumber from store's per-year sequence: format '{YYYY}/{seq:06d}'", "result": "Unique, gap-free invoice number reserved (DB lock prevents collision)" },
+        { "step": 3, "actor": "system", "action": "Snapshot invoice lines from OrderItems: { productName, sku, quantity, unitPriceVnd, taxRatePercent, lineTotalVnd }", "result": "Invoice lines reflect exact prices at time of sale" },
+        { "step": 4, "actor": "system", "action": "Calculate VAT subtotals: group lines by taxRatePercent. vatVnd = Math.floor(taxableVnd × rate / 100)", "result": "vatSubtotals[] produced: [{ rate, taxableVnd, vatVnd }]" },
+        { "step": 5, "actor": "system", "action": "Persist Invoice record: status='draft', all fields set", "result": "Invoice row inserted in DB" },
+        { "step": 6, "actor": "system", "action": "Update Invoice.status = 'issued', set issuedAt = now()", "result": "Invoice committed and immutable" },
+        { "step": 7, "actor": "system", "action": "Emit OrderCompletedEvent { orderId } back to OrderModule", "result": "OrderModule sets order.status = 'completed'" }
+      ],
+      "atomicity": {
+        "strategy": "DB transaction wraps steps 2–7. If any step fails, the transaction rolls back. invoiceNumber sequence is rolled back only if the sequence is table-based (not PostgreSQL SEQUENCE which is non-transactional).",
+        "retry": "On transaction failure: retry up to 3 times with 500ms exponential backoff. After 3 failures: log error, mark order as 'invoice-failed' (needs manual intervention)."
+      },
+      "failure_paths": [
+        { "condition": "invoiceNumber sequence collision (concurrent inserts)", "response": "DB unique constraint violation caught, retry with new sequence value" },
+        { "condition": "DB transaction rollback", "response": "Retry logic (see atomicity.retry). Order stays in 'processing' during retries." },
+        { "condition": "All 3 retries fail", "response": "Order remains in 'processing'. Alert is logged. Manual intervention required. No orphaned 'completed' orders without invoices." }
+      ],
+      "postconditions": [
+        "Invoice.status = 'issued'",
+        "Invoice.invoiceNumber is unique and immutable",
+        "Order.status = 'completed'",
+        "All invoice monetary fields are non-negative integers in đồng"
+      ]
+    },
+    {
+      "id": "WF-INV-02",
+      "name": "Invoice Cancellation on Refund",
+      "trigger": "Accountant or admin calls PATCH /invoices/:id/cancel after refund is approved (Sprint 4)",
+      "actor": "accountant or admin",
+      "preconditions": [
+        "Invoice.status = 'issued'",
+        "Order.status = 'refunded'",
+        "Caller has role: accountant | store-manager | admin"
+      ],
+      "steps": [
+        { "step": 1, "actor": "accountant", "action": "PATCH /api/v1/invoices/:id/cancel", "result": "System validates order is in 'refunded' state" },
+        { "step": 2, "actor": "system", "action": "Verify order.status = 'refunded'. If not, return 409.", "result": "Guard: cannot cancel invoice for non-refunded order" },
+        { "step": 3, "actor": "system", "action": "Set invoice.status = 'cancelled', set cancelledAt = now()", "result": "Invoice marked cancelled. invoiceNumber NOT changed." },
+        { "step": 4, "actor": "system", "action": "Log cancellation event in audit trail", "result": "Auditors can see full lifecycle: issued → cancelled" }
+      ],
+      "failure_paths": [
+        { "condition": "Invoice already cancelled", "response": "200 — idempotent, no second cancellation" },
+        { "condition": "Order not in refunded state", "response": "409 'Order must be refunded before cancelling invoice'" }
+      ],
+      "postconditions": [
+        "Invoice.status = 'cancelled'",
+        "Invoice.invoiceNumber is unchanged (legal requirement — LEGAL-02)",
+        "Audit log records the cancellation timestamp and actor"
+      ],
+      "legal_note": "Per Circular 78/2021/TT-BTC: a cancelled invoice is not deleted. It retains its number and a cancellation reason. A separate 0-value adjustment invoice may be required for the tax authority in post-MVP."
+    }
+  ],
+  "vat_calculation_contract": {
+    "description": "This contract governs how VAT is calculated on every invoice. Deviating from this contract is a legal risk.",
+    "rules": [
+      "All values are integers in Vietnamese Đồng (VNĐ). No floats.",
+      "lineTotalVnd = unitPriceVnd × quantity (exact integer multiplication)",
+      "vatVnd per group = Math.floor(sumOfLineTotalsForRate × taxRatePercent / 100)",
+      "Rounding rule: floor ONLY. Never round-half-up, never ceil.",
+      "totalBeforeVatVnd = sum of all lineTotalVnd",
+      "totalVatVnd = sum of all vatVnd per group",
+      "totalWithVatVnd = totalBeforeVatVnd + totalVatVnd"
+    ],
+    "example": {
+      "items": [
+        { "product": "Bánh mì", "qty": 2, "unitPriceVnd": 25000, "lineTotalVnd": 50000, "taxRate": 8 },
+        { "product": "Nước suối", "qty": 3, "unitPriceVnd": 10000, "lineTotalVnd": 30000, "taxRate": 10 }
+      ],
+      "vatSubtotals": [
+        { "rate": 8,  "taxableVnd": 50000, "vatVnd": 4000,  "calculation": "floor(50000 × 8 / 100) = floor(4000) = 4000" },
+        { "rate": 10, "taxableVnd": 30000, "vatVnd": 3000, "calculation": "floor(30000 × 10 / 100) = floor(3000) = 3000" }
+      ],
+      "totals": {
+        "totalBeforeVatVnd": 80000,
+        "totalVatVnd": 7000,
+        "totalWithVatVnd": 87000
+      }
+    }
+  }
+}

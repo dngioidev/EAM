@@ -1,0 +1,59 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Impact Map — Authentication & RBAC",
+    "owner": "vibe-ba"
+  },
+  "goal": "Enable every staff member to securely access only the functions their role permits, with zero unauthorized data exposure across store boundaries.",
+  "goal_metric": "0 unauthorized endpoint hits in production logs after auth module goes live; all 5 role types can log in and are denied correctly on out-of-scope endpoints.",
+  "goal_deadline": "2026-04-26",
+  "actors": [
+    {
+      "name": "System Admin (Quản trị hệ thống)",
+      "role_description": "Manages the system at the highest level. Creates stores and user accounts. Has access to all data.",
+      "impact": "Can bootstrap the system from zero — creates the first store and first users. Can revoke access instantly by deactivating a user.",
+      "deliverables": ["auth"]
+    },
+    {
+      "name": "Store Manager (Quản lý cửa hàng)",
+      "role_description": "Manages day-to-day store operations. Runs reports. Approves refunds.",
+      "impact": "Can log in and access management endpoints. Cannot access other stores' data.",
+      "deliverables": ["auth"]
+    },
+    {
+      "name": "Cashier (Thu ngân)",
+      "role_description": "Processes sales transactions at the POS.",
+      "impact": "Can log in and access POS endpoints only. Cannot view financial reports or create users.",
+      "deliverables": ["auth"]
+    },
+    {
+      "name": "Accountant (Kế toán)",
+      "role_description": "Reconciles tax invoices. Exports reports for tax authority.",
+      "impact": "Can log in and access accounting/invoice endpoints. Cannot process sales or manage users.",
+      "deliverables": ["auth"]
+    },
+    {
+      "name": "Viewer (Người xem)",
+      "role_description": "Read-only access for audit or oversight purposes.",
+      "impact": "Can log in and view data. Cannot create, update, or delete anything.",
+      "deliverables": ["auth"]
+    }
+  ],
+  "affected_entities": ["User"],
+  "out_of_scope": [
+    "OAuth2 / SSO (not in this sprint)",
+    "Multi-factor authentication (future sprint)",
+    "Password reset via email (future sprint — email service not yet set up)",
+    "Audit log of login events (future sprint)"
+  ],
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-ba",
+      "action": "created",
+      "note": "Impact map created at BA analysis session"
+    }
+  ]
+}

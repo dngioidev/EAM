@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "version": 3,
+    "last_updated": "2026-04-12",
+    "title": "Sprint Dashboard",
+    "owner": "vibe-project-manager"
+  },
+  "quick_facts": {
+    "sprint": "1",
+    "sprint_goal": "Stand up authentication + RBAC and store management — the two foundational modules that every other feature depends on.",
+    "sprint_start": "2026-04-13",
+    "sprint_end": "2026-04-26",
+    "velocity_target": 2,
+    "velocity_actual": 0,
+    "build_status": {
+      "backend": "not-started",
+      "frontend": "not-started",
+      "wiki-app": "passing"
+    }
+  },
+  "content": {
+    "tldr": "Sprint 1 in progress. auth and store features in planning. Backend scaffold not yet created.",
+    "active_features": ["auth", "store"],
+    "open_bugs": 0,
+    "bugs_by_severity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "pending_decisions": [],
+    "pending_contracts": ["auth", "store"],
+    "recently_updated": ["wiki/roadmap.json", "wiki/plan/sprints/sprint-2.json", "wiki/plan/sprints/sprint-3.json", "wiki/features/product.json", "wiki/features/order.json", "wiki/features/invoice.json"],
+    "blocked_features": ["product (blocked on auth+store)", "order (blocked on product)", "invoice (blocked on order)"],
+    "sprint_notes": "Roadmap session complete. 5-sprint roadmap + Sprint 2/3 plans created. BA analysis done for product/order/invoice. Next: backend scaffold (NestJS + TypeORM) and start Sprint 1 implementation.",
+    "roadmap_ref": "wiki/roadmap.json"
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2025-01-01T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "created",
+      "note": "Initial wiki scaffold"
+    },
+    {
+      "version": 3,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-product-owner",
+      "action": "sprint-1-planned",
+      "note": "Sprint 1 planned. Features auth + store committed. Roadmap through Sprint 3 defined."
+    },
+    {
+      "version": 4,
+      "timestamp": "2026-04-12T12:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "roadmap-session",
+      "note": "Full 5-sprint roadmap created. Sprint 2+3 plans defined. BA analysis produced for product, order, invoice. Business workflows + impact maps created."
+    }
+  ]
+}

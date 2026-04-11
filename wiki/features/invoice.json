@@ -1,0 +1,209 @@
+{
+  "meta": {
+    "id": "invoice",
+    "type": "feature",
+    "status": "backlog",
+    "owner": "backend",
+    "sprint": 3,
+    "last_updated": "2026-04-12",
+    "created": "2026-04-12",
+    "version": 1,
+    "depends_on": ["order"],
+    "related_to": ["order"],
+    "affects": ["Invoice", "Order"],
+    "tags": ["invoice", "tax", "hoa-don-dien-tu", "circular-78", "vat", "sprint-3", "mvp"],
+    "blocked_by": null,
+    "unblock_condition": "order feature complete"
+  },
+  "quick_facts": {
+    "one_line": "Auto-generate a legally compliant Vietnamese hóa đơn điện tử when an order is completed — invoice number is immutable and unique.",
+    "status_reason": "Sprint 3 backlog. Depends on order feature.",
+    "last_change": "Created at high-level roadmap planning session.",
+    "key_links": [
+      "wiki/state-map.json → Invoice state machine",
+      "wiki/glossary.json → Invoice (Hóa đơn)",
+      "wiki/impact-map/entity-registry.json → Invoice"
+    ]
+  },
+  "content": {
+    "title": "Electronic Invoice Generation (Hóa Đơn Điện Tử)",
+    "tldr": "When an order reaches 'processing' state, the system automatically generates an Invoice with a unique immutable invoice number, calculates VAT subtotals per tax rate, and transitions the order to 'completed'. The invoice is compliant with Circular 78/2021/TT-BTC.",
+    "summary": "Khi đơn hàng được xác nhận thanh toán, hệ thống tự động tạo hóa đơn điện tử với số hóa đơn duy nhất và bất biến, tính thuế VAT cho từng mức thuế suất. Hóa đơn tuân thủ Thông tư 78/2021/TT-BTC. Số hóa đơn không được phép thay đổi sau khi phát hành.",
+    "skip_if": {
+      "description": "Skip this file if",
+      "conditions": [
+        "You only need the Invoice entity shape — read entity-registry.json",
+        "You are working on Order — the invoice is triggered by the order module"
+      ]
+    },
+    "do_not": [
+      "Do NOT allow invoice number to be changed after issuance — this violates Vietnamese tax law",
+      "Do NOT expose invoices from other stores",
+      "Do NOT allow manual invoice creation — invoices are only system-generated",
+      "Do NOT allow a completed order to have no invoice",
+      "Do NOT round VAT amounts — use integer arithmetic only (all values in đồng)"
+    ],
+    "see_also": [
+      "wiki/state-map.json → Invoice state machine (draft → issued → cancelled)",
+      "wiki/glossary.json → Invoice (Hóa đơn), VNĐ",
+      "wiki/business-workflow/invoice-generation.json"
+    ],
+    "sections": [
+      {
+        "heading": "Invoice State Machine",
+        "ref": "wiki/state-map.json",
+        "states": ["draft", "issued", "cancelled"],
+        "transitions": [
+          { "from": "draft",  "to": "issued",    "trigger": "order moves to processing", "actor": "system" },
+          { "from": "issued", "to": "cancelled", "trigger": "refund_approved",            "actor": "accountant or admin (Sprint 4)" }
+        ],
+        "note": "Invoice number is set at 'draft' creation and is immutable through all state changes."
+      },
+      {
+        "heading": "Vietnamese Tax Compliance Rules",
+        "items": [
+          "LEGAL-01: Invoice number (số hóa đơn) must be unique per seller (store). Format: {year}/{sequence} e.g. '2026/000001'",
+          "LEGAL-02: Invoice number is IMMUTABLE after creation — cannot be changed even if order is refunded",
+          "LEGAL-03: VAT is calculated per line item group by tax rate, then summed",
+          "LEGAL-04: Invoice must include: store name, taxCode, address, buyer info (optional for retail), issue date",
+          "LEGAL-05: Cancelled invoices retain their number — a cancellation record is issued, not a new invoice",
+          "LEGAL-06: All monetary values on invoice are integers in VNĐ — no decimal display",
+          "LEGAL-07: Circular 78/2021/TT-BTC governs electronic invoice format (simplified retail version for MVP)"
+        ]
+      },
+      {
+        "heading": "User Stories",
+        "items": [
+          {
+            "id": "US-INV-01",
+            "size": "L",
+            "as_a": "System (automatic trigger)",
+            "i_want": "to generate an invoice when an order is confirmed for payment",
+            "so_that": "every completed sale has a legally compliant tax invoice",
+            "acceptance_criteria": [
+              "Given order transitions to 'processing' — When order.processing event fires — Then invoice is created in 'draft' state with unique sequential number",
+              "Invoice includes: invoiceNumber, storeId, orderId, issuedAt, status, lines[], subtotals by tax rate, totalVnd",
+              "Invoice lines mirror OrderItems: productName (snapshot), sku (snapshot), quantity, unitPriceVnd, taxRatePercent, lineTotalVnd",
+              "After invoice is successfully created — order.status transitions to 'completed'",
+              "If invoice creation fails — order stays in 'processing', error is logged, retry is attempted",
+              "invoiceNumber format: '{YYYY}/{sequence:06d}' scoped per store — e.g. '2026/000001'",
+              "invoiceNumber sequence is monotonically increasing and gap-free per store"
+            ],
+            "edge_cases": [
+              "Two orders confirmed simultaneously for same store — invoice number sequence must not collide (DB-level sequence or pessimistic lock)",
+              "Store has issued 999999 invoices in a year — sequence rolls over to next year's prefix on Jan 1"
+            ],
+            "business_rules": [
+              "BR-INV-01: Invoice number is set once and immutable",
+              "BR-INV-02: Invoice sequence is per-store per-year",
+              "BR-INV-03: All product data on invoice is a snapshot from OrderItem — not live from Product table",
+              "BR-INV-04: VAT subtotals grouped by rate: { rate: 10, taxableVnd: X, vatVnd: Y }",
+              "BR-INV-05: vatVnd = floor(taxableVnd × taxRatePercent / 100) — integer arithmetic, floor rounding"
+            ]
+          },
+          {
+            "id": "US-INV-02",
+            "size": "S",
+            "as_a": "Cashier",
+            "i_want": "to view the invoice for a completed order",
+            "so_that": "I can show or print it for the customer",
+            "acceptance_criteria": [
+              "Given a completed order — When GET /api/v1/orders/:id/invoice — Then 200 with full invoice",
+              "Given order is not completed (still pending/processing) — Then 404 'Invoice not yet issued'",
+              "Given caller's store does not match invoice's store — Then 404"
+            ],
+            "edge_cases": [],
+            "business_rules": []
+          },
+          {
+            "id": "US-INV-03",
+            "size": "S",
+            "as_a": "Accountant (Kế toán)",
+            "i_want": "to list all invoices for my store within a date range",
+            "so_that": "I can reconcile monthly VAT for the tax authority",
+            "acceptance_criteria": [
+              "Given valid accountant JWT — When GET /api/v1/invoices?from=YYYY-MM-DD&to=YYYY-MM-DD — Then 200 paginated list",
+              "Results include: invoiceNumber, orderId, status, totalVnd, issuedAt, vatSubtotals",
+              "Filterable by status (issued, cancelled)",
+              "Given caller is cashier — Then 403 (invoices are not directly accessible by cashiers, only via order)"
+            ],
+            "edge_cases": [
+              "Date range spans month boundary — all invoices within ISO date range included"
+            ],
+            "business_rules": [
+              "BR-INV-06: Only accountant, store-manager, and admin can list invoices directly",
+              "BR-INV-07: Cashier accesses invoice through GET /orders/:id/invoice only"
+            ]
+          },
+          {
+            "id": "US-INV-04",
+            "size": "M",
+            "as_a": "Accountant",
+            "i_want": "to cancel an issued invoice when a refund is approved",
+            "so_that": "the accounting books correctly reflect the refund",
+            "acceptance_criteria": [
+              "Given an issued invoice and an order in 'refunded' state — When PATCH /api/v1/invoices/:id/cancel — Then 200, invoice.status = 'cancelled'",
+              "Given invoice is already cancelled — Then 200 (idempotent)",
+              "Given order is NOT in 'refunded' state — When cancel invoice — Then 409 'Order must be refunded before cancelling invoice'",
+              "Given caller is cashier — Then 403",
+              "Invoice number is NOT changed on cancellation — it remains as the cancelled invoice's identifier"
+            ],
+            "edge_cases": [
+              "Refund approved but invoice cancellation fails — order is refunded but invoice stays 'issued' (logged as inconsistency, requires manual resolution)"
+            ],
+            "business_rules": [
+              "BR-INV-08: Invoice cancellation is only possible after order refund (Sprint 4 refund flow)",
+              "BR-INV-09: Cancelled invoice number is retained — a new '0-value' adjustment record may be required for tax authority (post-MVP)"
+            ]
+          }
+        ]
+      },
+      {
+        "heading": "VAT Calculation Example",
+        "example": {
+          "order_items": [
+            { "product": "Bánh mì", "quantity": 2, "unitPriceVnd": 25000, "taxRatePercent": 8 },
+            { "product": "Nước suối", "quantity": 3, "unitPriceVnd": 10000, "taxRatePercent": 10 }
+          ],
+          "invoice_lines": [
+            { "lineTotalVnd": 50000, "taxRatePercent": 8, "lineVatVnd": 4000 },
+            { "lineTotalVnd": 30000, "taxRatePercent": 10, "lineVatVnd": 3000 }
+          ],
+          "vat_subtotals": [
+            { "rate": 8,  "taxableVnd": 50000, "vatVnd": 4000 },
+            { "rate": 10, "taxableVnd": 30000, "vatVnd": 3000 }
+          ],
+          "totalBeforeVatVnd": 80000,
+          "totalVatVnd": 7000,
+          "totalWithVatVnd": 87000,
+          "note": "vatVnd = floor(taxableVnd × rate / 100). All integers, no rounding errors."
+        }
+      },
+      {
+        "heading": "Open Questions",
+        "items": [
+          { "id": "OQ-INV-01", "question": "Do we need to submit invoices to the Vietnamese tax authority portal (hệ thống hóa đơn điện tử of General Department of Taxation)?", "status": "deferred", "defer_to": "post-mvp", "default_decision": "MVP stores invoices in DB only. External portal submission is a post-MVP integration." },
+          { "id": "OQ-INV-02", "question": "Does the invoice need a digital signature (chữ ký số)?", "status": "deferred", "defer_to": "post-mvp", "default_decision": "Digital signature deferred. MVP invoice is internally valid but not externally submitted." },
+          { "id": "OQ-INV-03", "question": "PDF generation for printing?", "status": "deferred", "defer_to": "Sprint 4", "default_decision": "JSON only for MVP. PDF export in Sprint 4." }
+        ]
+      }
+    ]
+  },
+  "approval": {
+    "required": true,
+    "approved_by": "po",
+    "approved_at": "2026-04-12",
+    "status": "approved",
+    "notes": "Approved at roadmap planning. MVP scope: internal invoice only, no external portal."
+  },
+  "audit": [
+    {
+      "date": "2026-04-12",
+      "role": "po",
+      "action": "created",
+      "description": "Feature created + BA analysis at roadmap planning session.",
+      "version_before": 0,
+      "version_after": 1
+    }
+  ]
+}

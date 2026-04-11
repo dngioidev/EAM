@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2025-01-01",
+    "title": "Environment Variable Registry",
+    "owner": "vibe-devops-general"
+  },
+  "quick_facts": {
+    "environments": ["local", "staging", "production"],
+    "secret_management": "Use .env files locally. Use CI/CD secrets in staging/production. Never commit secrets."
+  },
+  "content": {
+    "tldr": "All environment variables are listed here with their type, required status, and example values.",
+    "backend": [
+      { "key": "NODE_ENV", "type": "string", "required": true, "values": ["development", "test", "production"], "example": "development" },
+      { "key": "PORT", "type": "number", "required": false, "default": "3000", "example": "3000" },
+      { "key": "DATABASE_HOST", "type": "string", "required": true, "example": "localhost" },
+      { "key": "DATABASE_PORT", "type": "number", "required": true, "example": "5432" },
+      { "key": "DATABASE_USER", "type": "string", "required": true, "example": "eam_user" },
+      { "key": "DATABASE_PASSWORD", "type": "string", "required": true, "secret": true, "example": "<vault>" },
+      { "key": "DATABASE_NAME", "type": "string", "required": true, "example": "eam_tax" },
+      { "key": "DATABASE_TEST_PORT", "type": "number", "required": true, "example": "5433" },
+      { "key": "DATABASE_TEST_PASSWORD", "type": "string", "required": true, "secret": true, "example": "<vault>" },
+      { "key": "DATABASE_TEST_NAME", "type": "string", "required": true, "example": "eam_tax_test" },
+      { "key": "REDIS_HOST", "type": "string", "required": true, "example": "localhost" },
+      { "key": "REDIS_PORT", "type": "number", "required": true, "example": "6379" },
+      { "key": "REDIS_PASSWORD", "type": "string", "required": true, "secret": true, "example": "<vault>" },
+      { "key": "JWT_SECRET", "type": "string", "required": true, "secret": true, "minimum_length": 32, "example": "<openssl rand -hex 32>" },
+      { "key": "JWT_REFRESH_SECRET", "type": "string", "required": true, "secret": true, "minimum_length": 32, "example": "<openssl rand -hex 32>" },
+      { "key": "ALLOWED_ORIGINS", "type": "string", "required": true, "example": "http://localhost:5173" }
+    ],
+    "frontend": [
+      { "key": "VITE_API_URL", "type": "string", "required": true, "example": "http://localhost:3000" }
+    ],
+    "wiki_app": [
+      { "key": "WIKI_PATH", "type": "string", "required": false, "default": "../wiki", "example": "/wiki" },
+      { "key": "PORT", "type": "number", "required": false, "default": "3001", "example": "3001" }
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2025-01-01T00:00:00Z",
+      "author": "vibe-devops-general",
+      "action": "created",
+      "note": "Initial env-config registry"
+    }
+  ]
+}

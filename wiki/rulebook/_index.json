@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2025-01-01",
+    "title": "Rulebook Index",
+    "owner": "vibe-project-manager"
+  },
+  "files": [
+    "techstack-decisions",
+    "security-rules",
+    "devops-rules",
+    "coding-standards",
+    "api-standards",
+    "wiki-rules"
+  ]
+}

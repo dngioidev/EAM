@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "id": "YYYY-MM-DD-decision-slug",
+    "type": "decision",
+    "status": "approved",
+    "owner": "backend",
+    "sprint": 0,
+    "last_updated": "YYYY-MM-DD",
+    "created": "YYYY-MM-DD",
+    "version": 1,
+    "depends_on": [],
+    "related_to": [],
+    "affects": [],
+    "tags": [],
+    "blocked_by": null,
+    "unblock_condition": null
+  },
+  "quick_facts": {
+    "one_line": "Decision title and outcome in one sentence",
+    "decided_by": [],
+    "decision_date": "YYYY-MM-DD"
+  },
+  "content": {
+    "title": "Decision Title",
+    "tldr": "3 lines max covering what was decided and why",
+    "summary": "One paragraph plain English before technical rationale",
+    "context": "What situation led to this decision",
+    "decision": "What was decided",
+    "rationale": "Why this was chosen",
+    "alternatives_considered": [
+      { "option": "", "rejected_reason": "" }
+    ],
+    "consequences": {
+      "positive": [],
+      "negative": [],
+      "neutral": []
+    },
+    "established_pattern": {
+      "description": "Concrete implementation pattern enforced going forward",
+      "code_example_location": "src/modules/auth/auth.service.ts:42",
+      "applies_to": []
+    },
+    "revisit_if": "",
+    "skip_if": {
+      "description": "Skip if this decision is not relevant to current task",
+      "conditions": []
+    },
+    "do_not": [],
+    "see_also": [],
+    "sections": []
+  },
+  "approval": {
+    "required": false,
+    "approved_by": null,
+    "approved_at": null,
+    "status": "approved",
+    "notes": ""
+  },
+  "audit": [
+    {
+      "date": "YYYY-MM-DD",
+      "role": "backend",
+      "action": "created",
+      "description": "Decision record created",
+      "version_before": 0,
+      "version_after": 1
+    }
+  ]
+}

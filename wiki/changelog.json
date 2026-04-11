@@ -1,0 +1,59 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2025-01-01",
+    "title": "Project Changelog",
+    "owner": "vibe-project-manager"
+  },
+  "quick_facts": {
+    "current_version": "0.3.0",
+    "total_entries": 3
+  },
+  "content": {
+    "entries": [
+      {
+        "version": "0.3.0",
+        "date": "2026-04-12",
+        "sprint": "1",
+        "tags": ["roadmap", "ba", "planning", "product", "order", "invoice"],
+        "summary": "Roadmap session: full 5-sprint roadmap created. BA analysis completed for product, order, and invoice features. Sprint 2 and Sprint 3 plans defined. Business workflows and impact maps created for all 5 features.",
+        "features_added": ["product (backlog, Sprint 2)", "order (backlog, Sprint 3)", "invoice (backlog, Sprint 3)"],
+        "artifacts_created": ["wiki/roadmap.json", "wiki/plan/sprints/sprint-2.json", "wiki/plan/sprints/sprint-3.json", "wiki/features/product.json", "wiki/features/order.json", "wiki/features/invoice.json", "wiki/impact-map/product-relations.json", "wiki/impact-map/order-relations.json", "wiki/impact-map/invoice-relations.json", "wiki/business-workflow/order-lifecycle.json", "wiki/business-workflow/invoice-generation.json"],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "No production code yet. Sprint 1 implementation is the next action."
+      },
+      {
+        "version": "0.2.0",
+        "date": "2026-04-12",
+        "sprint": "1",
+        "tags": ["sprint-planning", "auth", "store", "foundation"],
+        "summary": "Sprint 1 planned. Features auth and store committed. Full roadmap through Sprint 3 defined in backlog. wiki/plan/sprints/sprint-1.json created.",
+        "features_added": ["auth (planning)", "store (planning)"],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "No production code yet. Backend scaffold is the first task this sprint."
+      },
+      {
+        "version": "0.1.0",
+        "date": "2025-01-01",
+        "sprint": "0",
+        "tags": ["init"],
+        "summary": "Initial project scaffold. Wiki system, skill scaffold, and project structure created.",
+        "features_added": [],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "No production code yet."
+      }
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2025-01-01T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "created",
+      "note": "Initial changelog"
+    }
+  ]
+}

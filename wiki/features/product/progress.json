@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "feature_id": "product",
+    "sprint": 2,
+    "last_updated": "2026-04-12",
+    "version": 1
+  },
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "Create Product entity + migration (sku, name, priceVnd, taxRatePercent, isActive, storeId)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "store:T001",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Unique index on (sku, storeId). Check constraint taxRatePercent IN (0,5,8,10)."
+    },
+    {
+      "id": "T002",
+      "title": "Create ProductsModule (service + controller): CRUD + search",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T001",
+      "estimate_hours": 4,
+      "actual_hours": null,
+      "notes": "Endpoints: POST /products, GET /products?q=, GET /products/:id, PATCH /products/:id, PATCH /products/:id/deactivate. All queries scoped by storeId."
+    },
+    {
+      "id": "T003",
+      "title": "Implement diacritic-insensitive search via unaccent + pg_trgm",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "USE unaccent(name) ILIKE unaccent('%q%'). Ensure extensions enabled in migration."
+    },
+    {
+      "id": "T004",
+      "title": "Write unit tests: ProductsService",
+      "role": "qa",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "Cover: create, duplicate SKU, price validation, deactivate, cross-store isolation, search."
+    },
+    {
+      "id": "T005",
+      "title": "Document API contract: api-contracts/product.json",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": "Run vibe-api-contractor."
+    },
+    {
+      "id": "T006",
+      "title": "Frontend scaffold: Vite + React 18 + Zustand + React Query + Tailwind + shadcn",
+      "role": "frontend",
+      "status": "not-started",
+      "blocked_by": null,
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "Can start in parallel with backend. See project-init.md frontend scaffold commands."
+    },
+    {
+      "id": "T007",
+      "title": "Frontend: Login page wired to POST /auth/login",
+      "role": "frontend",
+      "status": "not-started",
+      "blocked_by": "T006",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "Zustand auth store, JWT storage, axios interceptor for refresh. Requires Sprint 1 backend live."
+    },
+    {
+      "id": "T008",
+      "title": "Frontend: Product list page + search",
+      "role": "frontend",
+      "status": "not-started",
+      "blocked_by": "T007",
+      "estimate_hours": 4,
+      "actual_hours": null,
+      "notes": "React Query for server state. shadcn Table + Input components."
+    },
+    {
+      "id": "T009",
+      "title": "Frontend: Create/edit product form (React Hook Form + Zod)",
+      "role": "frontend",
+      "status": "not-started",
+      "blocked_by": "T008",
+      "estimate_hours": 4,
+      "actual_hours": null,
+      "notes": "Zod schema must validate priceVnd as integer, taxRatePercent as enum."
+    }
+  ],
+  "session_log": [],
+  "handoff_notes": {
+    "last_code_state": "No code written yet. Blocked on Sprint 1.",
+    "known_issues": [],
+    "resume_instructions": "Start at T001 only after store migration is applied. T006 can start in parallel immediately."
+  }
+}

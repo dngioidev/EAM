@@ -1,0 +1,211 @@
+{
+  "meta": {
+    "id": "order",
+    "type": "feature",
+    "status": "backlog",
+    "owner": "backend",
+    "sprint": 3,
+    "last_updated": "2026-04-12",
+    "created": "2026-04-12",
+    "version": 1,
+    "depends_on": ["product"],
+    "related_to": ["invoice"],
+    "affects": ["Order", "OrderItem"],
+    "tags": ["order", "pos", "core-flow", "state-machine", "sprint-3", "mvp"],
+    "blocked_by": null,
+    "unblock_condition": "product feature complete"
+  },
+  "quick_facts": {
+    "one_line": "Full POS order lifecycle: cashier builds a cart, confirms payment, system transitions order pending → processing → completed and triggers invoice generation.",
+    "status_reason": "Sprint 3 backlog. Blocked on product catalog (Sprint 2).",
+    "last_change": "Created at high-level roadmap planning session.",
+    "key_links": [
+      "wiki/state-map.json → Order state machine",
+      "wiki/features/invoice.json",
+      "wiki/impact-map/entity-registry.json → Order, OrderItem"
+    ]
+  },
+  "content": {
+    "title": "Order Lifecycle",
+    "tldr": "A cashier creates an order, adds product line items (OrderItems), confirms payment. The system moves the order from pending → processing → completed. On completion, the invoice module is triggered automatically via an internal event.",
+    "summary": "Thu ngân tạo đơn hàng, thêm các mặt hàng, xác nhận thanh toán. Hệ thống tự động chuyển trạng thái đơn hàng và phát hành hóa đơn điện tử khi đơn hoàn tất.",
+    "skip_if": {
+      "description": "Skip this file if",
+      "conditions": [
+        "You only need the Order entity shape — read entity-registry.json",
+        "You are working on Invoice — read features/invoice.json (invoice depends on this feature)"
+      ]
+    },
+    "do_not": [
+      "Do NOT allow adding items to an order that is not in 'pending' state",
+      "Do NOT allow price or quantity modifications after order moves to 'processing'",
+      "Do NOT expose orders from other stores",
+      "Do NOT allow manual state transitions that skip steps (e.g. pending → completed directly)",
+      "Do NOT hard-delete orders — all states are auditable"
+    ],
+    "see_also": [
+      "wiki/state-map.json → Order state machine",
+      "wiki/features/invoice.json → triggered on order completion",
+      "wiki/business-workflow/order-lifecycle.json"
+    ],
+    "sections": [
+      {
+        "heading": "Order State Machine",
+        "ref": "wiki/state-map.json",
+        "states": ["pending", "processing", "completed", "cancelled", "refunded"],
+        "transitions": [
+          { "from": "pending",    "to": "processing", "trigger": "payment_received", "actor": "cashier via POST /orders/:id/confirm-payment" },
+          { "from": "processing", "to": "completed",  "trigger": "invoice_issued",   "actor": "system — auto on invoice creation" },
+          { "from": "pending",    "to": "cancelled",  "trigger": "manual_cancel",    "actor": "cashier or store-manager via POST /orders/:id/cancel" },
+          { "from": "processing", "to": "cancelled",  "trigger": "payment_failed",   "actor": "system — if invoice generation fails" },
+          { "from": "completed",  "to": "refunded",   "trigger": "refund_approved",  "actor": "store-manager or admin via POST /orders/:id/refund (Sprint 4)" }
+        ],
+        "terminal_states": ["cancelled", "refunded"]
+      },
+      {
+        "heading": "Actors",
+        "items": [
+          { "role": "cashier",       "capabilities": ["create order", "add/remove items", "confirm payment", "cancel pending order"] },
+          { "role": "store-manager", "capabilities": ["view all store orders", "cancel order", "approve refund (Sprint 4)"] },
+          { "role": "accountant",    "capabilities": ["view orders (read-only, for reconciliation)"] },
+          { "role": "admin",         "capabilities": ["view all orders across stores", "approve refund"] },
+          { "role": "viewer",        "capabilities": ["view orders (read-only)"] }
+        ]
+      },
+      {
+        "heading": "User Stories",
+        "items": [
+          {
+            "id": "US-ORDER-01",
+            "size": "M",
+            "as_a": "Cashier (Thu ngân)",
+            "i_want": "to create a new order and add products to it",
+            "so_that": "I can build a customer's cart before confirming payment",
+            "acceptance_criteria": [
+              "Given valid JWT — When POST /api/v1/orders — Then 201 with order { id, orderNumber, status: 'pending', items: [], totalVnd: 0, storeId, cashierId }",
+              "Given a pending order — When POST /api/v1/orders/:id/items with { productId, quantity } — Then 200 with updated order including the line item",
+              "Given productId not in caller's store — When adding item — Then 404",
+              "Given product is deactivated — When adding item — Then 400 'Product is not active'",
+              "Given quantity < 1 — When adding item — Then 400",
+              "Given order is not in 'pending' state — When adding item — Then 409 'Cannot modify a non-pending order'",
+              "OrderItem.unitPriceVnd = product.priceVnd at the moment the item is added (price snapshot)",
+              "OrderItem.taxRatePercent = product.taxRatePercent at the moment the item is added (tax snapshot)",
+              "Order.totalVnd = sum of (unitPriceVnd × quantity) across all items"
+            ],
+            "edge_cases": [
+              "Same productId added twice — quantity is incremented (upsert), not duplicate rows",
+              "Adding item with quantity = 0 — removes item from order",
+              "Order with no items when confirm-payment is called — 400 'Order has no items'"
+            ],
+            "business_rules": [
+              "BR-ORDER-01: Price and tax rate are snapshotted on OrderItem at item-add time",
+              "BR-ORDER-02: totalVnd = sum of (unitPriceVnd × quantity) — recalculated on every item change",
+              "BR-ORDER-03: orderNumber is auto-generated: format {storeId-prefix}-{YYYYMMDD}-{sequence} — unique per store per day"
+            ]
+          },
+          {
+            "id": "US-ORDER-02",
+            "size": "S",
+            "as_a": "Cashier",
+            "i_want": "to confirm payment and advance the order",
+            "so_that": "the system records the payment and triggers invoice generation",
+            "acceptance_criteria": [
+              "Given a pending order with at least 1 item — When POST /api/v1/orders/:id/confirm-payment — Then 200, order.status = 'processing'",
+              "Given order has no items — When confirm-payment — Then 400",
+              "Given order is already processing/completed/cancelled — When confirm-payment — Then 409 'Invalid state transition'",
+              "After status changes to processing — System emits order.completed event (handled by invoice module)",
+              "Payment method field (cash/card) is recorded on the order for audit"
+            ],
+            "edge_cases": [
+              "Network failure between confirm-payment and invoice generation — order stays in 'processing' until invoice module retries or fails (no orphaned completed orders without invoices)"
+            ],
+            "business_rules": [
+              "BR-ORDER-04: Only cashier of the store (cashierId matches order.cashierId) OR store-manager may confirm payment — prevents other stores' cashiers",
+              "BR-ORDER-05: Payment method recorded: 'cash' | 'card' — stored on order",
+              "BR-ORDER-06: On confirm-payment, order transitions to 'processing' immediately — 'completed' only after invoice is issued"
+            ]
+          },
+          {
+            "id": "US-ORDER-03",
+            "size": "S",
+            "as_a": "Cashier or Store Manager",
+            "i_want": "to cancel a pending order",
+            "so_that": "the customer changed their mind before payment",
+            "acceptance_criteria": [
+              "Given a pending order — When POST /api/v1/orders/:id/cancel — Then 200, order.status = 'cancelled'",
+              "Given order is in processing/completed/refunded — When cancel — Then 409 'Cannot cancel order in current state'",
+              "Given caller is not cashier of the store or store-manager — Then 403",
+              "Cancelled order is not deleted — it remains with status='cancelled' for audit"
+            ],
+            "edge_cases": [
+              "Cashier cancels their own order vs. store-manager cancels any order — both allowed"
+            ],
+            "business_rules": [
+              "BR-ORDER-07: Cancellation is terminal — a cancelled order cannot be re-opened"
+            ]
+          },
+          {
+            "id": "US-ORDER-04",
+            "size": "S",
+            "as_a": "Store Manager",
+            "i_want": "to view the order history for my store",
+            "so_that": "I can monitor daily sales and investigate discrepancies",
+            "acceptance_criteria": [
+              "Given valid JWT — When GET /api/v1/orders — Then 200 with paginated list of store's orders",
+              "Results filterable by: status, date range (createdAt), cashierId",
+              "Results include orderNumber, status, totalVnd, cashierId, createdAt",
+              "Given caller is cashier — Then returns only their own orders (cashierId = caller.id)",
+              "Given caller is store-manager/admin/accountant — Then returns all store orders"
+            ],
+            "edge_cases": [
+              "Date range spanning midnight — orders created at exactly midnight included in both days' queries"
+            ],
+            "business_rules": [
+              "BR-ORDER-08: Cashier can only see their own orders in list view",
+              "BR-ORDER-09: Pagination required — default page size 20"
+            ]
+          }
+        ]
+      },
+      {
+        "heading": "Business Rules — Consolidated",
+        "items": [
+          "BR-ORDER-01: Price + tax rate snapshotted on OrderItem at item-add time",
+          "BR-ORDER-02: totalVnd = sum(unitPriceVnd × quantity)",
+          "BR-ORDER-03: orderNumber format: {prefix}-{YYYYMMDD}-{seq}",
+          "BR-ORDER-04: Only store's own cashier or manager may confirm payment",
+          "BR-ORDER-05: Payment method: 'cash' | 'card' — stored on order",
+          "BR-ORDER-06: Order reaches 'completed' only after invoice is issued",
+          "BR-ORDER-07: Cancelled orders are terminal and kept for audit",
+          "BR-ORDER-08: Cashier list view = own orders only",
+          "BR-ORDER-09: Pagination page size = 20"
+        ]
+      },
+      {
+        "heading": "Open Questions",
+        "items": [
+          { "id": "OQ-ORDER-01", "question": "Should we support multiple payment methods per order (split payment)?", "status": "decided", "decision": "No — single payment method per order for MVP." },
+          { "id": "OQ-ORDER-02", "question": "What happens if invoice generation fails after payment is confirmed?", "status": "decided", "decision": "Order stays in 'processing'. Invoice module retries. If all retries fail, order moves to 'cancelled' and a bug is logged. No money movement at this layer (payment is external)." },
+          { "id": "OQ-ORDER-03", "question": "Refund flow — UI in Sprint 3?", "status": "decided", "decision": "Backend state machine supports 'refunded'. UI deferred to Sprint 4." }
+        ]
+      }
+    ]
+  },
+  "approval": {
+    "required": true,
+    "approved_by": "po",
+    "approved_at": "2026-04-12",
+    "status": "approved",
+    "notes": "Approved at roadmap planning. Blocked on product feature (Sprint 2)."
+  },
+  "audit": [
+    {
+      "date": "2026-04-12",
+      "role": "po",
+      "action": "created",
+      "description": "Feature created + BA analysis at roadmap planning session.",
+      "version_before": 0,
+      "version_after": 1
+    }
+  ]
+}

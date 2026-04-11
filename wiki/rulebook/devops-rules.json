@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2025-01-01",
+    "title": "DevOps Rules",
+    "owner": "vibe-devops-general"
+  },
+  "content": {
+    "rules": [
+      "All services run in Docker. No direct host installs for postgresql/redis",
+      "Port assignments are fixed: backend=3000, frontend=5173, wiki=3001, postgres=5432, redis=6379",
+      "Separate postgres instance for tests on port 5433. Never run tests against main DB",
+      "All containers have health checks defined in docker-compose.yml",
+      "Backend Docker image: multi-stage. Final stage FROM node:20-alpine, USER node, dumb-init as PID 1",
+      "Environment variables are never baked into Docker images. Injected at runtime via .env files",
+      "docker-compose.yml is the source of truth for local development service config",
+      "Migrations run automatically on container start in development. Manual run in production",
+      "Database volumes are named volumes (not bind mounts) to avoid permission issues on Windows",
+      "All backend/frontend/wiki Dockerfiles include .dockerignore excluding node_modules and .env"
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2025-01-01T00:00:00Z",
+      "author": "vibe-devops-general",
+      "action": "created",
+      "note": "Initial DevOps rules"
+    }
+  ]
+}

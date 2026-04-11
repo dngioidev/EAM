@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Sprint 1 — Foundation",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "sprint": "1",
+    "sprint_goal": "Stand up authentication and store management — the two foundational modules that every other feature depends on.",
+    "sprint_start": "2026-04-13",
+    "sprint_end": "2026-04-26",
+    "velocity_planned": 2,
+    "velocity_actual": null,
+    "status": "planning"
+  },
+  "content": {
+    "tldr": "Sprint 1 builds the foundation: JWT auth with RBAC, and store-scoped multi-tenancy. Nothing else can be built without these two modules.",
+    "features_committed": [
+      {
+        "id": "auth",
+        "title": "Authentication & RBAC",
+        "priority": 1,
+        "rationale": "Every endpoint requires a logged-in user with a role. This blocks the entire backlog.",
+        "size": "M"
+      },
+      {
+        "id": "store",
+        "title": "Store Management",
+        "priority": 2,
+        "rationale": "All data (products, orders, invoices) is scoped to a store. Required before any business entities.",
+        "size": "S"
+      }
+    ],
+    "out_of_scope": [
+      "Product catalog (Sprint 2)",
+      "Order lifecycle (Sprint 3)",
+      "Invoice generation (Sprint 3)"
+    ],
+    "dependencies": [
+      "Backend scaffolding (NestJS app, TypeORM config, Docker Compose) must be created this sprint as prerequisite"
+    ],
+    "risks": [
+      "Vietnamese tax compliance rules for invoices are complex — deliberately deferred to Sprint 3 to allow research time"
+    ]
+  },
+  "velocity": {
+    "planned": 2,
+    "completed": null,
+    "carried_over": []
+  },
+  "retrospective": null,
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-product-owner",
+      "action": "created",
+      "note": "Sprint 1 plan created by PM decision. Dependency-ordered: auth first, then store."
+    }
+  ]
+}

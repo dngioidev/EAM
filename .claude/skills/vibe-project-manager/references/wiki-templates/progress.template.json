@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "feature_id": "feature-name-kebab-case",
+    "sprint": 0,
+    "last_updated": "YYYY-MM-DD",
+    "version": 1
+  },
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "Task title",
+      "role": "backend | frontend | devops | qa | designer",
+      "status": "not-started | in-progress | blocked | done",
+      "blocked_by": null,
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": ""
+    }
+  ],
+  "session_log": [
+    {
+      "date": "YYYY-MM-DD",
+      "role": "backend",
+      "tasks_worked": ["T001"],
+      "completed": ["T001"],
+      "blocked": [],
+      "notes": "Short plain-English summary of what happened this session",
+      "next_session_starts_at": "T002"
+    }
+  ],
+  "handoff_notes": {
+    "last_code_state": "What state is the code in — compiles? tests pass?",
+    "known_issues": [],
+    "resume_instructions": "Start by reading {file}:{line} — continue from TODO marker at line X"
+  }
+}

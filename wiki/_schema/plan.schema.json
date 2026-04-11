@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "plan.schema.json",
+  "title": "Sprint Plan Item Schema",
+  "type": "object",
+  "required": ["meta", "quick_facts", "content", "audit"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["version", "last_updated", "title", "owner"],
+      "properties": {
+        "version": { "type": "integer", "minimum": 1 },
+        "last_updated": { "type": "string", "format": "date" },
+        "title": { "type": "string" },
+        "owner": { "type": "string" }
+      }
+    },
+    "quick_facts": {
+      "type": "object",
+      "required": ["sprint", "sprint_goal", "sprint_start", "sprint_end"],
+      "properties": {
+        "sprint": { "type": "string" },
+        "sprint_goal": { "type": "string" },
+        "sprint_start": { "type": "string", "format": "date" },
+        "sprint_end": { "type": "string", "format": "date" },
+        "velocity_target": { "type": "integer" },
+        "velocity_actual": { "type": "integer" }
+      }
+    },
+    "content": {
+      "type": "object",
+      "required": ["items"],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "type", "title", "status", "points"],
+            "properties": {
+              "id": { "type": "string" },
+              "type": { "type": "string", "enum": ["feature", "bug", "chore", "spike"] },
+              "title": { "type": "string" },
+              "status": { "type": "string", "enum": ["backlog", "ready", "in-progress", "done"] },
+              "points": { "type": "integer", "minimum": 0 },
+              "assignee": { "type": "string" }
+            }
+          }
+        },
+        "retrospective": { "type": "object" }
+      }
+    },
+    "audit": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["version", "timestamp", "author", "action", "note"],
+        "properties": {
+          "version": { "type": "integer" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "author": { "type": "string" },
+          "action": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

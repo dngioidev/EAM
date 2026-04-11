@@ -1,0 +1,72 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Sprint 3 — Core POS Flow (MVP)",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "sprint": "3",
+    "sprint_goal": "Deliver the MVP: a cashier processes a sale end-to-end — cart → payment confirmation → auto-issued Vietnamese electronic tax invoice — all in under 10 seconds.",
+    "sprint_start": "2026-05-11",
+    "sprint_end": "2026-05-24",
+    "velocity_planned": 2,
+    "velocity_actual": null,
+    "status": "planning",
+    "is_mvp": true
+  },
+  "content": {
+    "tldr": "Sprint 3 is the MVP sprint. Order lifecycle + invoice auto-generation. After this sprint, the system delivers real business value: a cashier can process a legal POS sale.",
+    "features_committed": [
+      {
+        "id": "order",
+        "title": "Order Lifecycle",
+        "priority": 1,
+        "rationale": "Core POS flow. A sale is an order. Invoice depends on order completion.",
+        "size": "L"
+      },
+      {
+        "id": "invoice",
+        "title": "Electronic Invoice Generation",
+        "priority": 2,
+        "rationale": "Legal requirement. Every completed order must produce a compliant hóa đơn điện tử.",
+        "size": "L"
+      }
+    ],
+    "also_this_sprint": [
+      "Frontend: POS screen — product search + cart management",
+      "Frontend: Order history view (cashier + manager)",
+      "Frontend: Invoice viewer (accountant)"
+    ],
+    "out_of_scope": [
+      "External tax authority portal submission (post-MVP)",
+      "Barcode scanner (post-MVP)",
+      "Split payment methods (post-MVP)",
+      "Refund UI / flow (Sprint 4 — backend state machine supports refunded state but UI deferred)"
+    ],
+    "prerequisites": [
+      "product feature: T001–T009 done",
+      "Backend running with auth + store + product endpoints live",
+      "Frontend login + product pages from Sprint 2 complete"
+    ],
+    "mvp_definition": {
+      "statement": "A cashier can: log in → search products → create an order with items → confirm payment → receive a generated invoice number — all within one browser session.",
+      "acceptance": "Demo this flow end-to-end in a review meeting. Invoice number is unique and immutable. Tax subtotals are correct."
+    }
+  },
+  "velocity": {
+    "planned": 2,
+    "completed": null,
+    "carried_over": []
+  },
+  "retrospective": null,
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-product-owner",
+      "action": "created",
+      "note": "Sprint 3 (MVP) planned at high-level roadmap session."
+    }
+  ]
+}

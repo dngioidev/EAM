@@ -1,0 +1,9 @@
+{
+  "meta": { "version": 3, "last_updated": "2026-04-12", "title": "Business Workflow Index" },
+  "files": [
+    { "id": "auth-session-lifecycle", "file": "business-workflow/auth-session-lifecycle.json", "module": "auth" },
+    { "id": "store-scoping",          "file": "business-workflow/store-scoping.json",          "module": "store" },
+    { "id": "order-lifecycle",        "file": "business-workflow/order-lifecycle.json",        "module": "order" },
+    { "id": "invoice-generation",     "file": "business-workflow/invoice-generation.json",     "module": "invoice" }
+  ]
+}

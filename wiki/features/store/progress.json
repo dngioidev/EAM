@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "feature_id": "store",
+    "sprint": 1,
+    "last_updated": "2026-04-12",
+    "version": 1
+  },
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "Create Store entity + migration",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "auth:T002",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Fields: id, name, taxCode (unique), address, isActive, createdAt, updatedAt. Index on taxCode."
+    },
+    {
+      "id": "T002",
+      "title": "Create StoresModule (service + controller)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T001",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "Endpoints: POST /stores, GET /stores/me, PATCH /stores/:id, PATCH /stores/:id/deactivate. taxCode immutable after creation."
+    },
+    {
+      "id": "T003",
+      "title": "Add store deactivation cascade to auth login check",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T001",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": "LocalStrategy.validate() must check store.isActive — return 401 if false."
+    },
+    {
+      "id": "T004",
+      "title": "Write unit tests: StoresService",
+      "role": "qa",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Cover: create success, duplicate taxCode 409, deactivation cascade."
+    },
+    {
+      "id": "T005",
+      "title": "Document API contract: api-contracts/store.json",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": "Run vibe-api-contractor skill."
+    }
+  ],
+  "session_log": [],
+  "handoff_notes": {
+    "last_code_state": "No code written yet. Feature in planning.",
+    "known_issues": [],
+    "resume_instructions": "Start at T001 after auth migration is running (auth:T005 done)."
+  }
+}

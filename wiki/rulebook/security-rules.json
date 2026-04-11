@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2025-01-01",
+    "title": "Security Rules",
+    "owner": "vibe-security-general"
+  },
+  "quick_facts": {
+    "compliance_target": "OWASP Top 10 2021",
+    "review_cadence": "every sprint + after any security incident"
+  },
+  "content": {
+    "rules": [
+      { "id": "SEC-001", "rule": "All API endpoints require JWT authentication unless explicitly decorated @Public()", "enforcer": "JwtAuthGuard (global)" },
+      { "id": "SEC-002", "rule": "All roles-restricted endpoints use @Roles() decorator + RolesGuard", "enforcer": "vibe-security-nestjs RBAC" },
+      { "id": "SEC-003", "rule": "JWT access tokens expire in 15 minutes maximum", "enforcer": "AuthModule config" },
+      { "id": "SEC-004", "rule": "JWT secrets must be ≥ 32 chars, generated with openssl rand -hex 32", "enforcer": "code review" },
+      { "id": "SEC-005", "rule": "No secrets in .env files committed to git. .env is in .gitignore", "enforcer": "git hooks + code review" },
+      { "id": "SEC-006", "rule": "All user inputs validated with class-validator. ValidationPipe whitelist:true globally", "enforcer": "main.ts global pipe" },
+      { "id": "SEC-007", "rule": "All DB queries use TypeORM parameterized queries. String interpolation in SQL is forbidden", "enforcer": "code review" },
+      { "id": "SEC-008", "rule": "Helmet.js enabled globally. CSP, HSTS, X-Frame-Options headers required", "enforcer": "main.ts" },
+      { "id": "SEC-009", "rule": "Rate limiting: 120 req/min global, 5 req/min on /auth/login", "enforcer": "ThrottlerGuard" },
+      { "id": "SEC-010", "rule": "CORS configured to specific origins. Wildcard (*) is forbidden in production", "enforcer": "main.ts CORS config" },
+      { "id": "SEC-011", "rule": "Passwords stored as bcrypt hash (cost factor ≥ 10). Never plaintext", "enforcer": "code review" },
+      { "id": "SEC-012", "rule": "Store-scoped access: users can only read/write their own store's data", "enforcer": "StoreGuard" },
+      { "id": "SEC-013", "rule": "Never log passwords, tokens, or full PII. Log only IDs and operation names", "enforcer": "code review" },
+      { "id": "SEC-014", "rule": "Docker containers run as non-root user (USER node)", "enforcer": "Dockerfile" },
+      { "id": "SEC-015", "rule": "Dependencies audited monthly via npm audit. Critical/high CVEs fixed within 48 hours", "enforcer": "vibe-devops-general monthly audit" }
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2025-01-01T00:00:00Z",
+      "author": "vibe-security-general",
+      "action": "created",
+      "note": "Initial 15 security rules"
+    }
+  ]
+}

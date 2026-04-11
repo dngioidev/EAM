@@ -1,0 +1,142 @@
+---
+name: vibe-project-manager
+description: >
+  Master orchestrator for the vibe fullstack project. This skill triggers first
+  on every single request before any other skill runs. Triggers on: any feature
+  request, bug report, planning question, architecture decision, "what next",
+  "let's build", "start", "fix", "add", "create", "vibe", or any request that
+  touches the project at all. Reads wiki, detects project state, applies tiered
+  reading, routes to the correct role skill, and enforces the completion checklist.
+  Never skip this skill — it is the mandatory entry point for all work.
+applyTo: "**"
+---
+
+# vibe-project-manager — Master Orchestrator
+
+## 1. Session Start Protocol
+
+Every session, in this exact order:
+
+**STEP 1: Read wiki/dashboard.json**
+- Check `is_new_project`: if `true` AND `project_initialized` is `null`
+  → Run PROJECT INITIALIZATION (see `references/project-init.md`)
+  → Do not proceed to routing until initialization is complete
+- Check `quick_facts.build_status`: if any "failing"
+  → Note which services are failing
+  → Log as pre-existing bug BEFORE touching any code
+- Note: `existing_modules`, `existing_entities`, `existing_routes`
+
+**STEP 2: Read wiki/changelog.json**
+- Filter entries by tags matching current request's feature or module
+- If any entry newer than 3 days matches: read that `wiki/history/{date}.json`
+- This answers "what changed since last session"
+
+**STEP 3: Apply TIERED READING** — see `references/tiered-reading.md`
+- Choose the correct tier for this request type
+- Stop reading when all STOP READING questions are answered
+
+**STEP 4: Open scratch note**
+- Append to `wiki/history/{date}.json` `scratch_notes` as you work
+- Format: `"[action] — [file changed or decision made]"`
+- Use this at end of session for accurate wiki updates
+
+---
+
+## 2. New vs Existing Project Detection
+
+```
+wiki/dashboard.json → is_new_project: true AND project_initialized: null
+  → This is a brand new project
+  → Run references/project-init.md before any feature work
+  → project-init.md covers: folder scaffold, package installs,
+    docker-compose setup, wiki initialization, initial build verification
+
+wiki/dashboard.json → is_new_project: false
+  → Existing project — proceed to tiered reading and routing
+```
+
+---
+
+## 3. Blocked Feature Check (Sprint Start)
+
+At start of every new sprint:
+- Read `wiki/dashboard.json` `blocked_features` array
+- For each blocked feature:
+  - Check if `unblock_condition` is now satisfied
+  - If satisfied: update feature status to "planning", notify PO
+  - If not: leave blocked, update `wiki/history` with check date
+
+---
+
+## 4. Routing Table
+
+See `references/routing-table.md` for the complete routing table across all 18+ request types.
+
+Quick reference:
+- New requirement → `vibe-product-owner` (Tier 3)
+- Feature kickoff → `vibe-ba` → `vibe-designer-uxui` → `vibe-api-contractor` (Tier 3)
+- Backend task → `vibe-backend-general` → `vibe-backend-nestjs` (Tier 2)
+- Frontend task → `vibe-frontend-general` → `vibe-frontend-react` (Tier 2)
+- Bug fix → `vibe-qa-general` → role skill (Tier 1)
+- Critical bug → HOTFIX workflow (see `references/hotfix-workflow.md`)
+
+---
+
+## 5. Tiered Reading
+
+See `references/tiered-reading.md` for full tier definitions.
+
+Summary:
+- **Tier 1** — Bug fix / small isolated change: minimal reads
+- **Tier 2** — Existing feature work: targeted reads
+- **Tier 3** — New feature kickoff: comprehensive reads
+
+---
+
+## 6. Completion Checklist
+
+See `references/completion-checklist.md` for the full checklist.
+
+Every session must pass: BUILD → TEST → SECURITY → CODE REVIEW → WIKI UPDATE → DONE.
+
+---
+
+## 7. Wiki Update Protocol
+
+At end of every session (use `scratch_notes` for accuracy):
+- `wiki/history/{date}.json` — write full session entry
+- `wiki/features/{name}/progress.json` — update task completion states
+- `wiki/features/{name}.json` or `_index.json` — update status
+- `wiki/api-contracts/{module}.json` — if endpoints changed
+- `wiki/env-config.json` — if new vars added
+- `wiki/impact-map/entity-registry.json` — if entities modified
+- `wiki/impact-map/{feature}-relations.json` — if new relations found
+- `wiki/decisions/` — entry if architectural decision made
+- `wiki/techstack/backend.json` — if new module, entity, or pattern added
+- `wiki/techstack/frontend.json` — if new route, store, API client, or query key added
+- `wiki/dashboard.json` — refresh all quick_facts
+- `wiki/changelog.json` — prepend new entry with relevant tags
+
+---
+
+## Do Not
+
+- Never skip reading `wiki/dashboard.json` at the start of any session
+- Never route to a Layer 2 skill without going through the Layer 1 general skill first
+- Never mark a feature "done" without completing the full completion checklist
+- Never start feature dev without an approved API contract
+- Never skip the wiki update protocol at session end
+- Never initialize a new project without completing ALL 6 initialization steps
+
+---
+
+## Definition of Done
+
+```
+[ ] wiki/dashboard.json read — build status noted
+[ ] Changelog filtered — "what changed since last session" answered
+[ ] Correct tier applied — tiered reading complete
+[ ] Correct skill routed based on routing table
+[ ] Completion checklist passed at session end
+[ ] Wiki update protocol executed at session end
+```

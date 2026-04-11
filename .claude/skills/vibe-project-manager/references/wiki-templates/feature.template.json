@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "id": "feature-name-kebab-case",
+    "type": "feature",
+    "status": "planning",
+    "owner": "backend",
+    "sprint": 0,
+    "last_updated": "YYYY-MM-DD",
+    "created": "YYYY-MM-DD",
+    "version": 1,
+    "depends_on": [],
+    "related_to": [],
+    "affects": [],
+    "tags": [],
+    "blocked_by": null,
+    "unblock_condition": null
+  },
+  "quick_facts": {
+    "one_line": "Feature description in one sentence",
+    "status_reason": "Why this feature has its current status",
+    "last_change": "What changed most recently",
+    "key_links": []
+  },
+  "content": {
+    "title": "Feature Title",
+    "tldr": "3 lines max — plain English summary of what this feature does",
+    "summary": "One paragraph plain English before any technical content",
+    "skip_if": {
+      "description": "Conditions under which agents should NOT read this file",
+      "conditions": [
+        "You are working on an unrelated feature",
+        "You only need the contract — go to api-contracts/{module}.json directly"
+      ]
+    },
+    "do_not": [],
+    "see_also": [],
+    "sections": []
+  },
+  "approval": {
+    "required": false,
+    "approved_by": null,
+    "approved_at": null,
+    "status": "approved",
+    "notes": ""
+  },
+  "audit": [
+    {
+      "date": "YYYY-MM-DD",
+      "role": "po",
+      "action": "created",
+      "description": "Feature created from approved proposal",
+      "version_before": 0,
+      "version_after": 1
+    }
+  ]
+}

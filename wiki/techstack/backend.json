@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2025-01-01",
+    "title": "Backend Tech Stack",
+    "owner": "vibe-backend-general"
+  },
+  "quick_facts": {
+    "runtime": "Node.js 20.x (LTS)",
+    "language": "TypeScript 5.x (strict mode)",
+    "framework": "NestJS 10.x",
+    "database_client": "TypeORM 0.3.x",
+    "database": "PostgreSQL 15.x",
+    "cache": "Redis 7.x via ioredis",
+    "auth": "JWT + Passport.js (@nestjs/passport)"
+  },
+  "content": {
+    "key_packages": [
+      { "package": "@nestjs/core", "version": "^10.0.0", "purpose": "Core NestJS framework" },
+      { "package": "@nestjs/typeorm", "version": "^10.0.0", "purpose": "TypeORM integration module" },
+      { "package": "typeorm", "version": "^0.3.0", "purpose": "ORM for PostgreSQL" },
+      { "package": "pg", "version": "^8.0.0", "purpose": "PostgreSQL node driver" },
+      { "package": "ioredis", "version": "^5.0.0", "purpose": "Redis client" },
+      { "package": "@nestjs/jwt", "version": "^10.0.0", "purpose": "JWT token signing/verification" },
+      { "package": "@nestjs/passport", "version": "^10.0.0", "purpose": "Auth strategy integration" },
+      { "package": "class-validator", "version": "^0.14.0", "purpose": "DTO input validation" },
+      { "package": "class-transformer", "version": "^0.5.0", "purpose": "Transform/serialize DTOs" },
+      { "package": "@nestjs/event-emitter", "version": "^2.0.0", "purpose": "Internal domain events" },
+      { "package": "helmet", "version": "^7.0.0", "purpose": "HTTP security headers" },
+      { "package": "@nestjs/throttler", "version": "^5.0.0", "purpose": "Rate limiting" }
+    ],
+    "project_structure": {
+      "root": "backend/",
+      "src": "src/",
+      "modules": "src/modules/{module-name}/{module-name}.module.ts",
+      "entities": "src/modules/{module-name}/entities/{entity}.entity.ts",
+      "migrations": "src/database/migrations/"
+    },
+    "port": 3000,
+    "api_prefix": "/api/v1"
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2025-01-01T00:00:00Z",
+      "author": "vibe-backend-general",
+      "action": "created",
+      "note": "Initial backend stack definition"
+    }
+  ]
+}

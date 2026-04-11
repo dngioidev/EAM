@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "id": "YYYY-MM-DD-short-slug",
+    "type": "bug",
+    "status": "open",
+    "owner": "backend",
+    "sprint": 0,
+    "last_updated": "YYYY-MM-DD",
+    "created": "YYYY-MM-DD",
+    "version": 1,
+    "depends_on": [],
+    "related_to": [],
+    "affects": [],
+    "tags": [],
+    "blocked_by": null,
+    "unblock_condition": null
+  },
+  "quick_facts": {
+    "one_line": "Short bug description in one sentence",
+    "severity": "critical | high | medium | low | ux-regression",
+    "severity_emoji": "🔴 | 🟠 | 🟡 | 🟢 | 🔵",
+    "discovered_by": "build | unit-test | playwright | manual | code-review",
+    "area": "backend | frontend | devops | design | both"
+  },
+  "content": {
+    "title": "Bug Title",
+    "tldr": "3 lines max",
+    "summary": "What is broken and why it matters",
+    "description": "",
+    "reproduction": {
+      "environment": {
+        "backend_version": "",
+        "frontend_version": "",
+        "node_version": "",
+        "docker_version": "",
+        "os": "",
+        "db_seed_state": "fresh | seeded-dev | seeded-test"
+      },
+      "steps": [],
+      "expected": "",
+      "actual": ""
+    },
+    "root_cause": null,
+    "fix_applied": null,
+    "verification": null,
+    "skip_if": {
+      "description": "Skip if this bug is in an unrelated domain",
+      "conditions": []
+    },
+    "do_not": [],
+    "see_also": [],
+    "sections": []
+  },
+  "approval": {
+    "required": false,
+    "approved_by": null,
+    "approved_at": null,
+    "status": "pending",
+    "notes": ""
+  },
+  "audit": [
+    {
+      "date": "YYYY-MM-DD",
+      "role": "qa",
+      "action": "created",
+      "description": "Bug logged",
+      "version_before": 0,
+      "version_after": 1
+    }
+  ]
+}

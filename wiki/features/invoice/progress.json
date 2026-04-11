@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "feature_id": "invoice",
+    "sprint": 3,
+    "last_updated": "2026-04-12",
+    "version": 1
+  },
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "Create Invoice entity + migration",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "order:T001",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Fields: id, invoiceNumber (unique index), orderId (FK), storeId, status, issuedAt, lines (JSONB snapshot), vatSubtotals (JSONB), totalBeforeVatVnd, totalVatVnd, totalWithVatVnd. DB SEQUENCE for invoiceNumber per store-year."
+    },
+    {
+      "id": "T002",
+      "title": "Implement InvoiceModule: auto-generate on OrderCompletedEvent",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "order:T005",
+      "estimate_hours": 4,
+      "actual_hours": null,
+      "notes": "Listen on OrderCompletedEvent. Create invoice in 'draft', persist, set status='issued', then update order.status='completed'. All in one DB transaction. Retry on failure, max 3 times."
+    },
+    {
+      "id": "T003",
+      "title": "Implement VAT calculation logic: group by taxRatePercent, floor rounding",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "vatVnd = Math.floor(taxableVnd * rate / 100). Group order items by taxRatePercent. Must be isolated as a pure utility for unit testing."
+    },
+    {
+      "id": "T004",
+      "title": "Implement invoiceNumber sequence: per-store per-year, gap-free",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T001",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Use PostgreSQL SEQUENCE or table-based sequence with FOR UPDATE lock. Format: '{YYYY}/{seq:06d}'. Reset on year change."
+    },
+    {
+      "id": "T005",
+      "title": "Implement GET /orders/:id/invoice",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": "Returns invoice for a specific order. 404 if order not completed."
+    },
+    {
+      "id": "T006",
+      "title": "Implement GET /invoices (list, paginated, accountant+manager)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Filters: from, to (issuedAt), status. Page 20."
+    },
+    {
+      "id": "T007",
+      "title": "Implement PATCH /invoices/:id/cancel (accountant only, after refund)",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Validates order is in 'refunded' state before cancelling invoice. Idempotent."
+    },
+    {
+      "id": "T008",
+      "title": "Write unit tests: VAT calculation logic",
+      "role": "qa",
+      "status": "not-started",
+      "blocked_by": "T003",
+      "estimate_hours": 2,
+      "actual_hours": null,
+      "notes": "Pure function. Cover: all VAT rates, mixed rates in one order, floor rounding edge cases, 0% rate."
+    },
+    {
+      "id": "T009",
+      "title": "Write integration tests: create order → confirm payment → invoice generated",
+      "role": "qa",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "End-to-end happy path. Cover: invoice number uniqueness under concurrent requests."
+    },
+    {
+      "id": "T010",
+      "title": "Document API contract: api-contracts/invoice.json",
+      "role": "backend",
+      "status": "not-started",
+      "blocked_by": "T002",
+      "estimate_hours": 1,
+      "actual_hours": null,
+      "notes": "Run vibe-api-contractor."
+    },
+    {
+      "id": "T011",
+      "title": "Frontend: Invoice viewer page (cashier + accountant)",
+      "role": "frontend",
+      "status": "not-started",
+      "blocked_by": "T005",
+      "estimate_hours": 4,
+      "actual_hours": null,
+      "notes": "Show invoice number, store info, line items, VAT subtotals, total. Print-friendly layout."
+    },
+    {
+      "id": "T012",
+      "title": "Frontend: Invoice list page for accountant",
+      "role": "frontend",
+      "status": "not-started",
+      "blocked_by": "T006",
+      "estimate_hours": 3,
+      "actual_hours": null,
+      "notes": "Date range picker, status filter, export to CSV (Sprint 4 — deferred)."
+    }
+  ],
+  "session_log": [],
+  "handoff_notes": {
+    "last_code_state": "No code written yet. Blocked on order (Sprint 3 sequential).",
+    "known_issues": [],
+    "resume_instructions": "T001 and T004 can start once order T001 is done. T002 requires order:T005 event emitter."
+  }
+}
