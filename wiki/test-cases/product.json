@@ -1,0 +1,217 @@
+{
+  "meta": {
+    "feature_id": "product",
+    "version": 1,
+    "last_updated": "2026-04-13",
+    "title": "Product / SKU Catalog — Test Cases",
+    "owner": "vibe-qa-general",
+    "sprint": 2,
+    "source_feature": "wiki/features/product.json"
+  },
+  "summary": {
+    "total": 27,
+    "unit_passing": 8,
+    "unit_pending": 0,
+    "integration_pending": 9,
+    "integration_passing": 0,
+    "e2e_pending": 2,
+    "e2e_passing": 0,
+    "frontend_unit_pending": 3,
+    "coverage_gaps": [
+      "Integration tests: all product CRUD endpoints need controller→DB coverage including diacritic search",
+      "Frontend unit tests: product search hook, pagination state",
+      "E2E: manager creates product → cashier finds it via POS search"
+    ]
+  },
+  "unit": [
+    {
+      "id": "TC-PROD-U01",
+      "user_story": "US-PROD-01",
+      "description": "create() with priceVnd < 0 returns 400 'Price must be a positive integer' (BR-PROD-01)",
+      "spec_file": "backend/src/modules/products/products.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-PROD-U02",
+      "user_story": "US-PROD-01",
+      "description": "create() with taxRatePercent not in [0,5,8,10] returns 400 'Invalid VAT rate' (BR-PROD-02)",
+      "spec_file": "backend/src/modules/products/products.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-PROD-U03",
+      "user_story": "US-PROD-01",
+      "description": "create() with duplicate SKU in same store returns 409 'SKU already exists in this store' (BR-PROD-03)",
+      "spec_file": "backend/src/modules/products/products.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-PROD-U04",
+      "user_story": "US-PROD-01",
+      "description": "create() with same SKU in different store returns 201 — SKU uniqueness is per-store only",
+      "spec_file": "backend/src/modules/products/products.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-PROD-U05",
+      "user_story": "US-PROD-02",
+      "description": "update() with SKU in body returns 400 'SKU cannot be changed after creation' (BR-PROD-05)",
+      "spec_file": "backend/src/modules/products/products.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-PROD-U06",
+      "user_story": "US-PROD-03",
+      "description": "deactivate() sets isActive=false; product no longer appears in cashier search results (BR-PROD-07)",
+      "spec_file": "backend/src/modules/products/products.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-PROD-U07",
+      "user_story": "US-PROD-04",
+      "description": "findAll() with cashier user returns only isActive=true products (BR-PROD-09)",
+      "spec_file": "backend/src/modules/products/products.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-PROD-U08",
+      "user_story": "US-PROD-05",
+      "description": "findOne() with deactivated product: cashier → 404; manager → 200 with isActive: false (BR-PROD-07, BR-PROD-08)",
+      "spec_file": "backend/src/modules/products/products.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    }
+  ],
+  "integration": [
+    {
+      "id": "TC-PROD-I01",
+      "user_story": "US-PROD-01",
+      "description": "POST /api/v1/products → 201 by manager with valid SKU, name, priceVnd, taxRatePercent",
+      "spec_file": "backend/src/modules/products/products.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-PROD-I02",
+      "user_story": "US-PROD-01",
+      "description": "POST /api/v1/products → 403 when called by cashier or viewer",
+      "spec_file": "backend/src/modules/products/products.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-PROD-I03",
+      "user_story": "US-PROD-01",
+      "description": "POST /api/v1/products → 409 duplicate SKU same store; → 201 same SKU different store",
+      "spec_file": "backend/src/modules/products/products.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-PROD-I04",
+      "user_story": "US-PROD-02",
+      "description": "PATCH /api/v1/products/:id → 200 update price/name; → 400 if SKU included; → 404 cross-store product",
+      "spec_file": "backend/src/modules/products/products.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-PROD-I05",
+      "user_story": "US-PROD-03",
+      "description": "PATCH /api/v1/products/:id/deactivate → 200 idempotent; → 403 cashier; → 404 cross-store",
+      "spec_file": "backend/src/modules/products/products.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-PROD-I06",
+      "user_story": "US-PROD-04",
+      "description": "GET /api/v1/products?q=banh+my → returns products matching 'Bánh Mì' (diacritic-insensitive via unaccent, BR-PROD-11)",
+      "spec_file": "backend/src/modules/products/products.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-PROD-I07",
+      "user_story": "US-PROD-04",
+      "description": "GET /api/v1/products — cross-store isolation: store A cashier never sees store B products (BR-PROD-10)",
+      "spec_file": "backend/src/modules/products/products.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-PROD-I08",
+      "user_story": "US-PROD-05",
+      "description": "GET /api/v1/products/:id → 404 cross-store; deactivated → 404 cashier, 200 manager",
+      "spec_file": "backend/src/modules/products/products.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-PROD-I09",
+      "user_story": "US-PROD-01",
+      "description": "priceVnd=0 (free product) is accepted; priceVnd decimal → 400; name with Vietnamese diacritics stored as-is",
+      "spec_file": "backend/src/modules/products/products.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    }
+  ],
+  "e2e": [
+    {
+      "id": "TC-PROD-E01",
+      "user_story": "US-PROD-01 + US-PROD-04",
+      "description": "Manager creates product → cashier logs in → searches product by partial Vietnamese name in POS → product appears",
+      "spec_file": "e2e/pos.spec.ts",
+      "page_objects": ["AdminPage", "PosPage"],
+      "status": "pending",
+      "type": "e2e"
+    },
+    {
+      "id": "TC-PROD-E02",
+      "user_story": "US-PROD-03",
+      "description": "Manager deactivates product → cashier searches for it in POS → product does not appear in results",
+      "spec_file": "e2e/pos.spec.ts",
+      "page_objects": ["AdminPage", "PosPage"],
+      "status": "pending",
+      "type": "e2e"
+    }
+  ],
+  "frontend_unit": [
+    {
+      "id": "TC-PROD-FU01",
+      "description": "useProducts hook: fetches paginated product list; updates on page change",
+      "spec_file": "frontend/src/lib/products.spec.ts",
+      "status": "pending",
+      "type": "frontend-unit"
+    },
+    {
+      "id": "TC-PROD-FU02",
+      "description": "useProducts hook: q param debounced — no request on every keystroke",
+      "spec_file": "frontend/src/lib/products.spec.ts",
+      "status": "pending",
+      "type": "frontend-unit"
+    },
+    {
+      "id": "TC-PROD-FU03",
+      "description": "formatVnd() utility returns integer VNĐ formatted with thousands separator (e.g. 25000 → '25.000 ₫')",
+      "spec_file": "frontend/src/lib/format.spec.ts",
+      "status": "pending",
+      "type": "frontend-unit"
+    }
+  ],
+  "audit": [
+    {
+      "date": "2026-04-13",
+      "role": "vibe-qa-general",
+      "action": "backfill-created",
+      "note": "Backfill QA documentation for Sprint 2 product feature. 13 unit tests exist in products.service.spec.ts (marked passing). Integration + E2E + frontend-unit tests are pending."
+    }
+  ]
+}

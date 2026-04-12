@@ -1,0 +1,224 @@
+{
+  "meta": {
+    "feature_id": "order",
+    "version": 1,
+    "last_updated": "2026-04-13",
+    "title": "Order Lifecycle — Test Cases",
+    "owner": "vibe-qa-general",
+    "sprint": 3,
+    "source_feature": "wiki/features/order.json"
+  },
+  "summary": {
+    "total": 32,
+    "unit_passing": 10,
+    "unit_pending": 0,
+    "integration_pending": 7,
+    "integration_passing": 0,
+    "e2e_pending": 1,
+    "e2e_passing": 0,
+    "frontend_unit_pending": 5,
+    "coverage_gaps": [
+      "Integration tests: full order state machine transitions via HTTP",
+      "Frontend unit tests: cart Zustand store, order confirmation modal",
+      "E2E: full POS cashier flow — the single most important E2E test in the system"
+    ]
+  },
+  "unit": [
+    {
+      "id": "TC-ORDER-U01",
+      "user_story": "US-ORDER-01",
+      "description": "create() returns order with status='pending', items=[], totalVnd=0, storeId from JWT",
+      "spec_file": "backend/src/modules/orders/orders.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-ORDER-U02",
+      "user_story": "US-ORDER-01",
+      "description": "addItem() snapshots unitPriceVnd and taxRatePercent from product at add time — not live values (BR-ORDER-01)",
+      "spec_file": "backend/src/modules/orders/orders.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-ORDER-U03",
+      "user_story": "US-ORDER-01",
+      "description": "addItem() recalculates totalVnd = sum(unitPriceVnd × quantity) after each item change (BR-ORDER-02)",
+      "spec_file": "backend/src/modules/orders/orders.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-ORDER-U04",
+      "user_story": "US-ORDER-01",
+      "description": "addItem() to non-pending order returns 409 'Cannot modify a non-pending order'",
+      "spec_file": "backend/src/modules/orders/orders.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-ORDER-U05",
+      "user_story": "US-ORDER-01",
+      "description": "addItem() with deactivated product returns 400 'Product is not active'",
+      "spec_file": "backend/src/modules/orders/orders.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-ORDER-U06",
+      "user_story": "US-ORDER-01",
+      "description": "addItem() with same productId increments quantity (upsert), not duplicate row",
+      "spec_file": "backend/src/modules/orders/orders.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-ORDER-U07",
+      "user_story": "US-ORDER-02",
+      "description": "confirmPayment() with no items returns 400 'Order has no items'",
+      "spec_file": "backend/src/modules/orders/orders.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-ORDER-U08",
+      "user_story": "US-ORDER-02",
+      "description": "confirmPayment() transitions order pending → processing and emits order.processing event",
+      "spec_file": "backend/src/modules/orders/orders.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-ORDER-U09",
+      "user_story": "US-ORDER-03",
+      "description": "cancel() transitions pending → cancelled; cancel on processing/completed → 409 'Cannot cancel order in current state'",
+      "spec_file": "backend/src/modules/orders/orders.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-ORDER-U10",
+      "user_story": "US-ORDER-04",
+      "description": "findAll() with cashier user filters results to cashierId = caller.id only (BR-ORDER-08)",
+      "spec_file": "backend/src/modules/orders/orders.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    }
+  ],
+  "integration": [
+    {
+      "id": "TC-ORDER-I01",
+      "user_story": "US-ORDER-01",
+      "description": "POST /api/v1/orders → 201 pending; POST /orders/:id/items → 200 with updated totalVnd",
+      "spec_file": "backend/src/modules/orders/orders.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-ORDER-I02",
+      "user_story": "US-ORDER-01",
+      "description": "POST /orders/:id/items → 404 cross-store product; → 400 deactivated product; → 409 non-pending order",
+      "spec_file": "backend/src/modules/orders/orders.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-ORDER-I03",
+      "user_story": "US-ORDER-02",
+      "description": "POST /orders/:id/confirm-payment → 200, status='processing'; subsequent GET shows processing state",
+      "spec_file": "backend/src/modules/orders/orders.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-ORDER-I04",
+      "user_story": "US-ORDER-02",
+      "description": "POST /orders/:id/confirm-payment with no items → 400; on already-processing order → 409",
+      "spec_file": "backend/src/modules/orders/orders.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-ORDER-I05",
+      "user_story": "US-ORDER-03",
+      "description": "POST /orders/:id/cancel → 200 pending order; → 409 completed order; → 403 wrong store's cashier",
+      "spec_file": "backend/src/modules/orders/orders.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-ORDER-I06",
+      "user_story": "US-ORDER-04",
+      "description": "GET /api/v1/orders → cashier sees own orders only; store-manager sees all store orders (BR-ORDER-08)",
+      "spec_file": "backend/src/modules/orders/orders.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-ORDER-I07",
+      "user_story": "US-ORDER-04",
+      "description": "GET /api/v1/orders with status/date/cashierId filters — only returns matching orders",
+      "spec_file": "backend/src/modules/orders/orders.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    }
+  ],
+  "e2e": [
+    {
+      "id": "TC-ORDER-E01",
+      "user_story": "US-ORDER-01 + US-ORDER-02",
+      "description": "Cashier logs in → /pos → searches product → adds to cart → confirms payment → order.status='processing' → invoice number visible in UI",
+      "spec_file": "e2e/pos.spec.ts",
+      "page_objects": ["LoginPage", "PosPage", "InvoicePage"],
+      "status": "pending",
+      "type": "e2e",
+      "priority": "P0",
+      "notes": "This is the single most critical E2E test — it covers the entire cashier revenue flow"
+    }
+  ],
+  "frontend_unit": [
+    {
+      "id": "TC-ORDER-FU01",
+      "description": "Cart Zustand store: addItem() appends product with quantity 1; duplicate increments quantity",
+      "spec_file": "frontend/src/stores/cart.store.spec.ts",
+      "status": "pending",
+      "type": "frontend-unit"
+    },
+    {
+      "id": "TC-ORDER-FU02",
+      "description": "Cart Zustand store: removeItem() removes product from cart; clearCart() empties all",
+      "spec_file": "frontend/src/stores/cart.store.spec.ts",
+      "status": "pending",
+      "type": "frontend-unit"
+    },
+    {
+      "id": "TC-ORDER-FU03",
+      "description": "Cart total displayed in VNĐ format matches sum of (unitPriceVnd × quantity)",
+      "spec_file": "frontend/src/stores/cart.store.spec.ts",
+      "status": "pending",
+      "type": "frontend-unit"
+    },
+    {
+      "id": "TC-ORDER-FU04",
+      "description": "useOrders hook: fetches paginated order list; applies status filter correctly",
+      "spec_file": "frontend/src/lib/orders.spec.ts",
+      "status": "pending",
+      "type": "frontend-unit"
+    },
+    {
+      "id": "TC-ORDER-FU05",
+      "description": "ConfirmPaymentModal: shows totalVnd and payment method selector; submits correct payload",
+      "spec_file": "frontend/src/components/ConfirmPaymentModal.spec.tsx",
+      "status": "pending",
+      "type": "frontend-unit"
+    }
+  ],
+  "audit": [
+    {
+      "date": "2026-04-13",
+      "role": "vibe-qa-general",
+      "action": "backfill-created",
+      "note": "Backfill QA documentation for Sprint 3 order feature. 25 unit tests exist in orders.service.spec.ts (marked passing). Integration + E2E + frontend-unit tests are pending. TC-ORDER-E01 is P0 — must be the first E2E written when Playwright is set up."
+    }
+  ]
+}

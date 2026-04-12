@@ -7,7 +7,7 @@
   },
   "quick_facts": {
     "sprint": "12",
-    "sprint_goal": "Full Playwright E2E suite covering all critical user flows. OWASP Top 10 security review with all findings addressed. Performance baseline established.",
+    "sprint_goal": "Complete the full Playwright E2E suite (Playwright was set up in Sprint 4 — this sprint closes all remaining E2E gaps). OWASP Top 10 security review with all findings addressed. Performance baseline established.",
     "sprint_start": "2026-09-14",
     "sprint_end": "2026-09-27",
     "velocity_planned": 2,
@@ -15,7 +15,7 @@
     "status": "future"
   },
   "content": {
-    "tldr": "QA-focused sprint. Playwright E2E suite for cashier + accountant flows. Security audit (OWASP Top 10). Load test baseline with autocannon/k6. Vitest coverage report added to CI.",
+    "tldr": "QA completion sprint. Playwright infrastructure was set up in Sprint 4 with P0 tests (cashier flow, auth flow). This sprint completes the remaining E2E flows for accountant, manager, admin. Security audit (OWASP Top 10). Load test baseline with autocannon/k6. Vitest coverage CI gate added.",
     "features_committed": [
       {
         "id": "e2e-tests",
@@ -24,14 +24,14 @@
         "rationale": "No automated regression safety net. A manual test-dependent system cannot go to production.",
         "size": "L",
         "tasks": [
-          "T111: Install Playwright + configure playwright.config.ts (baseURL, browser: chromium)",
-          "T112: E2E: cashier full flow — login → /pos → search product → add to cart → confirm payment → invoice number visible",
-          "T113: E2E: accountant flow — login → /invoices → filter by date → view detail → PDF download button present",
+          "T111: [DONE IN SPRINT 4] Playwright + playwright.config.ts + POM classes (LoginPage, PosPage, InvoicePage) — already set up",
+          "T112: [DONE IN SPRINT 4] TC-ORDER-E01: cashier full POS flow E2E — already written as P0 test",
+          "T113: E2E: accountant full flow — TC-INV-E02: login → /invoices → filter by date → view detail → VAT subtotals visible",
           "T114: E2E: manager flow — login → /dashboard → see revenue KPIs → /orders → filter by status",
-          "T115: E2E: admin flow — login → /admin/stores → create store → /admin/users → create cashier → verify appears in list",
-          "T116: E2E: error flow — invalid login → Vietnamese error message shown → no redirect",
-          "T117: Page Object Model (POM) pattern: LoginPage, PosPage, InvoicePage, AdminPage",
-          "T118: CI integration: Playwright runs on GitHub Actions on pull_request to develop"
+          "T115: E2E: admin full flow — TC-STORE-E01 + TC-STORE-E02: login → /admin/stores → create store → /admin/users → create cashier → verify in list",
+          "T116: [DONE IN SPRINT 4] TC-AUTH-E02: error flow — invalid login → Vietnamese error message shown — already written",
+          "T117: AdminPage POM class — new (Sprint 4 covers LoginPage, PosPage, InvoicePage)",
+          "T118: CI integration: Playwright runs on GitHub Actions on pull_request to develop — add to .github/workflows/ci.yml"
         ]
       },
       {
@@ -63,6 +63,8 @@
     ],
     "prerequisites": [
       "Sprint 4-11: All features implemented and stable",
+      "Playwright already installed from Sprint 4 (QA-T001) — playwright.config.ts + POM classes exist",
+      "P0 E2E tests from Sprint 4 (TC-ORDER-E01, TC-AUTH-E01, TC-AUTH-E02) already passing",
       "A test database seed script (scripts/seed.sh already exists — verify E2E-compatible data)"
     ]
   },
