@@ -17,6 +17,10 @@ const STYLES: Record<string, string> = {
   'wont-fix':    'bg-gray-200 text-gray-600',
   inactive:      'bg-gray-100 text-gray-500',
   'not-started': 'bg-gray-100 text-gray-400',
+  // bug statuses
+  open:          'bg-red-100 text-red-700',
+  fixed:         'bg-green-100 text-green-700',
+  verified:      'bg-emerald-100 text-emerald-800',
 };
 
 export function StatusBadge({ status }: { status: string }) {

@@ -1,3 +1,5 @@
+import { StatusBadge } from '@/components/StatusBadge';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface BugAuditEntry {
@@ -21,24 +23,6 @@ function SeverityBadge({ severity }: { severity: string }) {
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${cls}`}>
       {severity}
-    </span>
-  );
-}
-
-// ─── Status badge ─────────────────────────────────────────────────────────────
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    open:        'bg-red-50 text-red-600 border-red-200',
-    'in-progress': 'bg-blue-50 text-blue-600 border-blue-200',
-    fixed:       'bg-green-50 text-green-700 border-green-200',
-    verified:    'bg-emerald-50 text-emerald-700 border-emerald-200',
-    'wont-fix':  'bg-gray-100 text-gray-500 border-gray-200',
-  };
-  const cls = map[status] ?? 'bg-gray-100 text-gray-500 border-gray-200';
-  return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${cls}`}>
-      {status}
     </span>
   );
 }
