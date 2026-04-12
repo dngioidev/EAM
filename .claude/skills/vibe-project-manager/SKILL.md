@@ -42,6 +42,18 @@ Violation example from this project (2026-04-12): implemented all wiki-app reada
 
 Every session, in this exact order:
 
+**STEP 0: Verify current branch — runs before anything else**
+```bash
+git branch --show-current
+```
+| Result | Action |
+|---|---|
+| `develop` | ✅ Correct — proceed to STEP 1 |
+| `main` | 🛑 HARD STOP — never work from `main`. Tell user and ask them to confirm checkout to `develop` |
+| `feature/*`, `fix/*`, `chore/*`, etc. | ⚠️ ALERT user: *"You are on branch '{name}', not develop. Checking out develop before starting new work."* — then `git checkout develop && git pull origin develop` — confirm to user before proceeding |
+
+Report the current branch to the user at the start of every session regardless of which case applies. Never silently skip this step.
+
 **STEP 1: Read wiki/dashboard.json**
 - Check `is_new_project`: if `true` AND `project_initialized` is `null`
   → Run PROJECT INITIALIZATION (see `references/project-init.md`)

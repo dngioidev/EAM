@@ -74,11 +74,20 @@ git status
 - If uncommitted changes exist on a feature/fix/* branch: ask user whether to stash or commit first
 - NEVER silently discard uncommitted changes
 
-### Step 2 — Ensure develop is up to date
+### Step 2 — Verify base branch and alert if wrong
 ```bash
-git checkout develop
-git pull origin develop
+git branch --show-current
 ```
+
+Check the result before doing anything else:
+
+| Current branch | Action |
+|---|---|
+| `develop` | ✅ Expected. Run `git pull origin develop` and continue. |
+| `main` | 🛑 HARD STOP. Report: *"On main — cannot start work here. Please confirm: shall I checkout develop?"* Wait for user confirmation before any checkout. |
+| `feature/*`, `fix/*`, `chore/*`, `refactor/*`, `test/*` | ⚠️ ALERT user: *"Currently on '{branch}' — not develop. Checking out develop as base for new task."* Then: `git checkout develop && git pull origin develop`. Confirm to user before proceeding. |
+
+Always report the branch name and action taken. Never silently switch branches.
 
 ### Step 3 — Determine branch name
 - Read the task from `wiki/features/{name}/progress.json` or `wiki/bugs/`
