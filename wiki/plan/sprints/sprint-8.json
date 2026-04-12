@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Sprint 8 — Advanced POS & Refunds",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "sprint": "8",
+    "sprint_goal": "Enable cashiers to apply discounts on line items, managers to process refunds, and support split cash+card payment — covering the most common real-world POS scenarios beyond the basic MVP flow.",
+    "sprint_start": "2026-07-20",
+    "sprint_end": "2026-08-02",
+    "velocity_planned": 3,
+    "velocity_actual": null,
+    "status": "future"
+  },
+  "content": {
+    "tldr": "Advanced POS features: line-item discounts, refund workflow (backend state completed→refunded already exists in state machine — now gets UI), and split payment (cash+card partial amounts).",
+    "features_committed": [
+      {
+        "id": "discount",
+        "title": "Line-Item Discounts",
+        "priority": 1,
+        "rationale": "Promotional pricing and on-the-spot discounts are expected by every retail customer.",
+        "size": "M",
+        "tasks": [
+          "T061: OrderItem entity: add discountPercent integer (0-100, default 0) + migration",
+          "T062: POST /orders/:id/items: accept optional discountPercent",
+          "T063: Recalculate subtotal = unitPriceVnd * qty * (1 - discount/100) — integer floor VNĐ",
+          "T064: Invoice VAT recalculated on discounted price",
+          "T065: POS UI: discount input per cart item (0-100%)",
+          "T066: Cart total shows original price strikethrough + discounted total"
+        ]
+      },
+      {
+        "id": "refund",
+        "title": "Refund Workflow",
+        "priority": 2,
+        "rationale": "Backend state machine already supports 'refunded'. This sprint adds the UI and triggers invoice void.",
+        "size": "M",
+        "tasks": [
+          "T067: POST /orders/:id/refund — transitions completed → refunded (manager role only)",
+          "T068: On refund: invoice.status → cancelled (linked invoice voided)",
+          "T069: Order detail page: 'Hoàn tiền' button visible to manager role on completed orders",
+          "T070: Confirmation dialog: 'Xác nhận hoàn tiền? Hóa đơn sẽ bị huỷ.'",
+          "T071: Refunded order shown with strikethrough + red badge in orders list"
+        ]
+      },
+      {
+        "id": "split-payment",
+        "title": "Split Payment (Cash + Card)",
+        "priority": 3,
+        "rationale": "Common in Vietnamese retail: customer pays partial cash, partial card.",
+        "size": "S",
+        "tasks": [
+          "T072: Order: add cashAmountVnd + cardAmountVnd fields (must sum to totalVnd) + migration",
+          "T073: POST /orders/:id/confirm-payment: accept { cashAmount, cardAmount }",
+          "T074: POS payment modal: two amount fields + real-time validation that sum == cart total",
+          "T075: Invoice records payment breakdown"
+        ]
+      }
+    ],
+    "out_of_scope": [
+      "QR code payment (e.g., VNPay, Momo) — Sprint 10+",
+      "Partial refund (full refund only this sprint)",
+      "Replacement invoice for refunded order (Sprint 9)"
+    ],
+    "prerequisites": [
+      "Sprint 3: Order state machine + Invoice auto-generation stable",
+      "Sprint 4: AppLayout + role-based nav in place"
+    ]
+  },
+  "velocity": { "planned": 3, "completed": null, "carried_over": [] },
+  "retrospective": null,
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "created",
+      "note": "Sprint 8 planned. Full-stack: discounts + refund UI + split payment. Backend+frontend together."
+    }
+  ]
+}

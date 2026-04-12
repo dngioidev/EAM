@@ -1,16 +1,18 @@
 {
   "meta": {
-    "version": 1,
+    "version": 2,
     "last_updated": "2026-04-12",
     "title": "Product Roadmap — V-Smart Ledger / EAM-Tax",
     "owner": "vibe-product-owner"
   },
   "quick_facts": {
     "product_name": "V-Smart Ledger / EAM-Tax",
-    "current_sprint": "1",
-    "total_sprints_planned": 5,
+    "current_sprint": "3",
+    "total_sprints_planned": 13,
     "mvp_sprint": "3",
-    "first_production_candidate": "Sprint 3 end (2026-06-07)"
+    "demo_candidate_sprint": "4",
+    "first_production_candidate": "Sprint 13 end (2026-10-11)",
+    "frontend_priority_note": "Starting Sprint 4, frontend ships in parallel with — or BEFORE — backend. Every sprint must produce a demo-able UI increment."
   },
   "content": {
     "vision": "A Vietnamese-compliant Point-of-Sale and Electronic Invoice platform for retail stores. Every sale automatically produces a legally valid hóa đơn điện tử (Circular 78/2021/TT-BTC). All data is store-scoped, role-protected, and accessible via a real-time dashboard.",
@@ -62,10 +64,73 @@
         "id": "epic-hardening",
         "title": "Production Hardening",
         "goal": "System is ready for real store deployment: E2E tests pass, Docker Compose verified, onboarding guide tested end-to-end.",
-        "sprints": [5],
+        "sprints": [12, 13],
         "features": ["e2e-tests", "devops-prod"],
         "status": "future",
         "completion_criteria": "Full Playwright E2E suite green. docker compose up produces working system. Onboarding guide verified by a new team member."
+      },
+      {
+        "id": "epic-demo-ready",
+        "title": "Demo-Ready Frontend",
+        "goal": "Every existing backend feature has a polished, navigable UI. A customer demo can run end-to-end in a browser with no hand-holding.",
+        "sprints": [4],
+        "features": ["nav-layout", "store-ui", "user-ui"],
+        "status": "planned",
+        "completion_criteria": "AppLayout + role-aware sidebar. Admin can manage stores and users. Any role can log in and reach their home screen."
+      },
+      {
+        "id": "epic-reporting",
+        "title": "Reporting & Tax Reconciliation",
+        "goal": "Accountants can export daily/monthly revenue and VAT summaries. Managers can view live dashboard stats.",
+        "sprints": [5, 6],
+        "features": ["reporting"],
+        "status": "future",
+        "completion_criteria": "GET /reports/daily returns revenue + VAT totals. CSV export of invoices for tax authority submission. Manager dashboard with chart."
+      },
+      {
+        "id": "epic-catalog-plus",
+        "title": "Product Catalog Enhancements",
+        "goal": "Products are organized by category. Cashiers can scan barcodes. Managers can bulk import via CSV.",
+        "sprints": [7],
+        "features": ["product-categories", "barcode", "bulk-import"],
+        "status": "future",
+        "completion_criteria": "Category CRUD live. POS barcode input lookup by SKU. CSV import validated and imported successfully."
+      },
+      {
+        "id": "epic-advanced-pos",
+        "title": "Advanced POS & Refunds",
+        "goal": "Cashiers can apply discounts. Managers can process refunds. Split payment supported.",
+        "sprints": [8],
+        "features": ["discount", "refund", "split-payment"],
+        "status": "future",
+        "completion_criteria": "Discount % per line item. Refund triggers state completed→refunded. Invoice voided + replacement issued."
+      },
+      {
+        "id": "epic-tax-compliance",
+        "title": "Tax Compliance & Invoice Hardening",
+        "goal": "Invoices can be downloaded as PDF and exported as Circular 78-compliant XML for tax authority submission.",
+        "sprints": [9],
+        "features": ["invoice-pdf", "invoice-xml"],
+        "status": "future",
+        "completion_criteria": "PDF download button on invoice detail. XML export endpoint passes schema validation."
+      },
+      {
+        "id": "epic-admin-multistore",
+        "title": "Multi-store Admin",
+        "goal": "Admins can compare performance across stores, reassign users, and configure stores centrally.",
+        "sprints": [10],
+        "features": ["admin-multistore"],
+        "status": "future",
+        "completion_criteria": "Admin cross-store revenue dashboard. Global user management with store reassignment."
+      },
+      {
+        "id": "epic-realtime",
+        "title": "Real-time & Notifications",
+        "goal": "Managers see live order activity. Accountants get notified of pending invoices. POS gives feedback on payment confirmation.",
+        "sprints": [11],
+        "features": ["websocket", "notifications"],
+        "status": "future",
+        "completion_criteria": "WebSocket order feed on manager dashboard. Notification bell for accountant. Audio alert on POS payment confirmed."
       }
     ],
     "sprint_schedule": [
@@ -91,37 +156,105 @@
         "dates": "2026-05-11 → 2026-05-24",
         "features": ["order", "invoice"],
         "milestone": "MVP: Full sale flow from cart to issued tax invoice.",
-        "status": "planning",
-        "note": "MVP candidate. First sprint where the product delivers real business value."
+        "status": "in_progress",
+        "note": "MVP. Backend done. Frontend pages exist — navigation gap to close."
       },
       {
         "sprint": 4,
-        "title": "Reporting & Tax",
+        "title": "Demo-Ready Frontend",
         "dates": "2026-05-25 → 2026-06-07",
-        "features": ["reporting", "dashboard-live"],
-        "milestone": "Accountants can close the month with a CSV export for the tax authority.",
-        "status": "future"
+        "features": ["nav-layout", "store-ui", "user-ui"],
+        "milestone": "AppLayout + role-aware nav. Admin manages stores & users. Full system demo-able.",
+        "status": "planned",
+        "note": "HIGHEST PRIORITY. Ties all existing backend+frontend work into a navigable demo."
       },
       {
         "sprint": 5,
-        "title": "Production Hardening",
+        "title": "UX Polish + Reporting Backend",
         "dates": "2026-06-08 → 2026-06-21",
-        "features": ["e2e-tests", "devops-prod"],
-        "milestone": "System deployed to production. Onboarding guide verified.",
+        "features": ["ux-polish", "reporting-backend"],
+        "milestone": "Print invoice, toast system, skeleton loaders. Reporting API endpoints live.",
+        "status": "future"
+      },
+      {
+        "sprint": 6,
+        "title": "Reporting Frontend + Manager Dashboard",
+        "dates": "2026-06-22 → 2026-07-05",
+        "features": ["reporting-frontend"],
+        "milestone": "Accountant can export CSV for tax authority. Manager dashboard with revenue chart.",
+        "status": "future"
+      },
+      {
+        "sprint": 7,
+        "title": "Product Catalog Enhancements",
+        "dates": "2026-07-06 → 2026-07-19",
+        "features": ["product-categories", "barcode", "bulk-import"],
+        "milestone": "Product categories live. Barcode lookup on POS. CSV bulk import for managers.",
+        "status": "future"
+      },
+      {
+        "sprint": 8,
+        "title": "Advanced POS & Refunds",
+        "dates": "2026-07-20 → 2026-08-02",
+        "features": ["discount", "refund", "split-payment"],
+        "milestone": "Discounts on line items. Manager processes refunds. Split cash+card payment.",
+        "status": "future"
+      },
+      {
+        "sprint": 9,
+        "title": "Tax Compliance & Invoice Hardening",
+        "dates": "2026-08-03 → 2026-08-16",
+        "features": ["invoice-pdf", "invoice-xml"],
+        "milestone": "Invoice PDF download live. Circular 78-compliant XML export generated.",
+        "status": "future"
+      },
+      {
+        "sprint": 10,
+        "title": "Multi-store Admin",
+        "dates": "2026-08-17 → 2026-08-30",
+        "features": ["admin-multistore"],
+        "milestone": "Admin cross-store revenue compare. Global user reassignment. Store config edit.",
+        "status": "future"
+      },
+      {
+        "sprint": 11,
+        "title": "Real-time & Notifications",
+        "dates": "2026-08-31 → 2026-09-13",
+        "features": ["websocket", "notifications"],
+        "milestone": "Live order feed on manager dashboard. Notification bell. POS audio alert.",
+        "status": "future"
+      },
+      {
+        "sprint": 12,
+        "title": "E2E Testing & Security Audit",
+        "dates": "2026-09-14 → 2026-09-27",
+        "features": ["e2e-tests", "security-audit"],
+        "milestone": "Full Playwright cashier E2E green. OWASP Top 10 review passed.",
+        "status": "future"
+      },
+      {
+        "sprint": 13,
+        "title": "Production Hardening",
+        "dates": "2026-09-28 → 2026-10-11",
+        "features": ["devops-prod", "ci-cd"],
+        "milestone": "Docker production config verified. GitHub Actions CI/CD. Swagger complete. Onboarding guide tested.",
         "status": "future"
       }
     ],
     "dependency_chain": [
-      "auth → store → product → order → invoice → reporting"
+      "auth → store → product → order → invoice → nav-layout → reporting → product-categories → discount/refund → invoice-pdf → admin-multistore → websocket → e2e-tests → devops-prod"
     ],
-    "frontend_note": "Frontend (React 18 + Vite 5) is deliberately deferred until Sprint 2. Sprint 1 is backend-only to establish the API foundation. Frontend picks up in Sprint 2 with the product catalog UI, and is in full swing from Sprint 3 onward for the POS screen.",
+    "frontend_note": "From Sprint 4 onward: EVERY backend feature ships with a frontend UI in the same sprint. No more backend-only sprints. Frontend is a first-class delivery requirement.",
+    "frontend_priority_statement": "Customer demo & testing readiness is the primary concern for Sprints 4-6. Navigation, role-aware landing, store/user management, UX polish, and reporting UI unlock the full demo scenario.",
     "deferred_features": [
-      { "feature": "password-reset", "reason": "Email service not configured", "target_sprint": 4 },
-      { "feature": "token-blacklist", "reason": "15-min TTL accepted as risk", "target_sprint": 4 },
-      { "feature": "multi-device-sessions", "reason": "Single-session model sufficient for Sprint 1", "target_sprint": 4 },
-      { "feature": "promotion-codes", "reason": "Out of MVP scope", "target_sprint": "post-mvp" },
-      { "feature": "stock-management", "reason": "Out of MVP scope — product has price/tax but no inventory tracking", "target_sprint": "post-mvp" },
-      { "feature": "external-invoice-authority-api", "reason": "Integration with Vietnamese tax authority portal — legal/operational dependency", "target_sprint": "post-mvp" }
+      { "feature": "password-reset",              "reason": "Email service not configured",                         "target_sprint": 10 },
+      { "feature": "token-blacklist",             "reason": "15-min TTL accepted as risk",                          "target_sprint": 10 },
+      { "feature": "multi-device-sessions",       "reason": "Single-session model sufficient for now",              "target_sprint": 11 },
+      { "feature": "promotion-codes",             "reason": "Out of MVP scope",                                     "target_sprint": "post-mvp" },
+      { "feature": "stock-management",            "reason": "Product has price/tax — no inventory tracking yet",    "target_sprint": "post-mvp" },
+      { "feature": "external-invoice-authority",  "reason": "Legal/operational dependency on Vietnamese tax portal","target_sprint": "post-mvp" },
+      { "feature": "barcode-scanner-hardware",    "reason": "Manual SKU entry sufficient for demo",                 "target_sprint": 7 },
+      { "feature": "receipt-printer",             "reason": "PDF print-to-browser sufficient for MVP",              "target_sprint": 9 }
     ]
   },
   "audit": [
@@ -131,6 +264,13 @@
       "author": "vibe-product-owner",
       "action": "created",
       "note": "Full 5-sprint roadmap created. MVP at Sprint 3. Dependency chain established."
+    },
+    {
+      "version": 2,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "extended-to-sprint-13",
+      "note": "Roadmap extended from 5 to 13 sprints. Frontend-first rebalancing: Sprint 4 is Demo-Ready Frontend (AppLayout + nav + store/user UI). Sprints 5-6 close reporting. Sprints 7-9 catalog enhancements + advanced POS + tax compliance. Sprints 10-11 admin + real-time. Sprints 12-13 hardening + production."
     }
   ]
 }
