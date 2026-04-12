@@ -21,9 +21,9 @@ let _db: Database.Database | null = null;
 
 export function getDb(): Database.Database {
   if (_db) return _db;
-  _db = new Database(DB_PATH, { readonly: true });
-  _db.pragma('journal_mode = WAL');
-  _db.pragma('foreign_keys = ON');
+  // readonly: true — do NOT set journal_mode or foreign_keys pragmas;
+  // WAL is already set on the DB at creation; pragmas that write fail on readonly handles.
+  _db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
   return _db;
 }
 
@@ -111,13 +111,19 @@ export function getEntry(section: string, slug: string): Record<string, unknown>
   };
 
   const table = tableMap[section];
-  if (!table) return null; // Unknown section — caller should fall back to readWikiFile
+  if (table) {
+    const idCol = section === 'api-contracts' ? 'module' : 'id';
+    const row = db
+      .prepare(`SELECT data FROM ${table} WHERE ${idCol} = ?`)
+      .get(slug) as { data: string } | null;
+    if (row) return JSON.parse(row.data) as Record<string, unknown>;
+  }
 
-  const idCol = section === 'api-contracts' ? 'module' : 'id';
-  const row = db
-    .prepare(`SELECT data FROM ${table} WHERE ${idCol} = ?`)
-    .get(slug) as { data: string } | null;
-  return row ? (JSON.parse(row.data) as Record<string, unknown>) : null;
+  // Fall back to generic pages table for all other sections
+  const pageRow = db
+    .prepare('SELECT data FROM pages WHERE section = ? AND slug = ?')
+    .get(section, slug) as { data: string } | null;
+  return pageRow ? (JSON.parse(pageRow.data) as Record<string, unknown>) : null;
 }
 
 /** List entry IDs/slugs for a known section */
@@ -132,12 +138,18 @@ export function listSection(section: string): string[] {
   };
 
   const mapping = tableMap[section];
-  if (!mapping) return []; // Unknown section — caller should fall back to listWikiFiles
+  if (mapping) {
+    const rows = db
+      .prepare(`SELECT ${mapping.idCol} AS id FROM ${mapping.table} ORDER BY ${mapping.idCol}`)
+      .all() as Array<{ id: string }>;
+    return rows.map((r) => r.id);
+  }
 
+  // Fall back to generic pages table
   const rows = db
-    .prepare(`SELECT ${mapping.idCol} AS id FROM ${mapping.table} ORDER BY ${mapping.idCol}`)
-    .all() as Array<{ id: string }>;
-  return rows.map((r) => r.id);
+    .prepare(`SELECT slug FROM pages WHERE section = ? AND slug != '_index' ORDER BY slug`)
+    .all(section) as Array<{ slug: string }>;
+  return rows.map((r) => r.slug);
 }
 
 /** Get changelog entries, newest-first */

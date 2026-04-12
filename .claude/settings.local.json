@@ -14,7 +14,8 @@
       "Bash(npx tsc:*)",
       "Bash(git add:*)",
       "Bash(git commit -m ':*)",
-      "Bash(git -C \"d:/dngioi/EAM\" branch --show-current)"
+      "Bash(git -C \"d:/dngioi/EAM\" branch --show-current)",
+      "Bash(git:*)"
     ]
   }
 }

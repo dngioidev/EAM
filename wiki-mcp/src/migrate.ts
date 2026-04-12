@@ -14,7 +14,7 @@
  */
 
 import Database from "better-sqlite3";
-import { readFileSync, readdirSync, existsSync } from "fs";
+import { readFileSync, readdirSync, existsSync, statSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -417,6 +417,109 @@ function importDashboard(db: Database.Database): boolean {
   return true;
 }
 
+/**
+ * importPages — migrates all wiki sections not covered by dedicated tables into
+ * the generic `pages` table keyed by (section, slug).
+ *
+ * Handles:
+ *   - Folder sections with multiple JSON files (techstack/, rulebook/, etc.)
+ *   - Single-file "sections" (glossary.json → section=glossary slug=_index, etc.)
+ *   - Nested subdirectories: recursed into with parent+child as section key
+ */
+function importPages(db: Database.Database): number {
+  const upsert = db.prepare(`
+    INSERT OR REPLACE INTO pages (section, slug, title, data, updated_at)
+    VALUES (@section, @slug, @title, @data, @updated_at)
+  `);
+
+  // Sections already handled by dedicated tables — skip them
+  const SKIP_DIRS = new Set([
+    "features", "api-contracts", "bugs", "history",
+    "decisions", "plan", "_schema",
+  ]);
+  // Single-file JSON files at wiki root that we want to store as pages
+  const ROOT_FILES = [
+    "glossary.json",
+    "onboarding.json",
+    "roadmap.json",
+    "state-map.json",
+    "env-config.json",
+  ];
+
+  let count = 0;
+  const ts = now();
+
+  function extractTitle(raw: Record<string, unknown>, fallback: string): string {
+    const meta = raw.meta as Record<string, unknown> | undefined;
+    const content = raw.content as Record<string, unknown> | undefined;
+    return String(
+      meta?.title ?? content?.title ?? raw.title ?? fallback
+    );
+  }
+
+  function upsertFile(section: string, slug: string, filePath: string): void {
+    const raw = readJson(filePath);
+    if (!raw) return;
+    const title = extractTitle(raw, slug);
+    const meta = raw.meta as Record<string, unknown> | undefined;
+    upsert.run({
+      section,
+      slug,
+      title,
+      data: JSON.stringify(raw, null, 2),
+      updated_at: String(meta?.last_updated ?? ts),
+    });
+    count++;
+  }
+
+  // Walk a directory, storing each JSON file as a page (1 level deep for subdirs)
+  function importDir(section: string, dir: string): void {
+    if (!existsSync(dir)) return;
+    const entries = readdirSync(dir);
+    for (const entry of entries) {
+      if (entry.startsWith("_") || !entry.endsWith(".json")) {
+        // Check if it's a subdirectory (no extension)
+        const fullPath = path.join(dir, entry);
+        if (!entry.includes(".") && statSync(fullPath).isDirectory()) {
+          // Use section/subdir as slug prefix to avoid collisions
+          importDir(`${section}/${entry}`, fullPath);
+        }
+        continue;
+      }
+      const slug = entry.replace(/\.json$/, "");
+      upsertFile(section, slug, path.join(dir, entry));
+    }
+  }
+
+  // Migrate root-level single-file pages
+  for (const filename of ROOT_FILES) {
+    const section = filename.replace(/\.json$/, "");
+    upsertFile(section, "_index", path.join(WIKI_ROOT, filename));
+  }
+
+  // Migrate all subdirectory sections not already handled
+  const rootEntries = readdirSync(WIKI_ROOT);
+  for (const entry of rootEntries) {
+    if (entry.startsWith("_") || entry.includes(".")) continue;
+    if (SKIP_DIRS.has(entry)) continue;
+    const dir = path.join(WIKI_ROOT, entry);
+    if (!statSync(dir).isDirectory()) continue;
+    importDir(entry, dir);
+  }
+
+  // Migrate plan/ — sprints are in dedicated table but plan-level files aren't
+  const planDir = path.join(WIKI_ROOT, "plan");
+  if (existsSync(planDir)) {
+    for (const entry of readdirSync(planDir)) {
+      if (entry.startsWith("_") || !entry.endsWith(".json")) continue;
+      const slug = entry.replace(/\.json$/, "");
+      upsertFile("plan", slug, path.join(planDir, entry));
+    }
+  }
+
+  return count;
+}
+
 // ─── Normalizers — map observed JSON values to schema enums ───────────────────
 
 function normalizeFeatureStatus(s: string): string {
@@ -562,12 +665,16 @@ async function main(): Promise<void> {
     const dashboard = importDashboard(db);
     console.log(`  dashboard: ${dashboard ? "imported" : "skipped"}\n`);
 
+    console.log("Importing generic pages (techstack, rulebook, design, etc.)...");
+    const pages = importPages(db);
+    console.log(`  ${pages} pages imported\n`);
+
     const summary = JSON.stringify({
-      features, sprints, contracts, bugs, history, decisions, changelog, dashboard,
+      features, sprints, contracts, bugs, history, decisions, changelog, dashboard, pages,
     });
     logMigration(db, summary);
 
-    return { features, sprints, contracts, bugs, history, decisions, changelog, dashboard };
+    return { features, sprints, contracts, bugs, history, decisions, changelog, dashboard, pages };
   });
 
   try {
@@ -582,6 +689,7 @@ async function main(): Promise<void> {
     console.log(`  decisions:  ${counts.decisions}`);
     console.log(`  changelog:  ${counts.changelog}`);
     console.log(`  dashboard:  ${counts.dashboard ? "OK" : "skipped"}`);
+    console.log(`  pages:      ${counts.pages}`);
 
     db.close();
     console.log("\nwiki.db ready.");

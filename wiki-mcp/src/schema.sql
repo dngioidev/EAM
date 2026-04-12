@@ -173,3 +173,18 @@ CREATE VIRTUAL TABLE IF NOT EXISTS contracts_fts USING fts5(
   body,                                  -- concatenated endpoint paths + descriptions
   tokenize = 'unicode61'
 );
+
+-- ─── Generic pages — catch-all for sections not in dedicated tables ────────────
+-- Stores techstack, rulebook, impact-map, business-workflow, design, plan, etc.
+-- Keyed by (section, slug) so the wiki-app can query by URL path segment.
+-- Single-file sections (onboarding.json, glossary.json, etc.) use slug = '_index'.
+CREATE TABLE IF NOT EXISTS pages (
+  section     TEXT NOT NULL,             -- e.g. 'techstack', 'rulebook', 'design'
+  slug        TEXT NOT NULL,             -- e.g. 'backend', '_index' for single files
+  title       TEXT,
+  data        TEXT NOT NULL,
+  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  PRIMARY KEY (section, slug)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pages_section ON pages(section);
