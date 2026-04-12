@@ -11,8 +11,8 @@
     "sprint_start": "2026-04-27",
     "sprint_end": "2026-05-10",
     "velocity_planned": 1,
-    "velocity_actual": null,
-    "status": "in-progress"
+    "velocity_actual": 1,
+    "status": "completed"
   },
   "content": {
     "tldr": "Sprint 2 introduces the product/SKU catalog and kicks off the React frontend. Depends on Sprint 1 (auth + store) being complete.",
@@ -43,10 +43,25 @@
   },
   "velocity": {
     "planned": 1,
-    "completed": null,
+    "completed": 1,
     "carried_over": []
   },
-  "retrospective": null,
+  "retrospective": {
+    "what_went_well": [
+      "Backend T001-T005 delivered cleanly with 13 passing unit tests",
+      "Frontend scaffold, auth flow, product list + form all done in one pass",
+      "tsc --noEmit and vite build both clean",
+      "Docker + nginx routing completed without issues"
+    ],
+    "what_to_improve": [
+      "Frontend scaffold should be done at sprint start, not after backend",
+      "Zod + RHF form tests not yet written (deferred to Sprint 3 QA)"
+    ],
+    "action_items": [
+      "Add Vitest + React Testing Library setup in Sprint 3",
+      "Add E2E Playwright smoke test for login flow in Sprint 3"
+    ]
+  },
   "audit": [
     {
       "version": 1,
@@ -54,6 +69,13 @@
       "author": "vibe-product-owner",
       "action": "created",
       "note": "Sprint 2 planned as part of high-level roadmap session."
+    },
+    {
+      "version": 2,
+      "timestamp": "2026-04-12T12:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "closed",
+      "note": "Sprint 2 completed. All 9 tasks done. tsc clean, vite build clean, 13 backend tests green."
     }
   ]
 }

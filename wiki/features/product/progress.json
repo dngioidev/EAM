@@ -3,7 +3,7 @@
     "feature_id": "product",
     "sprint": 2,
     "last_updated": "2026-04-12",
-    "version": 2
+    "version": 3
   },
   "tasks": [
     {
@@ -60,47 +60,47 @@
       "id": "T006",
       "title": "Frontend scaffold: Vite + React 18 + Zustand + React Query + Tailwind + shadcn",
       "role": "frontend",
-      "status": "not-started",
+      "status": "done",
       "blocked_by": null,
       "estimate_hours": 3,
-      "actual_hours": null,
-      "notes": "Can start in parallel with backend. See project-init.md frontend scaffold commands."
+      "actual_hours": 3,
+      "notes": "frontend/ directory: Vite 5, React 18, TypeScript strict, Tailwind 3, Radix/CVA UI primitives, axios, react-router-dom v6. Docker + nginx wired."
     },
     {
       "id": "T007",
       "title": "Frontend: Login page wired to POST /auth/login",
       "role": "frontend",
-      "status": "not-started",
+      "status": "done",
       "blocked_by": "T006",
       "estimate_hours": 3,
-      "actual_hours": null,
-      "notes": "Zustand auth store, JWT storage, axios interceptor for refresh. Requires Sprint 1 backend live."
+      "actual_hours": 3,
+      "notes": "Zustand auth store (persisted), axios interceptor for refresh token rotation, RHF+Zod login form, route guards (RequireAuth / RedirectIfAuth)."
     },
     {
       "id": "T008",
       "title": "Frontend: Product list page + search",
       "role": "frontend",
-      "status": "not-started",
+      "status": "done",
       "blocked_by": "T007",
       "estimate_hours": 4,
-      "actual_hours": null,
-      "notes": "React Query for server state. shadcn Table + Input components."
+      "actual_hours": 4,
+      "notes": "React Query, diacritic search input, paginated table, active/inactive badge, deactivate action, role-based write controls."
     },
     {
       "id": "T009",
       "title": "Frontend: Create/edit product form (React Hook Form + Zod)",
       "role": "frontend",
-      "status": "not-started",
+      "status": "done",
       "blocked_by": "T008",
       "estimate_hours": 4,
-      "actual_hours": null,
-      "notes": "Zod schema must validate priceVnd as integer, taxRatePercent as enum."
+      "actual_hours": 4,
+      "notes": "Zod: priceVnd integer ≥0, taxRatePercent enum {0,5,8,10}. SKU read-only in edit mode (BR-PROD-05). Conflict 409 mapped to SKU field error."
     }
   ],
   "session_log": [],
   "handoff_notes": {
-    "last_code_state": "No code written yet. Blocked on Sprint 1.",
+    "last_code_state": "All T001-T009 done. Frontend vite build clean (179 modules, 1.36s). tsc --noEmit clean.",
     "known_issues": [],
-    "resume_instructions": "Start at T001 only after store migration is applied. T006 can start in parallel immediately."
+    "resume_instructions": "Sprint 2 complete. Next: Sprint 3 (Order feature)."
   }
 }

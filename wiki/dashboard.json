@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 6,
+    "version": 7,
     "last_updated": "2026-04-12",
     "title": "Sprint Dashboard",
     "owner": "vibe-project-manager"
@@ -14,13 +14,13 @@
     "velocity_actual": 2,
     "build_status": {
       "backend": "passing",
-      "frontend": "not-started",
+      "frontend": "passing",
       "wiki-app": "passing"
     }
   },
   "content": {
-    "tldr": "Sprint 2 active. Building product catalog (backend T001-T005) + frontend scaffold (T006-T009). Sprint 1 closed: auth + store done, 11 tests green.",
-    "active_features": ["product"],
+    "tldr": "Sprint 2 CLOSED. Product catalog backend (13 tests) + frontend scaffold complete. Login, product list, create/edit form all done. Vite build clean. Sprint 3 unblocked: Orders.",
+    "active_features": [],
     "open_bugs": 0,
     "bugs_by_severity": {
       "critical": 0,
