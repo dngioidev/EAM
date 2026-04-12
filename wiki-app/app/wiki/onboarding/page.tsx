@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { readWikiFile } from '@/lib/wiki';
+import { getEntry } from '@/lib/db';
+import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Developer Onboarding' };
@@ -31,8 +32,10 @@ interface Onboarding {
   };
 }
 
-export default async function OnboardingPage() {
-  const data = await readWikiFile<Onboarding>('onboarding.json');
+export default function OnboardingPage() {
+  const raw = getEntry('onboarding', '_index');
+  if (!raw) notFound();
+  const data = raw as unknown as Onboarding;
   const { meta, quick_facts: qf, content } = data;
 
   return (

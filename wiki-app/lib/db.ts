@@ -73,6 +73,17 @@ export function getDashboard(): Record<string, unknown> {
   return JSON.parse(row.data) as Record<string, unknown>;
 }
 
+// ── Unified section → table mapping ──────────────────────────────────────────
+
+/** Sections backed by a dedicated table (not the generic pages table). */
+const SECTION_TABLE: Record<string, { table: string; idCol: string }> = {
+  features:        { table: 'features',      idCol: 'id'     },
+  bugs:            { table: 'bugs',          idCol: 'id'     },
+  decisions:       { table: 'decisions',     idCol: 'id'     },
+  'api-contracts': { table: 'api_contracts', idCol: 'module' },
+  history:         { table: 'history',       idCol: 'date'   },
+};
+
 /** Get full feature record by ID */
 export function getFeature(id: string): Record<string, unknown> | null {
   const db = getDb();
@@ -103,23 +114,32 @@ export function listFeatures(filters?: {
 export function getEntry(section: string, slug: string): Record<string, unknown> | null {
   const db = getDb();
 
-  const tableMap: Record<string, string> = {
-    features:      'features',
-    bugs:          'bugs',
-    decisions:     'decisions',
-    'api-contracts': 'api_contracts',
-  };
-
-  const table = tableMap[section];
-  if (table) {
-    const idCol = section === 'api-contracts' ? 'module' : 'id';
+  // 1. Dedicated table (features, bugs, decisions, api-contracts, history)
+  const mapping = SECTION_TABLE[section];
+  if (mapping) {
     const row = db
-      .prepare(`SELECT data FROM ${table} WHERE ${idCol} = ?`)
+      .prepare(`SELECT data FROM "${mapping.table}" WHERE "${mapping.idCol}" = ?`)
       .get(slug) as { data: string } | null;
     if (row) return JSON.parse(row.data) as Record<string, unknown>;
+    // _index slugs for these sections aren't in dedicated tables — fall through
+    // to pages table (they may or may not be there)
   }
 
-  // Fall back to generic pages table for all other sections
+  // 2. Special case: plan section has pages (backlog, _index) AND sprints table
+  if (section === 'plan') {
+    const pageRow = db
+      .prepare('SELECT data FROM pages WHERE section = ? AND slug = ?')
+      .get('plan', slug) as { data: string } | null;
+    if (pageRow) return JSON.parse(pageRow.data) as Record<string, unknown>;
+    // Check sprints table (sprint-1, sprint-2, …)
+    const sprintRow = db
+      .prepare('SELECT data FROM sprints WHERE id = ?')
+      .get(slug) as { data: string } | null;
+    return sprintRow ? (JSON.parse(sprintRow.data) as Record<string, unknown>) : null;
+  }
+
+  // 3. Generic pages table (techstack, rulebook, impact-map, design, …)
+  //    Also serves as catch-all fallback for _index slugs of dedicated sections
   const pageRow = db
     .prepare('SELECT data FROM pages WHERE section = ? AND slug = ?')
     .get(section, slug) as { data: string } | null;
@@ -130,24 +150,39 @@ export function getEntry(section: string, slug: string): Record<string, unknown>
 export function listSection(section: string): string[] {
   const db = getDb();
 
-  const tableMap: Record<string, { table: string; idCol: string }> = {
-    features:        { table: 'features',     idCol: 'id' },
-    bugs:            { table: 'bugs',         idCol: 'id' },
-    decisions:       { table: 'decisions',    idCol: 'id' },
-    'api-contracts': { table: 'api_contracts', idCol: 'module' },
-  };
-
-  const mapping = tableMap[section];
+  // 1. Dedicated table
+  const mapping = SECTION_TABLE[section];
   if (mapping) {
     const rows = db
-      .prepare(`SELECT ${mapping.idCol} AS id FROM ${mapping.table} ORDER BY ${mapping.idCol}`)
+      .prepare(
+        `SELECT "${mapping.idCol}" AS id FROM "${mapping.table}" ORDER BY "${mapping.idCol}"`,
+      )
       .all() as Array<{ id: string }>;
     return rows.map((r) => r.id);
   }
 
-  // Fall back to generic pages table
+  // 2. plan — combine pages (backlog) and sprints table, sprints sorted numerically
+  if (section === 'plan') {
+    const pageRows = db
+      .prepare("SELECT slug FROM pages WHERE section = 'plan' AND slug != '_index' ORDER BY slug")
+      .all() as Array<{ slug: string }>;
+    const sprintRows = db
+      .prepare('SELECT id FROM sprints ORDER BY id')
+      .all() as Array<{ id: string }>;
+    // Sort sprints numerically (sprint-1, sprint-2, … sprint-13)
+    const sprints = sprintRows
+      .map((r) => r.id)
+      .sort((a, b) => {
+        const numA = parseInt(a.replace(/\D+/g, ''), 10) || 0;
+        const numB = parseInt(b.replace(/\D+/g, ''), 10) || 0;
+        return numA - numB;
+      });
+    return [...pageRows.map((r) => r.slug), ...sprints];
+  }
+
+  // 3. Generic pages table (techstack/backend, rulebook/api-standards, …)
   const rows = db
-    .prepare(`SELECT slug FROM pages WHERE section = ? AND slug != '_index' ORDER BY slug`)
+    .prepare("SELECT slug FROM pages WHERE section = ? AND slug != '_index' ORDER BY slug")
     .all(section) as Array<{ slug: string }>;
   return rows.map((r) => r.slug);
 }

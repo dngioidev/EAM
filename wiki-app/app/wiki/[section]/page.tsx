@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { readWikiFile, listWikiFiles } from '@/lib/wiki';
 import { getEntry, listSection } from '@/lib/db';
 import { StatusBadge } from '@/components/StatusBadge';
-import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,6 +51,7 @@ async function loadPreview(section: string, slug: string): Promise<EntryPreview>
       (content?.tldr as string | undefined) ??
       (overview?.summary as string | undefined) ??
       goalString ??
+      (qf?.sprint_goal as string | undefined) ??
       '';
 
     const status =
@@ -75,16 +75,15 @@ async function loadPreview(section: string, slug: string): Promise<EntryPreview>
 export default async function SectionPage({ params }: PageProps) {
   const { section } = params;
 
-  let index: { meta?: { title?: string; description?: string } } = {};
-  try {
-    index = await readWikiFile(`${section}/_index.json`);
-  } catch {
-    notFound();
-  }
+  // Load section metadata from DB (pages table stores _index for most sections).
+  // Dedicated-table sections (features, bugs, history …) don't have _index in
+  // pages — that's fine: we synthesise the title from the section name below.
+  const rawIndex = getEntry(section, '_index');
+  const index: { meta?: { title?: string; description?: string } } = rawIndex ?? {};
 
   let slugs: string[] = [];
   try {
-    // Use DB for known structured sections; fall back to file listing
+    // DB first; readWikiFiles is a dead fallback (wiki/ deleted) but harmless
     const dbSlugs = listSection(section);
     slugs = dbSlugs.length > 0 ? dbSlugs : await listWikiFiles(section);
   } catch {
@@ -97,6 +96,41 @@ export default async function SectionPage({ params }: PageProps) {
   const sectionTitle = (index.meta?.title as string | undefined) ??
     section.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
+  // For plan: split backlog items from sprint items for better UX
+  const isPlan = section === 'plan';
+  const sprintPreviews = isPlan ? previews.filter((p) => p.slug.startsWith('sprint')) : [];
+  const otherPreviews  = isPlan ? previews.filter((p) => !p.slug.startsWith('sprint')) : previews;
+
+  function EntryCard({ entry }: { entry: EntryPreview }) {
+    return (
+      <Link
+        href={`/wiki/${section}/${entry.slug}`}
+        className="flex items-start gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3 hover:bg-blue-50 hover:border-blue-200 transition-colors group"
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
+              {entry.title}
+            </span>
+            {entry.status && <StatusBadge status={entry.status} />}
+            {entry.sprint !== undefined && (
+              <span className="text-xs text-gray-400">Sprint {entry.sprint}</span>
+            )}
+          </div>
+          {entry.tldr && (
+            <p className="mt-0.5 text-xs text-gray-500 truncate">{entry.tldr}</p>
+          )}
+        </div>
+        {entry.owner && (
+          <span className="text-xs text-gray-300 font-mono shrink-0 hidden sm:inline mt-0.5">
+            {entry.owner}
+          </span>
+        )}
+        <span className="text-gray-300 shrink-0 mt-0.5 group-hover:text-blue-400 transition-colors">&#8594;</span>
+      </Link>
+    );
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-1">{sectionTitle}</h1>
@@ -108,36 +142,34 @@ export default async function SectionPage({ params }: PageProps) {
         <div className="mt-6 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
           <p className="text-gray-400 text-sm">No entries yet.</p>
         </div>
-      ) : (
-        <div className="mt-4 space-y-2">
-          {previews.map((entry) => (
-            <Link
-              key={entry.slug}
-              href={`/wiki/${section}/${entry.slug}`}
-              className="flex items-start gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3 hover:bg-blue-50 hover:border-blue-200 transition-colors group"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
-                    {entry.title}
-                  </span>
-                  {entry.status && <StatusBadge status={entry.status} />}
-                  {entry.sprint !== undefined && (
-                    <span className="text-xs text-gray-400">Sprint {entry.sprint}</span>
-                  )}
-                </div>
-                {entry.tldr && (
-                  <p className="mt-0.5 text-xs text-gray-500 truncate">{entry.tldr}</p>
-                )}
+      ) : isPlan ? (
+        /* ── Plan section: Backlog + Sprints separated ── */
+        <div className="mt-4 space-y-8">
+          {otherPreviews.length > 0 && (
+            <section>
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+                Backlog
+              </h2>
+              <div className="space-y-2">
+                {otherPreviews.map((entry) => <EntryCard key={entry.slug} entry={entry} />)}
               </div>
-              {entry.owner && (
-                <span className="text-xs text-gray-300 font-mono shrink-0 hidden sm:inline mt-0.5">
-                  {entry.owner}
-                </span>
-              )}
-              <span className="text-gray-300 shrink-0 mt-0.5 group-hover:text-blue-400 transition-colors">&#8594;</span>
-            </Link>
-          ))}
+            </section>
+          )}
+          {sprintPreviews.length > 0 && (
+            <section>
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+                Sprints ({sprintPreviews.length})
+              </h2>
+              <div className="space-y-2">
+                {sprintPreviews.map((entry) => <EntryCard key={entry.slug} entry={entry} />)}
+              </div>
+            </section>
+          )}
+        </div>
+      ) : (
+        /* ── Default flat list ── */
+        <div className="mt-4 space-y-2">
+          {otherPreviews.map((entry) => <EntryCard key={entry.slug} entry={entry} />)}
         </div>
       )}
     </div>
