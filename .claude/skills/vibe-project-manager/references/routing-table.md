@@ -42,9 +42,16 @@ User sends request
       YES → Tier 1 → vibe-git (create hotfix/* branch from develop) → HOTFIX workflow
       NO  → Continue below
 
-  → Does this task require code or wiki changes? (feature, fix, refactor, test, chore)
-      YES → vibe-git FIRST: create branch from develop, then route to role skill
-      NO  → skip vibe-git (planning, review, design decisions only)
+  ⛔ BRANCH GATE — mandatory checkpoint before ANY file is touched:
+  → Does this task require code or wiki changes? (feature, fix, refactor, test, chore, docs)
+      YES → ── STOP ──────────────────────────────────────────────────────────────────
+            │  Invoke vibe-git NOW.
+            │  Wait for: "Branch created: {name} — Ready to begin"
+            │  Only after that confirmation: route to role skill and begin file edits.
+            │  If vibe-git is skipped here, ALL subsequent file changes are a protocol
+            │  violation regardless of whether they are correct.
+            └───────────────────────────────────────────────────────────────────────
+      NO  → skip vibe-git (planning, review, design decisions only — no file edits)
 
   → What area does this touch?
       BACKEND ONLY     → Tier 2 → vibe-git (feature/* or fix/*) → vibe-backend-general → vibe-backend-nestjs
