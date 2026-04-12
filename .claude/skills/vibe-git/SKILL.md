@@ -60,7 +60,18 @@ Run this **before any code changes**:
 ```bash
 git status
 ```
-- If uncommitted changes exist: ask user whether to stash or commit them before continuing
+- If uncommitted changes exist AND current branch is `develop` or `main`:
+  → **LATE INVOCATION DETECTED** — code was written before vibe-git was called
+  → Report this violation to the user immediately:
+    ```
+    ⚠️  BRANCH GATE VIOLATION
+    Files were modified on '{current-branch}' before a task branch was created.
+    This is a protocol violation (vibe-project-manager HARD GATE).
+    Recovering: will create the task branch now — uncommitted changes will carry over.
+    ```
+  → Then proceed with branch creation (changes carry over via `git checkout -b`)
+  → Do NOT silently skip this warning
+- If uncommitted changes exist on a feature/fix/* branch: ask user whether to stash or commit first
 - NEVER silently discard uncommitted changes
 
 ### Step 2 — Ensure develop is up to date

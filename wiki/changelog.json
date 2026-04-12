@@ -6,11 +6,29 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.6.0",
-    "total_entries": 6
+    "current_version": "0.7.0",
+    "total_entries": 7
   },
   "content": {
     "entries": [
+      {
+        "version": "0.7.0",
+        "date": "2026-04-12",
+        "sprint": "1",
+        "tags": ["wiki-app", "bugfix", "views", "frontend"],
+        "summary": "Wiki-app readability fixes: HistoryView, PlanView, DesignView added; ImpactMapView affected_entities bug fixed.",
+        "features_added": [
+          "wiki-app: HistoryView — renders history session logs with scratch-notes timeline, files created/updated chips",
+          "wiki-app: PlanView — BacklogView (epics + items with status/size/dependencies) and SprintView (quick-facts grid, committed features, out-of-scope, risks)",
+          "wiki-app: DesignView — color palette with swatches, typography table, spacing, component conventions checklist",
+          "wiki-app: [section]/[slug]/page.tsx — dispatch added for history, plan, design sections"
+        ],
+        "bugs_fixed": [
+          "ImpactMapView: affected_entities rendered duplicate StatusBadge(status=active) + text via two separate map() calls — replaced with single entity-name chip loop; unused StatusBadge import removed"
+        ],
+        "breaking_changes": [],
+        "notes": "Build: npm run type-check (exit 0) + npm run build (Compiled successfully, 10 routes)."
+      },
       {
         "version": "0.6.0",
         "date": "2026-04-12",
