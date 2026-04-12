@@ -11,7 +11,9 @@
       "Edit(/.claude/skills/vibe-git/**)",
       "Bash(git pull:*)",
       "Bash(git checkout:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)"
     ]
   }
 }
