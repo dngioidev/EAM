@@ -50,21 +50,21 @@
 - [ ] If code reverted: feature status → "planning", bug logged for what was attempted
 
 ## WIKI UPDATE
-- [ ] `history/{date}.json` — session entry written using scratch_notes
-- [ ] `features/{name}/progress.json` — all task states updated
-- [ ] `features/{name}.json` — status updated
-- [ ] `api-contracts/` — updated if endpoints changed
-- [ ] `env-config.json` — updated if new vars added
-- [ ] `impact-map/entity-registry.json` — updated if entities modified
-- [ ] `decisions/` — entry added for any architectural choice
-- [ ] `techstack/backend.json` — updated if new module or entity added
-- [ ] `techstack/frontend.json` — updated if new route, store, or API client added
-- [ ] `dashboard.json` — quick_facts refreshed
-- [ ] `changelog.json` — top entry added with relevant tags
+> ⚠️ `wiki/` folder deleted in Sprint 4.5. All updates go through MCP tools → wiki.db. Never write wiki/ files directly.
+
+- [ ] `wiki_session_log(date, session)` — session entry written using scratch_notes (→ history table)
+- [ ] `wiki_feature_update(id, patch)` — feature status + task states updated (→ features table)
+- [ ] `wiki_contract_update(module, patch)` — updated if endpoints changed (→ api_contracts table)
+- [ ] `env-config` page updated via DB if new env vars added
+- [ ] `wiki_feature_update` for impact-map entity registry if entities modified
+- [ ] Decision entry added (→ decisions table) for any architectural choice
+- [ ] `techstack` pages updated via DB if new module, entity, route, or API client added
+- [ ] `wiki_dashboard()` quick_facts refreshed
+- [ ] Changelog entry prepended via MCP tool with relevant tags
 
 ## DONE
 - [ ] All checklist items green
-- [ ] `wiki/features/{name}/progress.json`: ALL tasks status "done"
+- [ ] `wiki_feature_list()` → feature ALL tasks status "done" confirmed
 - [ ] No open critical or high bugs against this feature
 - [ ] No open ux-regression bugs against this feature
 - [ ] Wiki viewer reflects current state

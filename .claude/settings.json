@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "eam-wiki": {
+      "command": "node",
+      "args": ["wiki-mcp/dist/server.js"],
+      "env": {}
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const fs=require\\('fs'\\); try { JSON.parse\\(fs.readFileSync\\('wiki/plan/backlog.json','utf8'\\)\\); console.log\\('✅ Valid JSON'\\); } catch\\(e\\) { console.error\\('❌ Invalid JSON:', e.message\\); }\")",
+      "Bash(cat d:/dngioi/EAM/wiki/_schema/*.json)",
+      "mcp__eam-wiki__wiki_dashboard",
+      "mcp__eam-wiki__wiki_feature_get",
+      "mcp__eam-wiki__wiki_feature_list",
+      "mcp__eam-wiki__wiki_sprint_get",
+      "mcp__eam-wiki__wiki_bug_list",
+      "mcp__eam-wiki__wiki_contract_get",
+      "mcp__eam-wiki__wiki_feature_update",
+      "mcp__eam-wiki__wiki_task_update",
+      "mcp__eam-wiki__wiki_session_log",
+      "mcp__eam-wiki__wiki_sprint_close",
+      "mcp__eam-wiki__wiki_sprint_open",
+      "mcp__eam-wiki__wiki_search",
+      "mcp__eam-wiki__wiki_bug_create",
+      "mcp__eam-wiki__wiki_bug_update",
+      "mcp__eam-wiki__wiki_contract_update"
+    ]
+  }
+}

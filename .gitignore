@@ -1,1 +1,5 @@
 frontend/package-lock.json
+
+# SQLite WAL mode auxiliary files (auto-created, not source artifacts)
+*.db-wal
+*.db-shm

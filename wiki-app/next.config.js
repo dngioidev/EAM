@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  env: {
-    WIKI_PATH: process.env.WIKI_PATH ?? '../wiki',
-  },
+  // better-sqlite3 is a native Node module — must not be bundled by webpack
+  serverExternalPackages: ['better-sqlite3'],
 };
 
 module.exports = nextConfig;

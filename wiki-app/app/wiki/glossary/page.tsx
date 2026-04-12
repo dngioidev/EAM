@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { readWikiFile } from '@/lib/wiki';
+import { getEntry } from '@/lib/db';
+import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Glossary' };
@@ -22,8 +23,10 @@ const CATEGORY_STYLES: Record<string, string> = {
   technical: 'bg-purple-50 text-purple-700 border-purple-200',
 };
 
-export default async function GlossaryPage() {
-  const data = await readWikiFile<Glossary>('glossary.json');
+export default function GlossaryPage() {
+  const raw = getEntry('glossary', '_index');
+  if (!raw) notFound();
+  const data = raw as unknown as Glossary;
   const { meta, quick_facts: qf, content } = data;
 
   // Group terms by category

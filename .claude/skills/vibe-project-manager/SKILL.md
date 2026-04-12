@@ -54,7 +54,8 @@ git branch --show-current
 
 Report the current branch to the user at the start of every session regardless of which case applies. Never silently skip this step.
 
-**STEP 1: Read wiki/dashboard.json**
+**STEP 1: Read wiki dashboard**
+- Call `wiki_dashboard()` MCP tool (preferred) — falls back to reading `wiki/dashboard.json` if MCP unavailable
 - Check `is_new_project`: if `true` AND `project_initialized` is `null`
   → Run PROJECT INITIALIZATION (see `references/project-init.md`)
   → Do not proceed to routing until initialization is complete
@@ -63,7 +64,8 @@ Report the current branch to the user at the start of every session regardless o
   → Log as pre-existing bug BEFORE touching any code
 - Note: `existing_modules`, `existing_entities`, `existing_routes`
 
-**STEP 2: Read wiki/changelog.json**
+**STEP 2: Read wiki changelog**
+- Call `wiki_search({ query: "<feature or module keyword>" })` MCP tool (preferred) — falls back to reading `wiki/changelog.json` if MCP unavailable
 - Filter entries by tags matching current request's feature or module
 - If any entry newer than 3 days matches: read that `wiki/history/{date}.json`
 - This answers "what changed since last session"
@@ -73,9 +75,10 @@ Report the current branch to the user at the start of every session regardless o
 - Stop reading when all STOP READING questions are answered
 
 **STEP 4: Open scratch note**
-- Append to `wiki/history/{date}.json` `scratch_notes` as you work
-- Format: `"[action] — [file changed or decision made]"`
+- Call `wiki_session_log()` MCP tool to append to the DB history entry for today
+- Format each note: `"[action] — [file changed or decision made]"`
 - Use this at end of session for accurate wiki updates
+- ⚠️ `wiki/history/` folder no longer exists — `wiki.db` `history` table is the source of truth. Never write JSON files directly.
 
 ---
 
@@ -97,7 +100,7 @@ wiki/dashboard.json → is_new_project: false
 ## 3. Blocked Feature Check (Sprint Start)
 
 At start of every new sprint:
-- Read `wiki/dashboard.json` `blocked_features` array
+- Read `wiki/dashboard.json` `blocked_features` array (or call `wiki_dashboard()` MCP tool)
 - For each blocked feature:
   - Check if `unblock_condition` is now satisfied
   - If satisfied: update feature status to "planning", notify PO
@@ -140,19 +143,16 @@ Every session must pass: **GIT BRANCH** → BUILD → TEST → SECURITY → CODE
 
 ## 7. Wiki Update Protocol
 
+> ⚠️ `wiki/` JSON folder was deleted in Sprint 4.5. All wiki data lives in `wiki.db`.
+> **Always use MCP tools — never write wiki JSON files directly.**
+
 At end of every session (use `scratch_notes` for accuracy):
-- `wiki/history/{date}.json` — write full session entry
-- `wiki/features/{name}/progress.json` — update task completion states
-- `wiki/features/{name}.json` or `_index.json` — update status
-- `wiki/api-contracts/{module}.json` — if endpoints changed
-- `wiki/env-config.json` — if new vars added
-- `wiki/impact-map/entity-registry.json` — if entities modified
-- `wiki/impact-map/{feature}-relations.json` — if new relations found
-- `wiki/decisions/` — entry if architectural decision made
-- `wiki/techstack/backend.json` — if new module, entity, or pattern added
-- `wiki/techstack/frontend.json` — if new route, store, API client, or query key added
-- `wiki/dashboard.json` — refresh all quick_facts
-- `wiki/changelog.json` — prepend new entry with relevant tags
+- `wiki_session_log(date, session)` MCP tool — writes to `history` table in wiki.db
+- `wiki_feature_update(id, patch)` MCP tool — updates `features` table in wiki.db
+- `wiki_task_update(feature_id, task_id, patch)` MCP tool — updates task in features JSON
+- `wiki_contract_update(module, patch)` MCP tool — updates `api_contracts` table in wiki.db
+- `wiki_dashboard()` (read) then update quick_facts via `wiki_feature_update`
+- Update changelog via `wiki_session_log` or direct DB update — prepend new entry with relevant tags
 
 ---
 
@@ -160,7 +160,7 @@ At end of every session (use `scratch_notes` for accuracy):
 
 - **NEVER edit or create any file before vibe-git has confirmed branch creation** ← highest priority
 - **NEVER invoke a role skill (backend, frontend, qa, etc.) before vibe-git has confirmed branch creation**
-- Never skip reading `wiki/dashboard.json` at the start of any session
+- Never skip reading `wiki/dashboard.json` (or calling `wiki_dashboard()`) at the start of any session
 - Never route to a Layer 2 skill without going through the Layer 1 general skill first
 - Never mark a feature "done" without completing the full completion checklist
 - Never start feature dev without an approved API contract
@@ -172,7 +172,7 @@ At end of every session (use `scratch_notes` for accuracy):
 ## Definition of Done
 
 ```
-[ ] wiki/dashboard.json read — build status noted
+[ ] wiki_dashboard() called (or dashboard.json read) — build status noted
 [ ] Changelog filtered — "what changed since last session" answered
 [ ] Correct tier applied — tiered reading complete
 [ ] vibe-git invoked at session start — branch created from develop
