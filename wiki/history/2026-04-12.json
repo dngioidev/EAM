@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 2,
+    "version": 3,
     "last_updated": "2026-04-12",
     "title": "Session — 2026-04-12",
     "owner": "vibe-project-manager"
@@ -107,7 +107,18 @@
       "fixed TS2322 in all 4 new views — @types/react@18.3 removed {} from ReactNode; replaced `{record && ...}` with `{record != null && ...}`",
       "build: npm run type-check (exit 0) + npm run build (Compiled successfully, 10 routes)",
       "updated .claude/skills/vibe-wiki-app-nextjs/SKILL.md — documented all new views, standalone pages, section index cards, TS2322 fix",
-      "updated wiki/changelog.json — v0.6.0 prepended"
+      "updated wiki/changelog.json — v0.6.0 prepended",
+      "SESSION BUG FIX — BUG-0002: ImpactMap section index React error #31",
+      "branch: fix/BUG-0002-impact-map-goal-object created from develop",
+      "root cause: [section]/page.tsx loadPreview() used d.goal as string — invoice/order/product-relations.json store goal as {statement,metric,deadline} object → rendered as JSX child → React error #31",
+      "fixed [section]/page.tsx — extract goalString safely: typeof rawGoal === 'object' ? rawGoal.statement : rawGoal",
+      "created wiki-app/components/views/BugView.tsx — severity/status badges, steps list, expected vs actual grid, root cause + fix mono blocks, audit trail timeline",
+      "updated [section]/[slug]/page.tsx — bugs→BugView dispatch (was falling to raw JsonBlock)",
+      "created wiki/bugs/BUG-0002.json — high-severity, status fixed",
+      "updated wiki/bugs/_index.json — v2: BUG-0002 added",
+      "updated wiki/dashboard.json — bugs_by_severity high:1 medium:1",
+      "docker compose build --no-cache wiki → FINISHED exit 0; up -d → Started",
+      "updated wiki/changelog.json — v0.8.0 prepended"
     ],
     "files_created": [
       "wiki-app/package.json",

@@ -11,6 +11,7 @@ import { ImpactMapView } from '@/components/views/ImpactMapView';
 import { HistoryView } from '@/components/views/HistoryView';
 import { PlanView } from '@/components/views/PlanView';
 import { DesignView } from '@/components/views/DesignView';
+import { BugView } from '@/components/views/BugView';
 import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -100,6 +101,8 @@ export default async function WikiEntryPage({ params }: PageProps) {
         <PlanView data={data} section={section} slug={slug} />
       ) : section === 'design' ? (
         <DesignView data={data} section={section} slug={slug} />
+      ) : section === 'bugs' ? (
+        <BugView data={data} section={section} slug={slug} />
       ) : (
         <JsonBlock data={data} />
       )}

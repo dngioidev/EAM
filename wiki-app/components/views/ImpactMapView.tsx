@@ -120,10 +120,20 @@ export function ImpactMapView({
   // Entity registry shape
   const entities = content?.entities as Entity[] | undefined;
 
-  // Relations file shape
-  const goal = data.goal as string | undefined;
-  const goalMetric = data.goal_metric as string | undefined;
-  const goalDeadline = data.goal_deadline as string | undefined;
+  // Relations file shape — goal can be a plain string OR an object {statement, metric, deadline}
+  const rawGoal = data.goal;
+  const goalObj = rawGoal !== null && typeof rawGoal === 'object' && !Array.isArray(rawGoal)
+    ? (rawGoal as Record<string, unknown>)
+    : undefined;
+  const goal: string | undefined = goalObj
+    ? (goalObj.statement as string | undefined)
+    : (rawGoal as string | undefined);
+  const goalMetric: string | undefined = goalObj
+    ? (goalObj.metric as string | undefined)
+    : (data.goal_metric as string | undefined);
+  const goalDeadline: string | undefined = goalObj
+    ? (goalObj.deadline as string | undefined)
+    : (data.goal_deadline as string | undefined);
   const actors = data.actors as Actor[] | undefined;
   const affectedEntities = data.affected_entities as string[] | undefined;
   const outOfScope = data.out_of_scope as string[] | undefined;

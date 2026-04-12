@@ -6,11 +6,27 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.7.0",
-    "total_entries": 7
+    "current_version": "0.8.0",
+    "total_entries": 8
   },
   "content": {
     "entries": [
+      {
+        "version": "0.8.0",
+        "date": "2026-04-12",
+        "sprint": "1",
+        "tags": ["wiki-app", "bugfix", "impact-map", "bugs-view"],
+        "summary": "Fix React error #31 on Impact Map section index; add styled BugView component.",
+        "features_added": [
+          "wiki-app: BugView.tsx — human-readable bug report page with severity/status badges, steps to reproduce list, expected vs actual side-by-side, root cause + fix monospace blocks, audit trail timeline",
+          "wiki-app: [section]/[slug]/page.tsx — bugs section now dispatches to BugView instead of raw JsonBlock"
+        ],
+        "bugs_fixed": [
+          "BUG-0002 (high): /wiki/impact-map section index crashed with React error #31 — loadPreview() passed d.goal (an object {statement,metric,deadline}) directly into JSX for invoice/order/product-relations files. Fixed by safely extracting .statement string."
+        ],
+        "breaking_changes": [],
+        "notes": "docker compose build --no-cache wiki — FINISHED (exit 0). wiki container restarted."
+      },
       {
         "version": "0.7.0",
         "date": "2026-04-12",

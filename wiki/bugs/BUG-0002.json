@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "ImpactMap section index crashes with React error #31 for relation files with goal-as-object",
+    "owner": "vibe-qa-general"
+  },
+  "quick_facts": {
+    "bug_id": "BUG-0002",
+    "severity": "high",
+    "status": "fixed",
+    "sprint": "1"
+  },
+  "content": {
+    "tldr": "Navigating to /wiki/impact-map throws React error #31 ('Objects are not valid as a React child') because the section index preview loader used d.goal directly as a string — but invoice-relations, order-relations, and product-relations store goal as { statement, metric, deadline }.",
+    "environment": "wiki-app (Next.js) — /wiki/impact-map section index page",
+    "steps_to_reproduce": [
+      "Open the wiki-app in a browser.",
+      "Click Impact Map in the sidebar (or navigate to /wiki/impact-map).",
+      "Observe a blank page and the following console error: 'Error: Minified React error #31; object with keys {statement, metric, deadline}'"
+    ],
+    "expected_behavior": "The impact-map section index should list all relation files as preview cards, showing the goal statement as a readable string excerpt.",
+    "actual_behavior": "The page crashes with React error #31 because the preview loader set tldr = d.goal (an object), which React cannot render as a child node.",
+    "root_cause": "In wiki-app/app/wiki/[section]/page.tsx, the loadPreview() function had: `(d.goal as string | undefined)`. TypeScript cast does not convert the value at runtime — for files that use goal: { statement, metric, deadline }, the object was silently passed through and then rendered verbatim in JSX, triggering error #31.",
+    "fix_description": "Updated loadPreview() in [section]/page.tsx to detect when d.goal is an object and extract .statement:\n  const rawGoal = d.goal;\n  const goalString =\n    rawGoal !== null && typeof rawGoal === 'object' && !Array.isArray(rawGoal)\n      ? ((rawGoal as Record<string, unknown>).statement as string | undefined)\n      : (rawGoal as string | undefined);\nAlso created wiki-app/components/views/BugView.tsx for a readable, styled bug-report page (previously rendered as raw JSON)."
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T06:00:00Z",
+      "author": "vibe-qa-general",
+      "action": "created",
+      "note": "Bug identified: section index page crashes on impact-map because goal object is passed directly into JSX."
+    },
+    {
+      "version": 2,
+      "timestamp": "2026-04-12T06:05:00Z",
+      "author": "vibe-frontend-general",
+      "action": "fixed",
+      "note": "Fixed loadPreview() to unpack goal object; created BugView.tsx for readable bug pages."
+    }
+  ]
+}
