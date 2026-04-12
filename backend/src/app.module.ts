@@ -6,8 +6,10 @@ import * as Joi from 'joi';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { StoresModule } from './modules/stores/stores.module';
+import { ProductsModule } from './modules/products/products.module';
 import { User } from './modules/users/entities/user.entity';
 import { Store } from './modules/stores/entities/store.entity';
+import { Product } from './modules/products/entities/product.entity';
 
 @Module({
   imports: [
@@ -42,7 +44,7 @@ import { Store } from './modules/stores/entities/store.entity';
         username: config.get<string>('DATABASE_USER'),
         password: config.get<string>('DATABASE_PASSWORD'),
         database: config.get<string>('DATABASE_NAME'),
-        entities: [User, Store],
+        entities: [User, Store, Product],
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
         synchronize: config.get<boolean>('DATABASE_SYNCHRONIZE', false),
         logging: config.get<string>('NODE_ENV') !== 'production',
@@ -59,6 +61,7 @@ import { Store } from './modules/stores/entities/store.entity';
     AuthModule,
     UsersModule,
     StoresModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}

@@ -2,12 +2,12 @@
   "meta": {
     "id": "product",
     "type": "feature",
-    "status": "backlog",
+    "status": "in-progress",
     "owner": "backend",
     "sprint": 2,
     "last_updated": "2026-04-12",
     "created": "2026-04-12",
-    "version": 1,
+    "version": 3,
     "depends_on": ["store"],
     "related_to": ["order"],
     "affects": ["Product"],
@@ -17,8 +17,8 @@
   },
   "quick_facts": {
     "one_line": "Product/SKU catalog per store — name, SKU, VNĐ price (integer), VAT rate, active flag.",
-    "status_reason": "Sprint 2 — depends on store feature. Backlog until Sprint 1 is done.",
-    "last_change": "Created at high-level roadmap planning session.",
+    "status_reason": "Sprint 2 active. Sprint 1 prerequisites met (auth + store done).",
+    "last_change": "2026-04-12 — Sprint 2 kickoff. Moved from backlog to planning.",
     "key_links": [
       "wiki/techstack/backend.json",
       "wiki/impact-map/entity-registry.json"

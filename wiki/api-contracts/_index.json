@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 2,
+    "version": 3,
     "last_updated": "2026-04-12",
     "title": "API Contracts Index"
   },
@@ -18,6 +18,22 @@
       "status": "approved",
       "sprint": 1,
       "endpointCount": 5
+    },
+    {
+      "module": "products",
+      "file": "product.json",
+      "status": "approved",
+      "sprint": 2,
+      "endpointCount": 5
+    }
+    },
+    {
+      "module": "products",
+      "file": "product.json",
+      "status": "approved",
+      "sprint": 2,
+      "endpointCount": 5
+    }
     }
   ]
 }

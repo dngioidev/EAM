@@ -3,58 +3,58 @@
     "feature_id": "product",
     "sprint": 2,
     "last_updated": "2026-04-12",
-    "version": 1
+    "version": 2
   },
   "tasks": [
     {
       "id": "T001",
       "title": "Create Product entity + migration (sku, name, priceVnd, taxRatePercent, isActive, storeId)",
       "role": "backend",
-      "status": "not-started",
+      "status": "done",
       "blocked_by": "store:T001",
       "estimate_hours": 2,
-      "actual_hours": null,
-      "notes": "Unique index on (sku, storeId). Check constraint taxRatePercent IN (0,5,8,10)."
+      "actual_hours": 2,
+      "notes": "Unique index on (sku, storeId). Check constraint taxRatePercent IN (0,5,8,10). unaccent+pg_trgm extensions enabled in migration."
     },
     {
       "id": "T002",
       "title": "Create ProductsModule (service + controller): CRUD + search",
       "role": "backend",
-      "status": "not-started",
+      "status": "done",
       "blocked_by": "T001",
       "estimate_hours": 4,
-      "actual_hours": null,
-      "notes": "Endpoints: POST /products, GET /products?q=, GET /products/:id, PATCH /products/:id, PATCH /products/:id/deactivate. All queries scoped by storeId."
+      "actual_hours": 4,
+      "notes": "5 endpoints implemented. All queries scoped by storeId from JWT. Role-based isActive filter."
     },
     {
       "id": "T003",
       "title": "Implement diacritic-insensitive search via unaccent + pg_trgm",
       "role": "backend",
-      "status": "not-started",
+      "status": "done",
       "blocked_by": "T002",
       "estimate_hours": 2,
-      "actual_hours": null,
-      "notes": "USE unaccent(name) ILIKE unaccent('%q%'). Ensure extensions enabled in migration."
+      "actual_hours": 1,
+      "notes": "unaccent(product.name) ILIKE unaccent(:q). Extensions enabled in 1713830420000-CreateProductTable migration."
     },
     {
       "id": "T004",
       "title": "Write unit tests: ProductsService",
       "role": "qa",
-      "status": "not-started",
+      "status": "done",
       "blocked_by": "T002",
       "estimate_hours": 3,
-      "actual_hours": null,
-      "notes": "Cover: create, duplicate SKU, price validation, deactivate, cross-store isolation, search."
+      "actual_hours": 2,
+      "notes": "13 tests passing: create, duplicate SKU, cross-store, priceVnd=0, deactivate idempotent, cashier/manager visibility, cross-store isolation, SKU immutability."
     },
     {
       "id": "T005",
       "title": "Document API contract: api-contracts/product.json",
       "role": "backend",
-      "status": "not-started",
+      "status": "done",
       "blocked_by": "T002",
       "estimate_hours": 1,
-      "actual_hours": null,
-      "notes": "Run vibe-api-contractor."
+      "actual_hours": 1,
+      "notes": "wiki/api-contracts/product.json — PROD-01..05, 11 BRs, approved."
     },
     {
       "id": "T006",

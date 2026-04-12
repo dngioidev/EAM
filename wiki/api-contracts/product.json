@@ -1,0 +1,216 @@
+{
+  "$schema": "../_schema/contract.schema.json",
+  "module": "products",
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-04-12",
+  "updatedAt": "2026-04-12",
+  "baseUrl": "/api/v1/products",
+  "description": "Product/SKU catalog endpoints — store-scoped via JWT. All queries automatically filtered by storeId.",
+  "securityScheme": "BearerAuth",
+  "businessRules": [
+    "BR-PROD-01: priceVnd is always integer đồng — no decimals, no floats",
+    "BR-PROD-02: taxRatePercent must be one of {0, 5, 8, 10} (Vietnamese VAT tiers)",
+    "BR-PROD-03: SKU uniqueness is per-store — same SKU can exist in different stores",
+    "BR-PROD-04: isActive defaults to true on creation",
+    "BR-PROD-05: SKU is immutable after creation — PATCH with sku → 400",
+    "BR-PROD-06: Price changes do not retroactively affect existing OrderItems",
+    "BR-PROD-07: Deactivated products are invisible to cashier search",
+    "BR-PROD-08: Deactivated products remain visible to admin/store-manager (audit)",
+    "BR-PROD-09: Cashier search returns only isActive=true products",
+    "BR-PROD-10: storeId ALWAYS sourced from JWT — never from request body or URL",
+    "BR-PROD-11: Search uses PostgreSQL unaccent for Vietnamese diacritic-insensitive matching"
+  ],
+  "endpoints": [
+    {
+      "id": "PROD-01",
+      "method": "POST",
+      "path": "/",
+      "auth": "bearer",
+      "roles": ["admin", "store-manager"],
+      "summary": "Create a new product in the caller's store",
+      "request": {
+        "body": {
+          "contentType": "application/json",
+          "schema": {
+            "sku": { "type": "string", "maxLength": 100, "required": true, "description": "Unique within caller's store" },
+            "name": { "type": "string", "maxLength": 255, "required": true },
+            "priceVnd": { "type": "integer", "minimum": 0, "required": true, "description": "Integer đồng — no decimals" },
+            "taxRatePercent": { "type": "integer", "enum": [0, 5, 8, 10], "required": true }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Product created",
+          "schema": {
+            "data": {
+              "id": { "type": "string", "format": "uuid" },
+              "sku": { "type": "string" },
+              "name": { "type": "string" },
+              "priceVnd": { "type": "integer" },
+              "taxRatePercent": { "type": "integer" },
+              "isActive": { "type": "boolean" },
+              "storeId": { "type": "string", "format": "uuid" },
+              "createdAt": { "type": "string", "format": "date-time" },
+              "updatedAt": { "type": "string", "format": "date-time" }
+            },
+            "meta": { "timestamp": { "type": "string" } }
+          }
+        },
+        "400": { "description": "Validation error (invalid priceVnd, taxRatePercent, or name too long)" },
+        "401": { "description": "Not authenticated" },
+        "403": { "description": "Forbidden — admin or store-manager required" },
+        "409": { "description": "SKU already exists in this store" }
+      }
+    },
+    {
+      "id": "PROD-02",
+      "method": "GET",
+      "path": "/",
+      "auth": "bearer",
+      "roles": ["admin", "store-manager", "cashier", "accountant", "viewer"],
+      "summary": "List/search products in caller's store. Cashier sees active only. Manager+ sees all.",
+      "request": {
+        "query": {
+          "q": { "type": "string", "required": false, "description": "Diacritic-insensitive search on name or exact SKU match" },
+          "page": { "type": "integer", "default": 1, "required": false },
+          "limit": { "type": "integer", "default": 20, "maximum": 100, "required": false }
+        },
+        "body": null
+      },
+      "responses": {
+        "200": {
+          "description": "Paginated product list",
+          "schema": {
+            "data": {
+              "type": "array",
+              "items": {
+                "id": { "type": "string" },
+                "sku": { "type": "string" },
+                "name": { "type": "string" },
+                "priceVnd": { "type": "integer" },
+                "taxRatePercent": { "type": "integer" },
+                "isActive": { "type": "boolean" },
+                "storeId": { "type": "string" },
+                "createdAt": { "type": "string" },
+                "updatedAt": { "type": "string" }
+              }
+            },
+            "meta": {
+              "total": { "type": "integer" },
+              "page": { "type": "integer" },
+              "limit": { "type": "integer" },
+              "timestamp": { "type": "string" }
+            }
+          }
+        },
+        "401": { "description": "Not authenticated" }
+      }
+    },
+    {
+      "id": "PROD-03",
+      "method": "GET",
+      "path": "/:id",
+      "auth": "bearer",
+      "roles": ["admin", "store-manager", "cashier", "accountant", "viewer"],
+      "summary": "Get a single product by ID. Cashier gets 404 if product is deactivated. Manager+ sees deactivated.",
+      "request": {
+        "params": { "id": { "type": "string", "format": "uuid" } },
+        "body": null
+      },
+      "responses": {
+        "200": {
+          "description": "Product details",
+          "schema": {
+            "data": {
+              "id": { "type": "string" },
+              "sku": { "type": "string" },
+              "name": { "type": "string" },
+              "priceVnd": { "type": "integer" },
+              "taxRatePercent": { "type": "integer" },
+              "isActive": { "type": "boolean" },
+              "storeId": { "type": "string" },
+              "createdAt": { "type": "string" },
+              "updatedAt": { "type": "string" }
+            },
+            "meta": { "timestamp": { "type": "string" } }
+          }
+        },
+        "401": { "description": "Not authenticated" },
+        "404": { "description": "Product not found (or deactivated, for cashier)" }
+      }
+    },
+    {
+      "id": "PROD-04",
+      "method": "PATCH",
+      "path": "/:id",
+      "auth": "bearer",
+      "roles": ["admin", "store-manager"],
+      "summary": "Update product name, price, or VAT rate. SKU is immutable.",
+      "request": {
+        "params": { "id": { "type": "string", "format": "uuid" } },
+        "body": {
+          "contentType": "application/json",
+          "schema": {
+            "name": { "type": "string", "maxLength": 255, "required": false },
+            "priceVnd": { "type": "integer", "minimum": 0, "required": false },
+            "taxRatePercent": { "type": "integer", "enum": [0, 5, 8, 10], "required": false }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Updated product",
+          "schema": {
+            "data": {
+              "id": { "type": "string" },
+              "sku": { "type": "string" },
+              "name": { "type": "string" },
+              "priceVnd": { "type": "integer" },
+              "taxRatePercent": { "type": "integer" },
+              "isActive": { "type": "boolean" },
+              "storeId": { "type": "string" },
+              "createdAt": { "type": "string" },
+              "updatedAt": { "type": "string" }
+            },
+            "meta": { "timestamp": { "type": "string" } }
+          }
+        },
+        "400": { "description": "Validation error or attempt to change SKU" },
+        "401": { "description": "Not authenticated" },
+        "403": { "description": "Forbidden — admin or store-manager required" },
+        "404": { "description": "Product not found in caller's store" }
+      }
+    },
+    {
+      "id": "PROD-05",
+      "method": "PATCH",
+      "path": "/:id/deactivate",
+      "auth": "bearer",
+      "roles": ["admin", "store-manager"],
+      "summary": "Deactivate a product. Idempotent. Does not cancel open orders.",
+      "request": {
+        "params": { "id": { "type": "string", "format": "uuid" } },
+        "body": null
+      },
+      "responses": {
+        "200": {
+          "description": "Product deactivated (isActive: false)",
+          "schema": {
+            "data": {
+              "id": { "type": "string" },
+              "sku": { "type": "string" },
+              "isActive": { "type": "boolean" },
+              "updatedAt": { "type": "string" }
+            },
+            "meta": { "timestamp": { "type": "string" } }
+          }
+        },
+        "401": { "description": "Not authenticated" },
+        "403": { "description": "Forbidden — admin or store-manager required" },
+        "404": { "description": "Product not found in caller's store" }
+      }
+    }
+  ]
+}

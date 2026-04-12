@@ -6,11 +6,22 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.9.0",
-    "total_entries": 9
+    "current_version": "0.10.0",
+    "total_entries": 10
   },
   "content": {
     "entries": [
+      {
+        "version": "0.10.0",
+        "date": "2026-04-12",
+        "sprint": "2",
+        "tags": ["sprint-2", "product", "backend", "api-contract", "migration"],
+        "summary": "Sprint 2 product backend implementation complete. Product entity, migration, CRUD+search service, controller, module, 13 unit tests.",
+        "features_added": ["Product entity + TypeORM migration (unaccent, pg_trgm, composite unique, check constraint)", "ProductsService: create, findAll, findOne, update, deactivate (role-based + store-scoped)", "ProductsController: 5 endpoints PROD-01..05", "wiki/api-contracts/product.json approved"],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "T001-T005 done on feature/product-backend. T006-T009 frontend tasks remain. 13 tests green. tsc --noEmit clean."
+      },
       {
         "version": "0.9.0",
         "date": "2026-04-12",
