@@ -6,7 +6,9 @@
       "Bash(sed -n '270,285p' components/views/WorkflowView.tsx)",
       "Bash(sed -n '128,142p' components/views/TechstackView.tsx)",
       "Bash(sed -n '125,142p' components/views/ImpactMapView.tsx)",
-      "Bash(sed -n '228,244p' components/views/RulebookView.tsx)"
+      "Bash(sed -n '228,244p' components/views/RulebookView.tsx)",
+      "Edit(/.claude/skills/vibe-project-manager/**)",
+      "Edit(/.claude/skills/vibe-git/**)"
     ]
   }
 }
