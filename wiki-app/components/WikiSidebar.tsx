@@ -74,7 +74,14 @@ export function WikiSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-gray-100 px-4 py-3">
+      <div className="border-t border-gray-100 px-4 py-3 space-y-1">
+        <a
+          href="/admin"
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors"
+        >
+          <span>🗄</span>
+          <span>SQLite Admin</span>
+        </a>
         <p className="text-xs text-gray-400">EAM-Tax © 2025</p>
       </div>
     </aside>
