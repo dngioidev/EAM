@@ -10,7 +10,7 @@ applyTo: "**"
 
 # vibe-devops-docker
 
-## Eight-Service Compose Architecture
+## Eight-Service Compose Architecture (+ 2 lifecycle services)
 
 ```
 HOST-EXPOSED ports                    INTERNAL ONLY (Docker network)
@@ -26,11 +26,88 @@ HOST-EXPOSED ports                    INTERNAL ONLY (Docker network)
 - `postgres`      — PostgreSQL 15 (internal only — use pgAdmin at :5050 to inspect)
 - `postgres-test` — PostgreSQL 15 test instance (port 5433, for host `npm test`)
 - `redis`         — Redis 7 (internal only)
-- `backend`       — NestJS app (internal, nginx proxies /api/* to backend:3000)
+- `migrate`       — **one-shot**: runs `migration:run` on every `docker compose up`, exits when done
+- `seed-admin`    — **one-shot, opt-in** (`profiles: ["seed"]`): seeds admin user via `./scripts/seed.ps1 admin`
+- `backend`       — NestJS app (starts ONLY after `migrate` completes successfully)
 - `nginx`         — Reverse proxy gateway (port 80 → backend:3000 for /api/)
 - `wiki`          — Next.js wiki viewer (port 3001)
 - `pgadmin`       — pgAdmin 4 DB management UI (port 5050)
 - `frontend`      — Vite dev server (port 5173, profile=frontend only)
+
+## Migration Service Blueprint
+
+```yaml
+migrate:
+  build:
+    context: ./backend
+    dockerfile: Dockerfile
+    target: development        # needs ts-node for typeorm-ts-node-commonjs
+  container_name: eam_migrate
+  env_file: ./backend/.env
+  environment:
+    DATABASE_HOST: postgres    # MUST override .env localhost
+    REDIS_HOST: redis
+  command: ["npm", "run", "migration:run"]
+  volumes:
+    - ./backend:/app           # bind-mount so latest migration files are used
+    - /app/node_modules        # anonymous volume preserves container node_modules
+  depends_on:
+    postgres:
+      condition: service_healthy
+  networks:
+    - eam_network
+  restart: "no"                # one-shot: exits after migrations complete
+```
+
+**Backend dependency on migrate:**
+```yaml
+backend:
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    migrate:
+      condition: service_completed_successfully   # backend waits for migrate to exit 0
+```
+
+## Seed Service Blueprint (profile-gated)
+
+```yaml
+seed-admin:
+  build:
+    context: ./backend
+    dockerfile: Dockerfile
+    target: development
+  container_name: eam_seed_admin
+  profiles: ["seed"]           # NEVER starts on plain `docker compose up`
+  env_file: ./backend/.env
+  environment:
+    DATABASE_HOST: postgres
+    REDIS_HOST: redis
+  command: ["npm", "run", "seed:admin"]
+  volumes:
+    - ./backend:/app
+    - /app/node_modules
+  depends_on:
+    postgres:
+      condition: service_healthy
+  networks:
+    - eam_network
+  restart: "no"
+```
+
+Run seed via: `docker compose --profile seed run --rm seed-admin`
+Or via script: `./scripts/seed.ps1 admin`
+
+## Adding a New Seed
+
+1. Create `backend/src/database/seeds/<name>.seed.ts`
+2. Add npm script in `backend/package.json`: `"seed:<name>": "ts-node src/database/seeds/<name>.seed.ts"`
+3. Add a new service in `docker-compose.yml` following the `seed-admin` blueprint above
+4. Add to `scripts/seed.ps1` `ValidateSet` and `switch` block
+5. Add to `scripts/seed.sh` `case` block
+6. Document in `wiki/techstack/backend.json` under `seeds`
 
 ## MANDATORY Pre-Completion Checklist
 
@@ -42,9 +119,13 @@ HOST-EXPOSED ports                    INTERNAL ONLY (Docker network)
 - [ ] All `env_file:` paths exist on disk
 - [ ] Every new service is classified as exposed or internal-only in devops-rules.json
 - [ ] Services using localhost in `.env` have Docker hostname overrides in compose `environment:` block
+- [ ] `migrate` service is present and `backend.depends_on` includes `migrate: service_completed_successfully`
+- [ ] New seeds use `profiles: ["seed"]` and are NEVER in the default service set
 - [ ] `docker compose config` runs without error
 - [ ] `docker compose up -d` starts — all containers reach running/healthy
-- [ ] `docker compose logs <service> --tail 30` shows no fatal errors
+- [ ] `eam_migrate` container exits with code 0 (check: `docker inspect eam_migrate --format "{{.State.ExitCode}}"`)
+- [ ] `docker compose logs migrate --tail 30` shows no fatal errors
+- [ ] `docker compose logs <service> --tail 30` shows no fatal errors for other services
 - [ ] nginx config tested: `docker exec eam_nginx nginx -t`
 
 ## Critical ENV Overrides for Docker (ENV-RULE-01)
@@ -94,3 +175,4 @@ docker exec eam_nginx nginx -s reload # apply changes
 - [Volume and Network Config](references/volumes-networks.md)
 - [.dockerignore](references/dockerignore.md)
 - [CI/CD Pipeline Notes](references/cicd-notes.md)
+- [Migration & Seed Service Patterns](../vibe-devops-general/references/migration-seed.md)

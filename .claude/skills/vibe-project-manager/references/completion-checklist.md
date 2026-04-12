@@ -14,6 +14,9 @@
 - [ ] `npm run build` — frontend (if touched) — must pass
 - [ ] `npm run type-check && npm run build` — wiki-app (if touched) — BOTH must pass with zero errors
 - [ ] Every build error → `wiki/bugs/` entry (even if fixed immediately)
+- [ ] **If entity files changed**: `./scripts/migrate.ps1 generate <Name>` — review generated SQL before committing
+- [ ] **If new migration generated**: `./scripts/migrate.ps1 run` — verify it applies cleanly
+- [ ] **Verify `migrate` service exits code 0**: `docker inspect eam_migrate --format "{{.State.ExitCode}}"`
 - [ ] **HARD STOP**: Do not write wiki history or mark tasks "done" until all affected builds are green
 
 ## TEST

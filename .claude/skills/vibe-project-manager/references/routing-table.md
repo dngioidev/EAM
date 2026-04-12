@@ -10,6 +10,7 @@
 | Frontend task on existing feature | 2 | **`vibe-git`** (branch) → `vibe-frontend-general` | `vibe-frontend-react` |
 | Full-stack feature | 3 | **`vibe-git`** (branch) → `vibe-api-contractor` first | both BE + FE |
 | DB schema change | 2 | **`vibe-git`** (branch) → `vibe-db-general` | `vibe-db-postgresql` |
+| DB migration / seed | 2 | `vibe-devops-general` → run `./scripts/migrate.ps1` or `./scripts/seed.ps1` | `vibe-devops-docker` |
 | Caching task | 2 | **`vibe-git`** (branch) → `vibe-backend-general` | `vibe-cache-redis` |
 | Bug fix: critical | 1 | **`vibe-git`** (hotfix branch) → HOTFIX workflow | role skill for area |
 | Bug fix: high / medium / low | 1 | **`vibe-git`** (fix branch) → `vibe-qa-general` | role skill for area |
@@ -57,6 +58,7 @@ User sends request
       BACKEND ONLY     → Tier 2 → vibe-git (feature/* or fix/*) → vibe-backend-general → vibe-backend-nestjs
       FRONTEND ONLY    → Tier 2 → vibe-git (feature/* or fix/*) → vibe-frontend-general → vibe-frontend-react
       DATABASE         → Tier 2 → vibe-git (feature/* or fix/*) → vibe-db-general → vibe-db-postgresql
+      MIGRATION / SEED → Tier 2 → vibe-devops-general → run scripts/migrate.ps1 or scripts/seed.ps1
       FULL-STACK       → Tier 3 → vibe-git (feature/*) → vibe-api-contractor first, then both
       CACHING / REDIS  → Tier 2 → vibe-git (feature/*) → vibe-backend-general → vibe-cache-redis
       SECURITY         → Tier 2 → vibe-git (fix/* or feature/*) → vibe-security-general → vibe-security-nestjs

@@ -58,6 +58,51 @@ services:
     networks:
       - eam_network
 
+  # ── Database lifecycle services ────────────────────────────────────────────
+
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: eam_migrate
+    env_file: ./backend/.env
+    environment:
+      DATABASE_HOST: postgres   # override .env localhost → Docker service name
+      REDIS_HOST: redis
+    command: ["npm", "run", "migration:run"]
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - eam_network
+    restart: "no"               # one-shot: run migrations then exit
+
+  seed-admin:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: eam_seed_admin
+    profiles: ["seed"]          # not started by default — run via: scripts/seed.ps1
+    env_file: ./backend/.env
+    environment:
+      DATABASE_HOST: postgres
+      REDIS_HOST: redis
+    command: ["npm", "run", "seed:admin"]
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - eam_network
+    restart: "no"               # one-shot: seed then exit
+
   # ── Application services ────────────────────────────────────────────────────
 
   backend:
@@ -80,6 +125,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully  # wait for migrations before starting
     networks:
       - eam_network
     restart: unless-stopped
