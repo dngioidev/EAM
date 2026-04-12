@@ -12,7 +12,7 @@
     "sprint_end": "2026-05-10",
     "velocity_planned": 1,
     "velocity_actual": null,
-    "status": "planning"
+    "status": "in-progress"
   },
   "content": {
     "tldr": "Sprint 2 introduces the product/SKU catalog and kicks off the React frontend. Depends on Sprint 1 (auth + store) being complete.",

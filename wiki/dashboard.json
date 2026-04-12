@@ -6,10 +6,10 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "sprint": "1",
-    "sprint_goal": "Stand up authentication + RBAC and store management — the two foundational modules that every other feature depends on.",
-    "sprint_start": "2026-04-13",
-    "sprint_end": "2026-04-26",
+    "sprint": "2",
+    "sprint_goal": "Build the product catalog + frontend scaffold. Cashiers can manage SKUs with VNĐ pricing and VAT rates.",
+    "sprint_start": "2026-04-27",
+    "sprint_end": "2026-05-10",
     "velocity_target": 2,
     "velocity_actual": 2,
     "build_status": {
@@ -19,8 +19,8 @@
     }
   },
   "content": {
-    "tldr": "Sprint 1 CLOSED. All 15 tasks (auth T001-T010 + store T001-T005) done. 11 tests green. Build passing. Sprint 2 ready to start (product catalog + frontend scaffold).",
-    "active_features": [],
+    "tldr": "Sprint 2 active. Building product catalog (backend T001-T005) + frontend scaffold (T006-T009). Sprint 1 closed: auth + store done, 11 tests green.",
+    "active_features": ["product"],
     "open_bugs": 0,
     "bugs_by_severity": {
       "critical": 0,
