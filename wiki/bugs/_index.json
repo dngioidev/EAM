@@ -1,1 +1,17 @@
-{"meta": {"version": 1, "last_updated": "2025-01-01", "title": "Bug Index"}, "files": []}
+{
+  "meta": {
+    "version": 2,
+    "last_updated": "2026-04-12",
+    "title": "Bug Index"
+  },
+  "files": [
+    {
+      "id": "BUG-0001",
+      "path": "bugs/BUG-0001.json",
+      "title": "SprintView: Dependencies blank for Sprint 2 & 3 due to schema field mismatch",
+      "severity": "medium",
+      "status": "fixed",
+      "sprint": "1"
+    }
+  ]
+}
