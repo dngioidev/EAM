@@ -11,8 +11,8 @@
     "sprint_start": "2026-05-11",
     "sprint_end": "2026-05-24",
     "velocity_planned": 2,
-    "velocity_actual": null,
-    "status": "planning",
+    "velocity_actual": 2,
+    "status": "in_progress",
     "is_mvp": true
   },
   "content": {

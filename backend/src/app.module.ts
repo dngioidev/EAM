@@ -4,13 +4,20 @@ import { AppController } from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import * as Joi from 'joi';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { StoresModule } from './modules/stores/stores.module';
 import { ProductsModule } from './modules/products/products.module';
+import { OrdersModule } from './modules/orders/orders.module';
+import { InvoicesModule } from './modules/invoices/invoices.module';
 import { User } from './modules/users/entities/user.entity';
 import { Store } from './modules/stores/entities/store.entity';
 import { Product } from './modules/products/entities/product.entity';
+import { Order } from './modules/orders/entities/order.entity';
+import { OrderItem } from './modules/orders/entities/order-item.entity';
+import { Invoice } from './modules/invoices/entities/invoice.entity';
+import { InvoiceSequence } from './modules/invoices/entities/invoice-sequence.entity';
 
 @Module({
   imports: [
@@ -45,7 +52,7 @@ import { Product } from './modules/products/entities/product.entity';
         username: config.get<string>('DATABASE_USER'),
         password: config.get<string>('DATABASE_PASSWORD'),
         database: config.get<string>('DATABASE_NAME'),
-        entities: [User, Store, Product],
+        entities: [User, Store, Product, Order, OrderItem, Invoice, InvoiceSequence],
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
         synchronize: config.get<boolean>('DATABASE_SYNCHRONIZE', false),
         logging: config.get<string>('NODE_ENV') !== 'production',
@@ -59,10 +66,14 @@ import { Product } from './modules/products/entities/product.entity';
       },
     ]),
 
+    EventEmitterModule.forRoot(),
+
     AuthModule,
     UsersModule,
     StoresModule,
     ProductsModule,
+    OrdersModule,
+    InvoicesModule,
   ],
   controllers: [AppController],
 })

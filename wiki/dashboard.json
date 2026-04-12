@@ -6,10 +6,10 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "sprint": "2",
-    "sprint_goal": "Build the product catalog + frontend scaffold. Cashiers can manage SKUs with VNĐ pricing and VAT rates.",
-    "sprint_start": "2026-04-27",
-    "sprint_end": "2026-05-10",
+    "sprint": "3",
+    "sprint_goal": "Core POS Flow — cashier processes a sale end-to-end: cart → payment → auto-issued Vietnamese tax invoice.",
+    "sprint_start": "2026-05-11",
+    "sprint_end": "2026-05-24",
     "velocity_target": 2,
     "velocity_actual": 2,
     "build_status": {
@@ -19,8 +19,8 @@
     }
   },
   "content": {
-    "tldr": "Sprint 2 CLOSED. Product catalog backend (13 tests) + frontend scaffold complete. Login, product list, create/edit form all done. Vite build clean. Sprint 3 unblocked: Orders.",
-    "active_features": [],
+    "tldr": "Sprint 3 IN PROGRESS. Orders + Invoices backend complete (36 new unit tests). Frontend: POS screen, order history, invoice viewer. TS build clean. API contracts approved.",
+    "active_features": ["order", "invoice"],
     "open_bugs": 0,
     "bugs_by_severity": {
       "critical": 2,

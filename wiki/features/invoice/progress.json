@@ -3,19 +3,123 @@
     "feature_id": "invoice",
     "sprint": 3,
     "last_updated": "2026-04-12",
-    "version": 1
+    "version": 2
   },
   "tasks": [
     {
       "id": "T001",
       "title": "Create Invoice entity + migration",
       "role": "backend",
-      "status": "not-started",
-      "blocked_by": "order:T001",
+      "status": "done",
+      "blocked_by": null,
       "estimate_hours": 2,
-      "actual_hours": null,
-      "notes": "Fields: id, invoiceNumber (unique index), orderId (FK), storeId, status, issuedAt, lines (JSONB snapshot), vatSubtotals (JSONB), totalBeforeVatVnd, totalVatVnd, totalWithVatVnd. DB SEQUENCE for invoiceNumber per store-year."
+      "actual_hours": 2,
+      "notes": "Migration 1713830450000-CreateInvoiceTable.ts — includes both invoices and invoice_sequences tables."
     },
+    {
+      "id": "T002",
+      "title": "Implement InvoiceModule: auto-generate on order.processing event",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 4,
+      "actual_hours": 5,
+      "notes": "handleOrderProcessing() with 3 retries. generateInvoice() in DB transaction. draft→issued→order.completed."
+    },
+    {
+      "id": "T003",
+      "title": "Implement VAT calculation logic",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 2,
+      "actual_hours": 1,
+      "notes": "calculateVatSubtotals() pure function. Math.floor rounding. Grouped by taxRatePercent. Sorted ascending."
+    },
+    {
+      "id": "T004",
+      "title": "Implement invoiceNumber sequence: per-store per-year, gap-free",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 2,
+      "actual_hours": 2,
+      "notes": "nextInvoiceNumber() with INSERT ON CONFLICT DO NOTHING + SELECT FOR UPDATE + UPDATE. Format: YYYY/000001."
+    },
+    {
+      "id": "T005",
+      "title": "Implement GET /orders/:id/invoice",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 1,
+      "actual_hours": 1,
+      "notes": "OrderInvoiceController at /orders/:orderId/invoice. findByOrder() validates store scope."
+    },
+    {
+      "id": "T006",
+      "title": "Implement GET /invoices (list, paginated)",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 2,
+      "actual_hours": 2,
+      "notes": "InvoicesController with from/to/status filters. Roles: accountant+store-manager+admin."
+    },
+    {
+      "id": "T007",
+      "title": "Implement PATCH /invoices/:id/cancel",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 2,
+      "actual_hours": 1,
+      "notes": "cancel() idempotent. Validates order.status=refunded. BR-INV-01: invoice number unchanged."
+    },
+    {
+      "id": "T008",
+      "title": "Write unit tests: VAT calculation + invoice service",
+      "role": "qa",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 2,
+      "actual_hours": 2,
+      "notes": "invoices.service.spec.ts — 11 tests: calculateVatSubtotals (5), cancel (5), findByOrder (4), findOne (2)."
+    },
+    {
+      "id": "T009",
+      "title": "Document API contract: api-contracts/invoice.json",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 1,
+      "actual_hours": 1,
+      "notes": "wiki/api-contracts/invoice.json — 3 endpoints, status: approved."
+    },
+    {
+      "id": "T010",
+      "title": "Frontend: Invoice viewer pages",
+      "role": "frontend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 4,
+      "actual_hours": 4,
+      "notes": "InvoicesPage.tsx (list + cancel) + InvoiceDetailPage.tsx (shared for /invoices/:id and /orders/:orderId/invoice)."
+    }
+  ],
+  "session_log": [
+    {
+      "date": "2026-04-12",
+      "author": "vibe-backend-nestjs + vibe-frontend-react",
+      "note": "All tasks T001–T010 completed. 11 unit tests green. Frontend TS build clean."
+    }
+  ],
+  "handoff_notes": {
+    "last_code_state": "All invoice backend + frontend complete. Sprint 3 MVP done.",
+    "known_issues": [],
+    "resume_instructions": "Sprint 4: implement refund flow, barcode scanner, split payment."
+  }
+}
     {
       "id": "T002",
       "title": "Implement InvoiceModule: auto-generate on OrderCompletedEvent",

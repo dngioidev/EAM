@@ -1,0 +1,50 @@
+﻿{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "eam_backend crashes at startup — @nestjs/event-emitter missing from Docker anonymous node_modules volume",
+    "owner": "vibe-qa-general"
+  },
+  "quick_facts": {
+    "bug_id": "BUG-0005",
+    "severity": "critical",
+    "status": "fixed",
+    "sprint": "3"
+  },
+  "content": {
+    "tldr": "After Sprint 3 deployment, eam_backend failed to compile with 4 TS2307 errors for '@nestjs/event-emitter'. The package is in package.json and was correctly installed on the host, but Docker re-used a stale anonymous volume for /app/node_modules that was created before the package was added.",
+    "environment": "eam_backend container (Docker development target). Reproducible on any machine that ran 'docker compose up -d --build' without renewing anonymous volumes after a new npm package was added.",
+    "steps_to_reproduce": [
+      "Install @nestjs/event-emitter on the host: cd backend && npm install @nestjs/event-emitter --save",
+      "Run: docker compose up -d --build   (normal rebuild — does NOT renew anon volumes)",
+      "Check: docker logs eam_backend",
+      "Observe 4 TS2307 errors: Cannot find module '@nestjs/event-emitter'"
+    ],
+    "expected_behavior": "NestJS compiles cleanly and all order/invoice routes are mapped. @nestjs/event-emitter is resolvable because npm ci installed it during the image build.",
+    "actual_behavior": "TypeScript compilation fails with TS2307 in: app.module.ts, invoices.service.ts, orders.service.spec.ts, orders.service.ts. NestJS never starts.",
+    "root_cause": "docker-compose.yml defines an anonymous volume '- /app/node_modules' on the backend service. This volume is created on first container start and populated from the image layer. On subsequent 'docker compose up --build' the image IS rebuilt with the new package.json, but Docker REUSES the existing anonymous volume. The bind-mount '- ./backend:/app' overlays the host source, and the stale anonymous volume shadows /app/node_modules — missing @nestjs/event-emitter entirely.",
+    "fix_description": "Recreate the backend container forcing Docker to discard the stale anonymous volume:\n\n  docker compose up -d --build --force-recreate --renew-anon-volumes backend\n\nThis creates a fresh /app/node_modules from the rebuillt image layer (npm ci was run against the updated package.json). NestJS started cleanly; all 10 Sprint 3 routes registered.",
+    "affected_files": [
+      "backend/package.json",
+      "docker-compose.yml"
+    ],
+    "prevention": "After adding new npm packages to a project using Docker Compose with anonymous node_modules volumes, always use '--renew-anon-volumes' on the next 'docker compose up'. The migrate.ps1 script already handles this pattern for the migrate service.",
+    "linked_features": ["order", "invoice"]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T14:23:00Z",
+      "author": "vibe-qa-general",
+      "action": "created",
+      "note": "Bug discovered when eam_backend container failed to start after Sprint 3 deployment. 4 TS2307 errors for @nestjs/event-emitter."
+    },
+    {
+      "version": 2,
+      "timestamp": "2026-04-12T14:25:00Z",
+      "author": "vibe-devops-docker",
+      "action": "fixed",
+      "note": "Ran: docker compose up -d --build --force-recreate --renew-anon-volumes backend. Container started; Nest application successfully started confirmed in logs."
+    }
+  ]
+}
