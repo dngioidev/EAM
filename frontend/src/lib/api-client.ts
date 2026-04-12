@@ -24,8 +24,14 @@ function processQueue(error: unknown, token: string | null) {
   failedQueue = [];
 }
 
+// Unwrap the global { data, meta } envelope added by the backend TransformInterceptor
 apiClient.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    if (res.data && Object.prototype.hasOwnProperty.call(res.data, 'data')) {
+      res.data = res.data.data;
+    }
+    return res;
+  },
   async (error) => {
     const original = error.config;
     if (error.response?.status !== 401 || original._retry) {
@@ -48,10 +54,10 @@ apiClient.interceptors.response.use(
 
     try {
       const refreshToken = useAuthStore.getState().refreshToken;
-      const { data } = await axios.post<{ accessToken: string; refreshToken: string }>(
-        '/api/v1/auth/refresh',
-        { refreshToken },
-      );
+      const { data: envelope } = await axios.post<{
+        data: { accessToken: string; refreshToken: string };
+      }>('/api/v1/auth/refresh', { refreshToken });
+      const data = envelope.data;
       useAuthStore.getState().setTokens(data.accessToken, data.refreshToken);
       processQueue(null, data.accessToken);
       original.headers.Authorization = `Bearer ${data.accessToken}`;

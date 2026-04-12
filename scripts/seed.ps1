@@ -28,7 +28,7 @@ Write-Host ""
 
 switch ($Target) {
     "admin" {
-        Write-Host "Seeding admin user (idempotent — skips if already exists)..." -ForegroundColor Yellow
+        Write-Host "Seeding admin user (idempotent - skips if already exists)..." -ForegroundColor Yellow
         # Uses the 'seed-admin' service defined with profiles: ["seed"]
         docker compose --profile seed run --rm seed-admin
     }

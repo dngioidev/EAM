@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 7,
+    "version": 8,
     "last_updated": "2026-04-12",
     "title": "Sprint Dashboard",
     "owner": "vibe-project-manager"
@@ -23,16 +23,16 @@
     "active_features": [],
     "open_bugs": 0,
     "bugs_by_severity": {
-      "critical": 0,
+      "critical": 1,
       "high": 1,
       "medium": 1,
       "low": 0
     },
     "pending_decisions": [],
     "pending_contracts": [],
-    "recently_updated": ["backend/src/modules/auth", "backend/src/modules/stores", "wiki/api-contracts/auth.json", "wiki/api-contracts/store.json", "docker-compose.yml"],
+    "recently_updated": ["frontend/src/lib/api-client.ts", "wiki/bugs/BUG-0003.json", "backend/src/modules/auth", "backend/src/modules/stores", "docker-compose.yml"],
     "blocked_features": ["product (blocked on auth+store — now unblocked)", "order (blocked on product)", "invoice (blocked on order)"],
-    "sprint_notes": "Sprint 1 CLOSED 2026-04-12. Velocity 2/2. Auth: JWT access (15m) + refresh (7d, Redis rotation), bcryptjs cost 12, RolesGuard, @Public() bypass, admin seed. Store: CRUD, taxCode immutable, soft-delete, deactivation session flush. 2 migrations. 11 unit tests green. BUG-0001 (medium, fixed) + BUG-0002 (high, fixed). Docker 6-service stack operational. wiki-app 10 routes passing.",
+    "sprint_notes": "Sprint 2 CLOSED 2026-04-12. Velocity 2/2. Product backend + frontend complete. BUG-0003 (critical, fixed): TransformInterceptor envelope not unwrapped — all auth + product API calls were broken. Fixed in api-client.ts response interceptor. BUG-0001 (medium, fixed) + BUG-0002 (high, fixed) from Sprint 1.",
     "roadmap_ref": "wiki/roadmap.json"
   },
   "audit": [
@@ -63,6 +63,13 @@
       "author": "vibe-backend-nestjs",
       "action": "sprint-1-implementation-complete",
       "note": "Sprint 1 backend fully implemented. Auth module: JWT access (15m) + refresh (7d, Redis rotation), bcryptjs cost 12, no-enumeration 401 (BR-AUTH-08), RolesGuard, JwtAuthGuard + @Public bypass. Stores module: taxCode immutable, soft-delete, deactivate flushes Redis sessions. 2 migrations, admin seed. Build passing, 11 tests green. API contracts approved."
+    },
+    {
+      "version": 8,
+      "timestamp": "2026-04-12T12:10:00Z",
+      "author": "vibe-qa-general",
+      "action": "bug-fixed",
+      "note": "BUG-0003 (critical) created and fixed. TransformInterceptor { data, meta } envelope was not unwrapped by frontend api-client.ts. All login attempts stored undefined tokens; RequireAuth bounced every user back to /login. Fixed with response interceptor + refresh-token path unwrap."
     }
   ]
 }

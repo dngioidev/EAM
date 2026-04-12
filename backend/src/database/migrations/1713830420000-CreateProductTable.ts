@@ -75,9 +75,17 @@ export class CreateProductTable1713830420000 implements MigrationInterface {
       }),
     );
 
-    // GIN index on unaccent(name) for fast diacritic-insensitive search (BR-PROD-11)
+    // unaccent() is STABLE, not IMMUTABLE — PostgreSQL forbids STABLE functions in index
+    // expressions. Create an IMMUTABLE SQL wrapper that calls the C-level function directly.
+    await queryRunner.query(`
+      CREATE OR REPLACE FUNCTION public.f_unaccent(text)
+        RETURNS text LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE AS
+        $func$ SELECT public.unaccent('public.unaccent', $1) $func$
+    `);
+
+    // GIN index on f_unaccent(name) for fast diacritic-insensitive search (BR-PROD-11)
     await queryRunner.query(
-      `CREATE INDEX IDX_products_name_unaccent ON products USING gin (unaccent(name) gin_trgm_ops)`,
+      `CREATE INDEX IDX_products_name_unaccent ON products USING gin (public.f_unaccent(name) gin_trgm_ops)`,
     );
 
     // taxRatePercent check constraint (BR-PROD-02)
@@ -107,5 +115,8 @@ export class CreateProductTable1713830420000 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX IF EXISTS IDX_products_name_unaccent`);
     await queryRunner.dropIndex('products', 'IDX_products_sku_store');
     await queryRunner.dropTable('products');
+    await queryRunner.query(`DROP FUNCTION IF EXISTS public.f_unaccent(text)`);
+    await queryRunner.query(`DROP EXTENSION IF EXISTS pg_trgm`);
+    await queryRunner.query(`DROP EXTENSION IF EXISTS unaccent`);
   }
 }

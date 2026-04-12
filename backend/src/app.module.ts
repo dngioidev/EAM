@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppController } from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import * as Joi from 'joi';
@@ -63,5 +64,6 @@ import { Product } from './modules/products/entities/product.entity';
     StoresModule,
     ProductsModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
