@@ -74,10 +74,10 @@ See `references/routing-table.md` for the complete routing table across all 18+ 
 
 Quick reference:
 - New requirement → `vibe-product-owner` (Tier 3)
-- Feature kickoff → `vibe-ba` → `vibe-designer-uxui` → `vibe-api-contractor` (Tier 3)
-- Backend task → `vibe-backend-general` → `vibe-backend-nestjs` (Tier 2)
-- Frontend task → `vibe-frontend-general` → `vibe-frontend-react` (Tier 2)
-- Bug fix → `vibe-qa-general` → role skill (Tier 1)
+- Feature kickoff → `vibe-git` (branch) → `vibe-ba` → `vibe-designer-uxui` → `vibe-api-contractor` (Tier 3)
+- Backend task → `vibe-git` (branch) → `vibe-backend-general` → `vibe-backend-nestjs` (Tier 2)
+- Frontend task → `vibe-git` (branch) → `vibe-frontend-general` → `vibe-frontend-react` (Tier 2)
+- Bug fix → `vibe-git` (fix branch) → `vibe-qa-general` → role skill (Tier 1)
 - Critical bug → HOTFIX workflow (see `references/hotfix-workflow.md`)
 
 ---
@@ -97,7 +97,7 @@ Summary:
 
 See `references/completion-checklist.md` for the full checklist.
 
-Every session must pass: BUILD → TEST → SECURITY → CODE REVIEW → WIKI UPDATE → DONE.
+Every session must pass: **GIT BRANCH** → BUILD → TEST → SECURITY → CODE REVIEW → WIKI UPDATE → **GIT COMMIT + ALERT** → DONE.
 
 ---
 
@@ -136,7 +136,9 @@ At end of every session (use `scratch_notes` for accuracy):
 [ ] wiki/dashboard.json read — build status noted
 [ ] Changelog filtered — "what changed since last session" answered
 [ ] Correct tier applied — tiered reading complete
+[ ] vibe-git invoked at session start — branch created from develop
 [ ] Correct skill routed based on routing table
 [ ] Completion checklist passed at session end
+[ ] vibe-git invoked at session end — commits made, user alerted for merge
 [ ] Wiki update protocol executed at session end
 ```

@@ -13,6 +13,14 @@ Bypasses normal feature kickoff. Only for `severity: "critical"` bugs.
 - Verify `quick_facts.severity === "critical"`
 - If not critical → use normal bug fix flow (Tier 1 → vibe-qa-general)
 
+**1b. vibe-git: Create hotfix branch**
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b hotfix/{bug-id}-{short-slug}
+```
+Report branch name to user before any code changes.
+
 **2. vibe-ba: impact assessment only (15 min max, NO full breakdown)**
 - Which entities are touched?
 - Which tests must pass after the fix?
@@ -42,6 +50,31 @@ Bypasses normal feature kickoff. Only for `severity: "critical"` bugs.
 - `wiki/bugs/{date}-{slug}.json` → status "resolved", `fix_applied` + `verification` filled
 - `wiki/history/{date}.json` → write hotfix session entry
 - `wiki/changelog.json` → prepend entry with tags ["hotfix", "critical", affected-module]
+
+**7b. vibe-git: Commit, push, and alert user**
+```bash
+git add {files}
+git commit -m "hotfix({scope}): {description}"
+git push origin hotfix/{bug-id}-{short-slug}
+```
+Trigger vibe-git Merge Readiness Check, then alert user:
+```
+─────────────────────────────────────────────────
+  HOTFIX BRANCH READY FOR REVIEW
+─────────────────────────────────────────────────
+  Branch : hotfix/{bug-id}-{short-slug}
+  Base   : develop
+  Fixes  : {bug description}
+
+  ACTION REQUIRED:
+  Review hotfix branch and merge into develop when approved.
+
+  Merge command:
+    git checkout develop
+    git merge --no-ff hotfix/{bug-id}-{short-slug}
+    git push origin develop
+─────────────────────────────────────────────────
+```
 
 **8. Post-mortem (within 48 hours)**
 - Write `wiki/decisions/{date}-hotfix-postmortem-{slug}.json`

@@ -6,6 +6,8 @@
 - [ ] Tiered reading applied — correct tier selected
 - [ ] Impact map read — `regression_test_ids` noted
 - [ ] Pre-existing test failures logged to `wiki/bugs/` before touching code
+- [ ] **`vibe-git`**: `develop` branch pulled, task branch created (`feature/*`, `fix/*`, etc.)
+- [ ] **`vibe-git`**: Branch name confirmed and reported to user before any code written
 
 ## BUILD
 - [ ] `npm run build` — backend (if touched) — must pass
@@ -55,3 +57,8 @@
 - [ ] No open critical or high bugs against this feature
 - [ ] No open ux-regression bugs against this feature
 - [ ] Wiki viewer reflects current state
+- [ ] **`vibe-git`**: All changes committed with Conventional Commits messages
+- [ ] **`vibe-git`**: Branch pushed to origin
+- [ ] **`vibe-git`**: Merge Readiness Check passed (build ✅ tests ✅ wiki ✅ no secrets ✅)
+- [ ] **`vibe-git`**: User alerted with BRANCH READY FOR REVIEW message
+- [ ] **`vibe-git`**: User confirms review before merge to develop proceeds

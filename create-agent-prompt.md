@@ -5,10 +5,10 @@
 
 ## 📌 How to Use This Document
 
-This prompt defines **22 skills** across **3 layers** plus a dedicated wiki system and wiki viewer app:
+This prompt defines **23 skills** across **3 layers** plus a dedicated wiki system and wiki viewer app:
 
 - **Layer 0** — Orchestration: 1 skill (Project Manager)
-- **Layer 1** — Role General Skills: 12 skills (tech-agnostic principles per role)
+- **Layer 1** — Role General Skills: 13 skills (tech-agnostic principles per role)
 - **Layer 2** — Tech-Specific Skills: 9 skills (deep patterns per technology)
 
 **When generating skills from this prompt:**
@@ -166,6 +166,8 @@ skills/
 │       └── references/
 │           ├── json-schema-guide.md       [medium]
 │           └── wiki-audit-checklist.md    [medium]
+│   └── vibe-git/
+│       └── SKILL.md                       ← self-contained, no Layer 2
 │
 └── LAYER 2 — TECH-SPECIFIC SKILLS (9 skills)
     ├── vibe-backend-nestjs/

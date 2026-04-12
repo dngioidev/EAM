@@ -5,24 +5,25 @@
 | Request Type | Tier | Layer 1 Skill | Layer 2 Skill |
 |---|---|---|---|
 | New requirement from user | 3 | `vibe-product-owner` | — wait for approval |
-| Feature kickoff (after approval) | 3 | `vibe-ba` → `vibe-designer-uxui` → `vibe-api-contractor` | all dev skills |
-| Backend task on existing feature | 2 | `vibe-backend-general` | `vibe-backend-nestjs` |
-| Frontend task on existing feature | 2 | `vibe-frontend-general` | `vibe-frontend-react` |
-| Full-stack feature | 3 | `vibe-api-contractor` first | both BE + FE |
-| DB schema change | 2 | `vibe-db-general` | `vibe-db-postgresql` |
-| Caching task | 2 | `vibe-backend-general` | `vibe-cache-redis` |
-| Bug fix: critical | 1 | HOTFIX workflow | role skill for area |
-| Bug fix: high / medium / low | 1 | `vibe-qa-general` | role skill for area |
-| Security concern | 2 | `vibe-security-general` | `vibe-security-nestjs` |
+| Feature kickoff (after approval) | 3 | **`vibe-git`** (branch) → `vibe-ba` → `vibe-designer-uxui` → `vibe-api-contractor` | all dev skills |
+| Backend task on existing feature | 2 | **`vibe-git`** (branch) → `vibe-backend-general` | `vibe-backend-nestjs` |
+| Frontend task on existing feature | 2 | **`vibe-git`** (branch) → `vibe-frontend-general` | `vibe-frontend-react` |
+| Full-stack feature | 3 | **`vibe-git`** (branch) → `vibe-api-contractor` first | both BE + FE |
+| DB schema change | 2 | **`vibe-git`** (branch) → `vibe-db-general` | `vibe-db-postgresql` |
+| Caching task | 2 | **`vibe-git`** (branch) → `vibe-backend-general` | `vibe-cache-redis` |
+| Bug fix: critical | 1 | **`vibe-git`** (hotfix branch) → HOTFIX workflow | role skill for area |
+| Bug fix: high / medium / low | 1 | **`vibe-git`** (fix branch) → `vibe-qa-general` | role skill for area |
+| Security concern | 2 | **`vibe-git`** (branch) → `vibe-security-general` | `vibe-security-nestjs` |
 | Docker / deploy | 2 | `vibe-devops-general` | `vibe-devops-docker` |
-| Documentation gap | 1 | `vibe-documentation` | — self-contained |
+| Documentation gap | 1 | **`vibe-git`** (chore branch) → `vibe-documentation` | — self-contained |
 | Design decision | 2 | `vibe-designer-uxui` | `vibe-design-tailwind` |
 | Code review | 2 | `vibe-code-review` | — self-contained |
-| Test writing | 2 | `vibe-qa-general` | `vibe-qa-stack` |
-| Refactoring | 2 | `vibe-backend-general` OR `vibe-frontend-general` | appropriate L2 |
+| Test writing | 2 | **`vibe-git`** (test branch) → `vibe-qa-general` | `vibe-qa-stack` |
+| Refactoring | 2 | **`vibe-git`** (refactor branch) → `vibe-backend-general` OR `vibe-frontend-general` | appropriate L2 |
 | Dependency update | 1 | `vibe-devops-general` | — |
 | Sprint planning | 1 | `vibe-product-owner` | — |
 | Wiki initialization | 1 | `vibe-documentation` | `vibe-wiki-app-nextjs` |
+| Git branching / commit / merge | 1 | **`vibe-git`** | — self-contained |
 
 ---
 
@@ -38,21 +39,26 @@ User sends request
       NO  → Continue below
 
   → Is this a critical bug?
-      YES → Tier 1 → HOTFIX workflow (hotfix-workflow.md)
+      YES → Tier 1 → vibe-git (create hotfix/* branch from develop) → HOTFIX workflow
       NO  → Continue below
 
+  → Does this task require code or wiki changes? (feature, fix, refactor, test, chore)
+      YES → vibe-git FIRST: create branch from develop, then route to role skill
+      NO  → skip vibe-git (planning, review, design decisions only)
+
   → What area does this touch?
-      BACKEND ONLY     → Tier 2 → vibe-backend-general → vibe-backend-nestjs
-      FRONTEND ONLY    → Tier 2 → vibe-frontend-general → vibe-frontend-react
-      DATABASE         → Tier 2 → vibe-db-general → vibe-db-postgresql
-      FULL-STACK       → Tier 3 → vibe-api-contractor first, then both
-      CACHING / REDIS  → Tier 2 → vibe-backend-general → vibe-cache-redis
-      SECURITY         → Tier 2 → vibe-security-general → vibe-security-nestjs
+      BACKEND ONLY     → Tier 2 → vibe-git (feature/* or fix/*) → vibe-backend-general → vibe-backend-nestjs
+      FRONTEND ONLY    → Tier 2 → vibe-git (feature/* or fix/*) → vibe-frontend-general → vibe-frontend-react
+      DATABASE         → Tier 2 → vibe-git (feature/* or fix/*) → vibe-db-general → vibe-db-postgresql
+      FULL-STACK       → Tier 3 → vibe-git (feature/*) → vibe-api-contractor first, then both
+      CACHING / REDIS  → Tier 2 → vibe-git (feature/*) → vibe-backend-general → vibe-cache-redis
+      SECURITY         → Tier 2 → vibe-git (fix/* or feature/*) → vibe-security-general → vibe-security-nestjs
       DEVOPS / DOCKER  → Tier 2 → vibe-devops-general → vibe-devops-docker
-      TESTING          → Tier 2 → vibe-qa-general → vibe-qa-stack
+      TESTING          → Tier 2 → vibe-git (test/*) → vibe-qa-general → vibe-qa-stack
       DESIGN / UI      → Tier 2 → vibe-designer-uxui → vibe-design-tailwind
       CODE REVIEW      → Tier 2 → vibe-code-review (self-contained)
-      DOCUMENTATION    → Tier 1 → vibe-documentation (self-contained)
+      DOCUMENTATION    → Tier 1 → vibe-git (chore/*) → vibe-documentation (self-contained)
+      REFACTORING      → Tier 2 → vibe-git (refactor/*) → appropriate role skill
 ```
 
 ---
