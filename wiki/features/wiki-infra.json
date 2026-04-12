@@ -1,10 +1,10 @@
 {
   "meta": {
-    "version": 1,
+    "version": 2,
     "last_updated": "2026-04-13",
     "title": "Wiki Infrastructure — SQLite + MCP Server",
-    "owner": "vibe-product-owner",
-    "status": "approved"
+    "owner": "vibe-project-manager",
+    "status": "in_progress"
   },
   "quick_facts": {
     "feature_id": "wiki-infra",
@@ -86,9 +86,9 @@
       "BR-WIKII-06: SQLite WAL mode (PRAGMA journal_mode=WAL) enabled — allows concurrent reads from wiki-app while MCP writes"
     ],
     "tasks": [
-      { "id": "T001", "priority": "P0", "title": "wiki-mcp/ scaffold — package.json, TypeScript config, @modelcontextprotocol/sdk + better-sqlite3 + zod, MCP server entry point with stdio transport", "size": "S", "status": "todo" },
-      { "id": "T002", "priority": "P0", "title": "schema.sql — SQLite tables: features, sprints, tasks, api_contracts, bugs, history, decisions, changelog, audit_log + FTS5 virtual tables for features/bugs/decisions", "size": "M", "status": "todo" },
-      { "id": "T003", "priority": "P0", "title": "migrate.ts — one-time JSON→SQLite importer, reads all wiki/ JSON files and populates DB idempotently (safe to re-run)", "size": "M", "status": "todo" },
+      { "id": "T001", "priority": "P0", "title": "wiki-mcp/ scaffold — package.json, TypeScript config, @modelcontextprotocol/sdk + better-sqlite3 + zod, MCP server entry point with stdio transport", "size": "S", "status": "done" },
+      { "id": "T002", "priority": "P0", "title": "schema.sql — SQLite tables: features, sprints, tasks, api_contracts, bugs, history, decisions, changelog, audit_log + FTS5 virtual tables for features/bugs/decisions", "size": "M", "status": "done" },
+      { "id": "T003", "priority": "P0", "title": "migrate.ts — one-time JSON→SQLite importer, reads all wiki/ JSON files and populates DB idempotently (safe to re-run)", "size": "M", "status": "done" },
       { "id": "T004", "priority": "P0", "title": "Core read tools — wiki_dashboard(), wiki_feature_get(id), wiki_feature_list(filters), wiki_sprint_get(id), wiki_bug_list(filters), wiki_contract_get(module)", "size": "M", "status": "todo" },
       { "id": "T005", "priority": "P0", "title": "Core write tools — wiki_feature_update(id, patch), wiki_task_update(id, patch), wiki_session_log(session)", "size": "M", "status": "todo" },
       { "id": "T006", "priority": "P0", "title": "Register MCP server in .claude/settings.json — mcpServers entry, command: node, args: [wiki-mcp/dist/server.js], auto-approve wiki_* tools", "size": "S", "status": "todo" },

@@ -1,8 +1,8 @@
 {
   "meta": {
-    "version": 2,
+    "version": 3,
     "date": "2026-04-13",
-    "title": "Sprint 4 Kickoff + Sprint 4.5 Wiki-Infra Planning",
+    "title": "Sprint 4 Kickoff + Sprint 4.5 Wiki-Infra Planning + Sprint 4.5 Implementation Start",
     "author": "vibe-project-manager"
   },
   "session": {
@@ -67,5 +67,25 @@
     "QA-T005/T006 — Backend integration tests",
     "QA-T007/T008 — Frontend unit tests",
     "T019-T022 — Admin user UI (unblocked after backend endpoints exist)"
-  ]
+  ],
+  "sprint_4_5_implementation": {
+    "session": "Sprint 4.5 — T001/T002/T003 implementation",
+    "branch": "feature/wiki-infra",
+    "outcome": "P0 scaffold complete. wiki.db populated. MCP server starts on stdio.",
+    "commits": [
+      "docs(wiki): add Sprint 4.5 wiki-infra planning artifacts (planning commit)",
+      "feat(wiki): T001 — wiki-mcp/ scaffold (better-sqlite3@12.9.0 prebuilt confirmed for Node 22 Win x64)",
+      "feat(wiki): T002 — schema.sql 9 tables + 4 FTS5 virtual tables + indexes",
+      "feat(wiki): T003 — migrate.ts idempotent importer (9 features, 14 sprints, 27 tasks, 5 bugs, 19 changelog, dashboard)"
+    ],
+    "notes": [
+      "[branch-gate] feature/wiki-infra created from develop (up to date) — all builds passing",
+      "[T001] wiki-mcp/ created: package.json (ESM, NodeNext), tsconfig.json, src/server.ts (all 14 wiki_* tools registered), src/db.ts (WAL+FK pragmas), src/tools/*.ts stubs",
+      "[T001] node_modules install — better-sqlite3@9 FAILED (no prebuilt for Node 22 Win x64, no VS Build Tools). Switched to better-sqlite3@12.9.0 — prebuilt binaries available. tsc build: 0 errors",
+      "[T002] schema.sql: features, sprints, tasks, api_contracts, bugs, history, decisions, changelog, dashboard + audit_log; FTS5: features_fts/bugs_fts/decisions_fts/contracts_fts (unicode61 tokenizer); 14 indexes. Validated against in-memory SQLite: OK",
+      "[T003] migrate.ts: reads all wiki/ JSON files, single atomic transaction, INSERT OR REPLACE idempotent. Path fix: SCHEMA resolves to wiki-mcp/src/schema.sql from repo root (not dist/). Array.isArray guard on tasks for legacy feature shape (sections-based auth/product/order)",
+      "[bugfix] wiki/changelog.json had missing '{' opening 0.11.2 entry (JSON syntax error). Fixed — 19 entries parse correctly.",
+      "[result] wiki.db populated: features=9, sprints=14, tasks=27, bugs=5, changelog=19, contracts=5, history=2, audit_log=2"
+    ]
+  }
 }
