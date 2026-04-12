@@ -1,1 +1,102 @@
-{"meta": {"version": 1, "last_updated": "2025-01-01", "title": "Test Cases Index"}, "files": []}
+{
+  "meta": {
+    "version": 2,
+    "last_updated": "2026-04-13",
+    "title": "Test Cases Index",
+    "owner": "vibe-qa-general"
+  },
+  "summary": {
+    "total_features_covered": 5,
+    "total_test_cases": 138,
+    "unit_passing": 50,
+    "unit_pending": 0,
+    "integration_pending": 41,
+    "integration_passing": 0,
+    "e2e_pending": 10,
+    "e2e_passing": 0,
+    "frontend_unit_pending": 16,
+    "frontend_unit_passing": 0,
+    "overall_status": "backfill-in-progress",
+    "note": "Unit tests (service layer mocks) exist and pass for all 5 features — 50 total. All integration, E2E, and frontend-unit tests are pending and must be written sprint-by-sprint starting Sprint 4."
+  },
+  "files": [
+    {
+      "feature_id": "auth",
+      "file": "wiki/test-cases/auth.json",
+      "sprint": 1,
+      "total": 30,
+      "unit_passing": 16,
+      "integration_pending": 11,
+      "e2e_pending": 3,
+      "frontend_unit_pending": 4,
+      "status": "unit-passing-only"
+    },
+    {
+      "feature_id": "store",
+      "file": "wiki/test-cases/store.json",
+      "sprint": 1,
+      "total": 22,
+      "unit_passing": 5,
+      "integration_pending": 8,
+      "e2e_pending": 2,
+      "frontend_unit_pending": 0,
+      "status": "unit-passing-only"
+    },
+    {
+      "feature_id": "product",
+      "file": "wiki/test-cases/product.json",
+      "sprint": 2,
+      "total": 27,
+      "unit_passing": 8,
+      "integration_pending": 9,
+      "e2e_pending": 2,
+      "frontend_unit_pending": 3,
+      "status": "unit-passing-only"
+    },
+    {
+      "feature_id": "order",
+      "file": "wiki/test-cases/order.json",
+      "sprint": 3,
+      "total": 32,
+      "unit_passing": 10,
+      "integration_pending": 7,
+      "e2e_pending": 1,
+      "frontend_unit_pending": 5,
+      "status": "unit-passing-only",
+      "priority_e2e": "TC-ORDER-E01 is P0 — first E2E to write"
+    },
+    {
+      "feature_id": "invoice",
+      "file": "wiki/test-cases/invoice.json",
+      "sprint": 3,
+      "total": 27,
+      "unit_passing": 11,
+      "integration_pending": 6,
+      "e2e_pending": 2,
+      "frontend_unit_pending": 4,
+      "status": "unit-passing-only",
+      "legal_critical": "TC-INV-I06 concurrency test required before production"
+    }
+  ],
+  "pending_work": {
+    "sprint_4": [
+      "Set up Playwright (playwright.config.ts, install browsers)",
+      "Write TC-ORDER-E01 (P0 cashier full flow)",
+      "Write TC-AUTH-E01, TC-AUTH-E02 (login/error flows)",
+      "Set up integration test infrastructure (NestJS TestingModule + test DB port 5433)",
+      "Write auth integration tests (TC-AUTH-I01 through TC-AUTH-I11)"
+    ],
+    "ongoing_each_sprint": [
+      "After every backend implementation: write integration tests for that module",
+      "After every frontend implementation: write frontend unit tests for hooks/components",
+      "After every full-stack feature: add Playwright E2E for acceptance criteria flow"
+    ]
+  },
+  "id_registry": {
+    "auth": { "unit": ["TC-AUTH-U01","TC-AUTH-U02","TC-AUTH-U03","TC-AUTH-U04","TC-AUTH-U05","TC-AUTH-U06","TC-AUTH-U07","TC-AUTH-U08","TC-AUTH-U09","TC-AUTH-U10","TC-AUTH-U11","TC-AUTH-U12","TC-AUTH-U13","TC-AUTH-U14","TC-AUTH-U15","TC-AUTH-U16"], "integration": ["TC-AUTH-I01","TC-AUTH-I02","TC-AUTH-I03","TC-AUTH-I04","TC-AUTH-I05","TC-AUTH-I06","TC-AUTH-I07","TC-AUTH-I08","TC-AUTH-I09","TC-AUTH-I10","TC-AUTH-I11"], "e2e": ["TC-AUTH-E01","TC-AUTH-E02","TC-AUTH-E03"], "frontend_unit": ["TC-AUTH-FU01","TC-AUTH-FU02","TC-AUTH-FU03","TC-AUTH-FU04"] },
+    "store": { "unit": ["TC-STORE-U01","TC-STORE-U02","TC-STORE-U03","TC-STORE-U04","TC-STORE-U05"], "integration": ["TC-STORE-I01","TC-STORE-I02","TC-STORE-I03","TC-STORE-I04","TC-STORE-I05","TC-STORE-I06","TC-STORE-I07","TC-STORE-I08"], "e2e": ["TC-STORE-E01","TC-STORE-E02"] },
+    "product": { "unit": ["TC-PROD-U01","TC-PROD-U02","TC-PROD-U03","TC-PROD-U04","TC-PROD-U05","TC-PROD-U06","TC-PROD-U07","TC-PROD-U08"], "integration": ["TC-PROD-I01","TC-PROD-I02","TC-PROD-I03","TC-PROD-I04","TC-PROD-I05","TC-PROD-I06","TC-PROD-I07","TC-PROD-I08","TC-PROD-I09"], "e2e": ["TC-PROD-E01","TC-PROD-E02"], "frontend_unit": ["TC-PROD-FU01","TC-PROD-FU02","TC-PROD-FU03"] },
+    "order": { "unit": ["TC-ORDER-U01","TC-ORDER-U02","TC-ORDER-U03","TC-ORDER-U04","TC-ORDER-U05","TC-ORDER-U06","TC-ORDER-U07","TC-ORDER-U08","TC-ORDER-U09","TC-ORDER-U10"], "integration": ["TC-ORDER-I01","TC-ORDER-I02","TC-ORDER-I03","TC-ORDER-I04","TC-ORDER-I05","TC-ORDER-I06","TC-ORDER-I07"], "e2e": ["TC-ORDER-E01"], "frontend_unit": ["TC-ORDER-FU01","TC-ORDER-FU02","TC-ORDER-FU03","TC-ORDER-FU04","TC-ORDER-FU05"] },
+    "invoice": { "unit": ["TC-INV-U01","TC-INV-U02","TC-INV-U03","TC-INV-U04","TC-INV-U05","TC-INV-U06","TC-INV-U07","TC-INV-U08","TC-INV-U09","TC-INV-U10","TC-INV-U11"], "integration": ["TC-INV-I01","TC-INV-I02","TC-INV-I03","TC-INV-I04","TC-INV-I05","TC-INV-I06"], "e2e": ["TC-INV-E01","TC-INV-E02"], "frontend_unit": ["TC-INV-FU01","TC-INV-FU02","TC-INV-FU03","TC-INV-FU04"] }
+  }
+}

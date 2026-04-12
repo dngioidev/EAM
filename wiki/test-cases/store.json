@@ -1,0 +1,162 @@
+{
+  "meta": {
+    "feature_id": "store",
+    "version": 1,
+    "last_updated": "2026-04-13",
+    "title": "Store Management — Test Cases",
+    "owner": "vibe-qa-general",
+    "sprint": 1,
+    "source_feature": "wiki/features/store.json"
+  },
+  "summary": {
+    "total": 22,
+    "unit_passing": 5,
+    "unit_pending": 0,
+    "integration_pending": 8,
+    "integration_passing": 0,
+    "e2e_pending": 2,
+    "e2e_passing": 0,
+    "frontend_unit_pending": 0,
+    "coverage_gaps": [
+      "Integration tests: all store CRUD endpoints need controller→DB coverage",
+      "E2E: admin creates store → store appears in admin list",
+      "Redis flush on deactivation must be verified end-to-end"
+    ]
+  },
+  "unit": [
+    {
+      "id": "TC-STORE-U01",
+      "user_story": "US-STORE-01",
+      "description": "create() validates taxCode against /^\\d{10}(-\\d{3})?$/ — invalid format returns 400 (BR-STORE-01)",
+      "spec_file": "backend/src/modules/stores/stores.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-STORE-U02",
+      "user_story": "US-STORE-01",
+      "description": "create() with duplicate taxCode returns 409 'Tax code already registered' (BR-STORE-03)",
+      "spec_file": "backend/src/modules/stores/stores.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-STORE-U03",
+      "user_story": "US-STORE-03",
+      "description": "update() with taxCode in body returns 400 'Tax code cannot be changed' (BR-STORE-02)",
+      "spec_file": "backend/src/modules/stores/stores.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-STORE-U04",
+      "user_story": "US-STORE-04",
+      "description": "deactivate() sets isActive=false and flushes all Redis refresh tokens for store's users (BR-STORE-05)",
+      "spec_file": "backend/src/modules/stores/stores.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    },
+    {
+      "id": "TC-STORE-U05",
+      "user_story": "US-STORE-04",
+      "description": "deactivate() is idempotent — already deactivated store returns 200 without error",
+      "spec_file": "backend/src/modules/stores/stores.service.spec.ts",
+      "status": "passing",
+      "type": "unit"
+    }
+  ],
+  "integration": [
+    {
+      "id": "TC-STORE-I01",
+      "user_story": "US-STORE-01",
+      "description": "POST /api/v1/stores → 201 by admin with valid taxCode (10 digits and 10-3 format both valid)",
+      "spec_file": "backend/src/modules/stores/stores.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-STORE-I02",
+      "user_story": "US-STORE-01",
+      "description": "POST /api/v1/stores → 400 invalid taxCode; → 409 duplicate taxCode; → 403 non-admin",
+      "spec_file": "backend/src/modules/stores/stores.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-STORE-I03",
+      "user_story": "US-STORE-02",
+      "description": "GET /api/v1/stores/me → 200 returns only caller's store data (cross-tenant isolation verified)",
+      "spec_file": "backend/src/modules/stores/stores.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-STORE-I04",
+      "user_story": "US-STORE-03",
+      "description": "PATCH /api/v1/stores/:id → 200 updates name and address; → 400 when taxCode included in body",
+      "spec_file": "backend/src/modules/stores/stores.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-STORE-I05",
+      "user_story": "US-STORE-04",
+      "description": "PATCH /api/v1/stores/:id/deactivate → 200 isActive=false; subsequent login by store user → 401",
+      "spec_file": "backend/src/modules/stores/stores.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-STORE-I06",
+      "user_story": "US-STORE-04",
+      "description": "PATCH /api/v1/stores/:id/deactivate → 403 non-admin; → 404 unknown store",
+      "spec_file": "backend/src/modules/stores/stores.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-STORE-I07",
+      "user_story": "US-STORE-05",
+      "description": "GET /api/v1/stores → 200 admin sees all stores including inactive; → 403 non-admin",
+      "spec_file": "backend/src/modules/stores/stores.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    },
+    {
+      "id": "TC-STORE-I08",
+      "user_story": "US-STORE-01",
+      "description": "Vietnamese store name with diacritics (e.g. 'Cửa hàng Hà Nội') stored and returned as-is (BR-STORE-06)",
+      "spec_file": "backend/src/modules/stores/stores.e2e-spec.ts",
+      "status": "pending",
+      "type": "integration"
+    }
+  ],
+  "e2e": [
+    {
+      "id": "TC-STORE-E01",
+      "user_story": "US-STORE-01",
+      "description": "Admin navigates to /admin/stores → creates store with valid taxCode → store appears in list",
+      "spec_file": "e2e/admin.spec.ts",
+      "page_objects": ["AdminPage"],
+      "status": "pending",
+      "type": "e2e"
+    },
+    {
+      "id": "TC-STORE-E02",
+      "user_story": "US-STORE-04",
+      "description": "Admin deactivates store → store's cashier is redirected to login on next request",
+      "spec_file": "e2e/admin.spec.ts",
+      "page_objects": ["AdminPage", "LoginPage"],
+      "status": "pending",
+      "type": "e2e"
+    }
+  ],
+  "audit": [
+    {
+      "date": "2026-04-13",
+      "role": "vibe-qa-general",
+      "action": "backfill-created",
+      "note": "Backfill QA documentation for Sprint 1 store feature. Unit tests already exist in stores.service.spec.ts (5 tests, marked passing). Integration + E2E tests are pending."
+    }
+  ]
+}
