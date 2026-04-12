@@ -19,11 +19,19 @@
 - [ ] **Verify `migrate` service exits code 0**: `docker inspect eam_migrate --format "{{.State.ExitCode}}"`
 - [ ] **HARD STOP**: Do not write wiki history or mark tasks "done" until all affected builds are green
 
+## QA GATE ⛔ (mandatory — cannot skip)
+- [ ] **`vibe-qa-general`** invoked — receives "implementation complete" signal from backend or frontend skill
+- [ ] **`vibe-qa-stack`** invoked alongside `vibe-qa-general` for Vitest/RTL/Playwright specifics
+- [ ] `wiki/test-cases/{feature}.json` created or updated — test case IDs, categories, pass/fail status
+- [ ] `wiki/test-cases/_index.json` updated — new file listed
+
 ## TEST
-- [ ] Unit tests written for every new function, service, or component
+- [ ] Backend unit tests: every new service method covered (mock repository pattern)
+- [ ] Frontend unit tests: hooks with logic, utility functions, Zustand store actions covered
+- [ ] Integration tests: every endpoint in API contract exercised (controller → test DB)
 - [ ] Full unit test suite passes — zero regressions allowed
 - [ ] Regression tests pass for all features in impact map entity registry
-- [ ] Playwright e2e passes for affected feature flows
+- [ ] Playwright E2E: happy-path acceptance criteria flow covered
 - [ ] QA manual + UX review against wireframes (if UI changed)
 
 ## SECURITY (any new endpoint or auth change)
