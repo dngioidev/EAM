@@ -6,36 +6,60 @@ import PosPage from '@/pages/pos/PosPage';
 import OrdersPage from '@/pages/orders/OrdersPage';
 import InvoicesPage from '@/pages/invoices/InvoicesPage';
 import InvoiceDetailPage from '@/pages/invoices/InvoiceDetailPage';
+import AdminStoresPage from '@/pages/admin/AdminStoresPage';
+import AdminUsersPage from '@/pages/admin/AdminUsersPage';
+import AppLayout from '@/components/AppLayout';
 import { RequireAuth, RedirectIfAuth } from '@/components/RouteGuards';
+import { useAuthStore } from '@/stores/auth.store';
+
+const ROLE_LANDING: Record<string, string> = {
+  cashier: '/pos',
+  accountant: '/invoices',
+  'store-manager': '/dashboard',
+  admin: '/admin/stores',
+};
+
+function RoleFallback() {
+  const role = useAuthStore((s) => s.user?.role ?? '');
+  return <Navigate to={ROLE_LANDING[role] ?? '/products'} replace />;
+}
 
 export default function App() {
   return (
     <Routes>
-      {/* Public — redirect to /products if already authed */}
+      {/* Public — redirect to role landing if already authed */}
       <Route element={<RedirectIfAuth />}>
         <Route path="/login" element={<LoginPage />} />
       </Route>
 
-      {/* Protected */}
+      {/* Protected — all wrapped in AppLayout */}
       <Route element={<RequireAuth />}>
-        <Route path="/products" element={<ProductListPage />} />
-        <Route path="/products/new" element={<ProductFormPage />} />
-        <Route path="/products/:id/edit" element={<ProductFormPage />} />
+        <Route element={<AppLayout />}>
+          <Route path="/products" element={<ProductListPage />} />
+          <Route path="/products/new" element={<ProductFormPage />} />
+          <Route path="/products/:id/edit" element={<ProductFormPage />} />
 
-        {/* POS — cashier + store-manager */}
-        <Route path="/pos" element={<PosPage />} />
+          {/* POS — cashier + store-manager */}
+          <Route path="/pos" element={<PosPage />} />
 
-        {/* Order history — all authenticated roles */}
-        <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/orders/:orderId/invoice" element={<InvoiceDetailPage />} />
+          {/* Orders — all authenticated roles */}
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:orderId/invoice" element={<InvoiceDetailPage />} />
 
-        {/* Invoices — accountant + store-manager + admin */}
-        <Route path="/invoices" element={<InvoicesPage />} />
-        <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+          {/* Invoices — accountant + store-manager + admin */}
+          <Route path="/invoices" element={<InvoicesPage />} />
+          <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+
+          {/* Admin */}
+          <Route path="/admin/stores" element={<AdminStoresPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+        </Route>
       </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/products" replace />} />
+      {/* Fallback — redirect to role landing for authenticated users */}
+      <Route path="*" element={<RequireAuth />}>
+        <Route path="*" element={<RoleFallback />} />
+      </Route>
     </Routes>
   );
 }

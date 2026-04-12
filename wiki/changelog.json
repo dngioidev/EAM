@@ -1,16 +1,52 @@
 {
   "meta": {
-    "version": 3,
+    "version": 4,
     "last_updated": "2026-04-13",
     "title": "Project Changelog",
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.15.0",
-    "total_entries": 17
+    "current_version": "0.16.0",
+    "total_entries": 18
   },
   "content": {
     "entries": [
+      {
+        "version": "0.16.0",
+        "date": "2026-04-13",
+        "sprint": "4",
+        "tags": ["frontend", "backend", "qa", "nav-layout", "admin-ui", "e2e", "unit-tests"],
+        "summary": "Sprint 4 COMPLETE — Full implementation. AppLayout + role-based nav, AdminStoresPage, AdminUsersPage, backend user management endpoints (AUTH-05/06/07), Playwright E2E, NestJS integration tests, Vitest unit tests.",
+        "features_added": [
+          "frontend/src/components/AppLayout.tsx — responsive sidebar + topnav, role-aware NAV_ITEMS",
+          "frontend/src/components/RouteGuards.tsx — ROLE_LANDING + RedirectIfAuth role-aware",
+          "frontend/src/pages/LoginPage.tsx — role-based landing after login",
+          "frontend/src/App.tsx — all protected routes wrapped in AppLayout, admin routes added",
+          "frontend/src/pages/admin/AdminStoresPage.tsx — list/create/deactivate stores",
+          "frontend/src/pages/admin/AdminUsersPage.tsx — list/create/deactivate users",
+          "frontend/src/lib/stores.ts — fetchStores, createStore, deactivateStore",
+          "frontend/src/lib/users.ts — fetchUsers, createUser, deactivateUser",
+          "frontend/src/components/ui/dialog.tsx — Radix Dialog primitives",
+          "backend: GET /auth/users + POST /auth/register (admin) + PATCH /auth/users/:id/deactivate",
+          "backend/src/modules/users/users.service.ts — findAll() + deactivate() + existsByEmail()",
+          "backend/src/modules/auth/auth.service.ts — registerUser() + deactivateUser() w/ Redis flush",
+          "backend/src/modules/auth/dto/create-user.dto.ts — CreateUserDto",
+          "wiki/api-contracts/auth.json v1.1.0 — AUTH-05/06/07 added",
+          "playwright.config.ts — baseURL http://localhost, chromium",
+          "e2e/pos.spec.ts — TC-ORDER-E01 cashier full POS flow",
+          "e2e/auth.spec.ts — TC-AUTH-E01/E02 login happy + invalid credentials",
+          "e2e/pages/{LoginPage,PosPage,InvoicePage}.ts — POM classes",
+          "backend/test/app.e2e-setup.ts — integration test infrastructure",
+          "backend/src/modules/auth/auth.e2e-spec.ts — TC-AUTH-I01 through I05",
+          "frontend/src/stores/auth.store.spec.ts — TC-AUTH-FU01 through FU04",
+          "frontend/src/lib/api-client.spec.ts — TC-AUTH-FU05 through FU08 (interceptors)",
+          "frontend vite.config.ts — Vitest config, jsdom, coverage",
+          "frontend package.json — test + test:coverage scripts"
+        ],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "8/8 Vitest unit tests pass. Frontend typecheck: 0 errors. Backend build: passing. E2E tests require running stack (docker-compose up -d + seeded DB). Integration tests require TEST_DB_PORT=5433. Sprint 4 status: review-ready."
+      },
       {
         "version": "0.15.0",
         "date": "2026-04-13",

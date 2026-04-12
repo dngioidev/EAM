@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -20,6 +20,10 @@ export class UsersService {
     return user;
   }
 
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find({ order: { createdAt: 'DESC' } });
+  }
+
   async create(data: Partial<User>): Promise<User> {
     const user = this.usersRepository.create(data);
     return this.usersRepository.save(user);
@@ -27,6 +31,17 @@ export class UsersService {
 
   async save(user: User): Promise<User> {
     return this.usersRepository.save(user);
+  }
+
+  async deactivate(id: string): Promise<User> {
+    const user = await this.findById(id);
+    if (!user.isActive) return user; // idempotent
+    user.isActive = false;
+    return this.usersRepository.save(user);
+  }
+
+  async existsByEmail(email: string): Promise<boolean> {
+    return this.usersRepository.existsBy({ email });
   }
 
   async findActiveByStoreId(storeId: string): Promise<User[]> {

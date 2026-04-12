@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 11,
+    "version": 12,
     "last_updated": "2026-04-13",
     "title": "Sprint Dashboard",
     "owner": "vibe-project-manager"
@@ -19,7 +19,7 @@
     }
   },
   "content": {
-    "tldr": "Sprint 4 ACTIVE — Demo-Ready Frontend. P0: AppLayout + role-aware nav (T010-T014). P1: Admin store UI (T015-T018). P2: Admin user UI (T019-T022). QA: Playwright E2E setup + integration tests (QA-T001–QA-T008). PREREQUISITE GAP: GET /auth/users and PATCH /auth/users/:id/deactivate backend endpoints missing — must implement before user-ui frontend work begins.",
+    "tldr": "Sprint 4 COMPLETE — Demo-Ready Frontend. All tasks T010–T022 + QA-T001–QA-T008 implemented. AppLayout+nav, AdminStoresPage, AdminUsersPage, backend user mgmt endpoints (AUTH-05/06/07), Playwright E2E config, auth integration tests, 8 Vitest unit tests passing (100%).",
     "active_features": ["nav-layout", "store-ui-user-ui"],
     "open_bugs": 0,
     "bugs_by_severity": {
@@ -29,14 +29,18 @@
       "low": 0
     },
     "pending_decisions": [],
-    "pending_contracts": [
-      "GET /auth/users — verify or add to auth.json contract",
-      "PATCH /auth/users/:id/deactivate — verify or add to auth.json contract"
-    ],
+    "pending_contracts": [],
     "recently_updated": [
-      "wiki/plan/sprints/sprint-3.json",
-      "wiki/plan/sprints/sprint-4.json",
-      "wiki/dashboard.json"
+      "frontend/src/components/AppLayout.tsx",
+      "frontend/src/pages/admin/AdminStoresPage.tsx",
+      "frontend/src/pages/admin/AdminUsersPage.tsx",
+      "backend/src/modules/auth/auth.controller.ts",
+      "backend/src/modules/users/users.service.ts",
+      "wiki/api-contracts/auth.json",
+      "e2e/pos.spec.ts",
+      "e2e/auth.spec.ts",
+      "backend/src/modules/auth/auth.e2e-spec.ts",
+      "frontend/src/stores/auth.store.spec.ts"
     ],
     "blocked_features": [],
     "next_sprint_preview": {

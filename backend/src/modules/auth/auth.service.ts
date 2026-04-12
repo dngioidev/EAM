@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +13,7 @@ import * as IORedis from 'ioredis';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 const BCRYPT_COST = 12;
 
@@ -101,6 +103,27 @@ export class AuthService {
 
     const keys = users.map((u) => `refresh:${u.id}`);
     await this.redis.del(...keys);
+  }
+
+  async registerUser(dto: CreateUserDto): Promise<User> {
+    const exists = await this.usersService.existsByEmail(dto.email);
+    if (exists) {
+      throw new ConflictException('Email already registered');
+    }
+    const passwordHash = await this.hashPassword(dto.password);
+    return this.usersService.create({
+      email: dto.email,
+      passwordHash,
+      name: dto.name,
+      role: dto.role,
+      storeId: dto.storeId ?? null,
+    });
+  }
+
+  async deactivateUser(userId: string): Promise<User> {
+    // Flush Redis session before deactivating (BR-ADMIN-03)
+    await this.redis.del(`refresh:${userId}`);
+    return this.usersService.deactivate(userId);
   }
 
   private async issueTokens(user: User): Promise<AuthResponseDto> {
