@@ -3,11 +3,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { login } from '@/lib/auth';
+import { useAuthStore } from '@/stores/auth.store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
+
+const ROLE_LANDING: Record<string, string> = {
+  cashier: '/pos',
+  accountant: '/invoices',
+  'store-manager': '/dashboard',
+  admin: '/admin/stores',
+};
 
 const loginSchema = z.object({
   email: z.string().email('Email không hợp lệ'),
@@ -30,7 +38,10 @@ export default function LoginPage() {
     setServerError(null);
     try {
       await login(data);
-      navigate('/products', { replace: true });
+      // Role is set by login() → useAuthStore.setUser; read it after
+      const currentRole = useAuthStore.getState().user?.role ?? '';
+      const landing = ROLE_LANDING[currentRole] ?? '/products';
+      navigate(landing, { replace: true });
     } catch {
       setServerError('Email hoặc mật khẩu không đúng. Vui lòng thử lại.');
     }

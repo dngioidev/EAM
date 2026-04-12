@@ -1,7 +1,7 @@
 {
   "meta": {
-    "version": 1,
-    "last_updated": "2026-04-12",
+    "version": 3,
+    "last_updated": "2026-04-13",
     "title": "Sprint 4 — Demo-Ready Frontend",
     "owner": "vibe-product-owner"
   },
@@ -11,8 +11,8 @@
     "sprint_start": "2026-05-25",
     "sprint_end": "2026-06-07",
     "velocity_planned": 2,
-    "velocity_actual": null,
-    "status": "active",
+    "velocity_actual": 2,
+    "status": "review-ready",
     "priority_note": "HIGHEST PRIORITY SPRINT. All backend + Sprint 3 frontend exists but is un-navigable. This sprint is the bridge to demo."
   },
   "content": {
@@ -109,7 +109,7 @@
   },
   "velocity": {
     "planned": 2,
-    "completed": null,
+    "completed": 2,
     "carried_over": []
   },
   "retrospective": null,
@@ -127,6 +127,13 @@
       "author": "vibe-project-manager",
       "action": "qa-tasks-added",
       "note": "QA gap identified: no integration tests, E2E, or frontend unit tests exist for any shipped feature. Playwright setup pulled forward from Sprint 12 (was too late — no regression safety net). QA-T001 through QA-T008 added to Sprint 4 scope. P0 task: TC-ORDER-E01 (cashier full POS flow E2E)."
+    },
+    {
+      "version": 3,
+      "timestamp": "2026-04-13T01:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "sprint-implementation-complete",
+      "note": "All Sprint 4 tasks implemented: T010-T014 (AppLayout+nav), T015-T018 (AdminStoresPage), T019-T022 (AdminUsersPage), backend AUTH-05/06/07 endpoints, wiki/api-contracts/auth.json v1.1.0, Playwright E2E config + pos.spec.ts + auth.spec.ts + POM classes, NestJS auth.e2e-spec.ts (TC-AUTH-I01 through I05), Vitest unit tests (8/8 pass). Frontend typecheck 0 errors, backend build passing. Status: review-ready."
     }
   ]
 }
