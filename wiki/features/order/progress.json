@@ -3,19 +3,111 @@
     "feature_id": "order",
     "sprint": 3,
     "last_updated": "2026-04-12",
-    "version": 1
+    "version": 2
   },
   "tasks": [
     {
       "id": "T001",
       "title": "Create Order + OrderItem entities + migration",
       "role": "backend",
-      "status": "not-started",
-      "blocked_by": "product:T001",
+      "status": "done",
+      "blocked_by": null,
       "estimate_hours": 3,
-      "actual_hours": null,
-      "notes": "Order: id, orderNumber, status, totalVnd, cashierId, storeId, paymentMethod, createdAt. OrderItem: id, orderId, productId, productName, sku, quantity, unitPriceVnd, taxRatePercent, lineTotalVnd. Auto-index on (storeId, createdAt) for list queries."
+      "actual_hours": 3,
+      "notes": "Migration 1713830430000-CreateOrderTable.ts + 1713830440000-CreateOrderItemTable.ts created."
     },
+    {
+      "id": "T002",
+      "title": "Implement orderNumber auto-generation per store per day",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 2,
+      "actual_hours": 1,
+      "notes": "generateOrderNumber() in OrdersService: {storePrefix}-{YYYYMMDD}-{seq:04d}."
+    },
+    {
+      "id": "T003",
+      "title": "Implement OrdersModule: create, add item, remove item, get order",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 4,
+      "actual_hours": 4,
+      "notes": "Full CRUD + upsert logic with price snapshot. recalcAndSave on every mutation."
+    },
+    {
+      "id": "T004",
+      "title": "Implement state machine: confirm-payment, cancel",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 3,
+      "actual_hours": 3,
+      "notes": "confirmPayment() pending→processing + EventEmitter2 emit. cancel() pending→cancelled."
+    },
+    {
+      "id": "T005",
+      "title": "Implement internal OrderCompletedEvent (for invoice module trigger)",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 2,
+      "actual_hours": 1,
+      "notes": "EventEmitter2 emit('order.processing', {orderId, storeId}) in confirmPayment()."
+    },
+    {
+      "id": "T006",
+      "title": "Implement GET /orders list with filters",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 2,
+      "actual_hours": 2,
+      "notes": "Cashier sees own orders only (BR-ORDER-08). Paginated. Status + date filters."
+    },
+    {
+      "id": "T007",
+      "title": "Write unit tests: OrdersService state machine transitions",
+      "role": "qa",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 3,
+      "actual_hours": 3,
+      "notes": "orders.service.spec.ts — 25 tests covering all state machine transitions, isolation, upsert, deactivated product."
+    },
+    {
+      "id": "T008",
+      "title": "Document API contract: api-contracts/order.json",
+      "role": "backend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 1,
+      "actual_hours": 1,
+      "notes": "wiki/api-contracts/order.json — 7 endpoints, status: approved."
+    },
+    {
+      "id": "T009",
+      "title": "Frontend: POS cart screen",
+      "role": "frontend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 6,
+      "actual_hours": 5,
+      "notes": "frontend/src/pages/pos/PosPage.tsx — product search grid, cart sidebar, confirm payment modal."
+    },
+    {
+      "id": "T010",
+      "title": "Frontend: Order history list",
+      "role": "frontend",
+      "status": "done",
+      "blocked_by": null,
+      "estimate_hours": 3,
+      "actual_hours": 3,
+      "notes": "frontend/src/pages/orders/OrdersPage.tsx — paginated list, status/date filters."
+    }
+  ]
+}
     {
       "id": "T002",
       "title": "Implement orderNumber auto-generation per store per day",

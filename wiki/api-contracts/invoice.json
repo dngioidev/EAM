@@ -1,0 +1,135 @@
+{
+  "$schema": "../_schema/contract.schema.json",
+  "module": "invoices",
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-04-12",
+  "updatedAt": "2026-04-12",
+  "baseUrl": "/api/v1/invoices",
+  "description": "Invoice endpoints — read-only for most roles, cancel for accountant/admin. Invoices are system-generated when an order completes. The invoice number is immutable once set.",
+  "securityScheme": "BearerAuth",
+  "businessRules": [
+    "BR-INV-01: Invoice number is set once and IMMUTABLE — cannot change even after cancellation",
+    "BR-INV-02: Invoice sequence is per-store per-year: format '{YYYY}/{seq:06d}' e.g. '2026/000001'",
+    "BR-INV-03: All product data on invoice lines is a snapshot from OrderItem — never live from Product",
+    "BR-INV-04: VAT subtotals grouped by rate: { rate, taxableVnd, vatVnd }",
+    "BR-INV-05: vatVnd = Math.floor(taxableVnd * taxRatePercent / 100) — integer arithmetic, floor rounding",
+    "BR-INV-06: Only accountant, store-manager, and admin can list invoices via GET /invoices",
+    "BR-INV-07: Cashier accesses invoice through GET /orders/:id/invoice only",
+    "BR-INV-08: Invoices are never hard-deleted"
+  ],
+  "endpoints": [
+    {
+      "id": "INV-01",
+      "method": "GET",
+      "path": "/",
+      "auth": "bearer",
+      "roles": ["admin", "store-manager", "accountant"],
+      "summary": "List invoices for the caller's store. Filterable by date range and status.",
+      "request": {
+        "query": {
+          "from": { "type": "string", "format": "date", "required": false, "description": "issuedAt >= from (ISO date)" },
+          "to": { "type": "string", "format": "date", "required": false, "description": "issuedAt <= to (ISO date)" },
+          "status": { "type": "string", "enum": ["issued", "cancelled"], "required": false },
+          "page": { "type": "integer", "default": 1, "required": false },
+          "limit": { "type": "integer", "default": 20, "maximum": 100, "required": false }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Paginated invoice list",
+          "schema": {
+            "data": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "id": { "type": "string", "format": "uuid" },
+                  "invoiceNumber": { "type": "string", "example": "2026/000001" },
+                  "orderId": { "type": "string", "format": "uuid" },
+                  "status": { "type": "string", "enum": ["draft", "issued", "cancelled"] },
+                  "totalVnd": { "type": "integer" },
+                  "issuedAt": { "type": "string", "format": "date-time" },
+                  "vatSubtotals": { "type": "array" }
+                }
+              },
+              "total": { "type": "integer" },
+              "page": { "type": "integer" },
+              "limit": { "type": "integer" }
+            }
+          }
+        },
+        "401": { "description": "Not authenticated" },
+        "403": { "description": "Cashier cannot access invoice list directly" }
+      }
+    },
+    {
+      "id": "INV-02",
+      "method": "GET",
+      "path": "/:id",
+      "auth": "bearer",
+      "roles": ["admin", "store-manager", "accountant"],
+      "summary": "Get a specific invoice by ID with full line items",
+      "request": {
+        "params": { "id": { "type": "string", "format": "uuid" } }
+      },
+      "responses": {
+        "200": {
+          "description": "Full invoice with lines and vatSubtotals",
+          "schema": {
+            "data": {
+              "id": { "type": "string", "format": "uuid" },
+              "invoiceNumber": { "type": "string" },
+              "orderId": { "type": "string", "format": "uuid" },
+              "storeId": { "type": "string", "format": "uuid" },
+              "status": { "type": "string" },
+              "lines": {
+                "type": "array",
+                "items": {
+                  "productName": { "type": "string" },
+                  "sku": { "type": "string" },
+                  "quantity": { "type": "integer" },
+                  "unitPriceVnd": { "type": "integer" },
+                  "taxRatePercent": { "type": "integer" },
+                  "lineTotalVnd": { "type": "integer" }
+                }
+              },
+              "vatSubtotals": {
+                "type": "array",
+                "items": {
+                  "rate": { "type": "integer" },
+                  "taxableVnd": { "type": "integer" },
+                  "vatVnd": { "type": "integer" }
+                }
+              },
+              "totalVnd": { "type": "integer" },
+              "issuedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "403": { "description": "Cashier role cannot access" },
+        "404": { "description": "Invoice not found or belongs to different store" }
+      }
+    },
+    {
+      "id": "INV-03",
+      "method": "PATCH",
+      "path": "/:id/cancel",
+      "auth": "bearer",
+      "roles": ["admin", "accountant"],
+      "summary": "Cancel an issued invoice — only valid after order is refunded. Idempotent.",
+      "request": {
+        "params": { "id": { "type": "string", "format": "uuid" } },
+        "body": null
+      },
+      "responses": {
+        "200": {
+          "description": "Invoice cancelled (or already was — idempotent)",
+          "schema": { "data": { "status": "cancelled", "invoiceNumber": { "type": "string" } } }
+        },
+        "403": { "description": "Only accountant or admin may cancel invoices" },
+        "404": { "description": "Invoice not found" },
+        "409": { "description": "Order is not in 'refunded' state — cannot cancel invoice" }
+      }
+    }
+  ]
+}

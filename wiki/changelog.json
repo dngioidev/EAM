@@ -6,12 +6,48 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.11.2",
-    "total_entries": 13
+    "current_version": "0.13.0",
+    "total_entries": 15
   },
   "content": {
     "entries": [
       {
+        "version": "0.13.0",
+        "date": "2026-04-12",
+        "sprint": "3",
+        "tags": ["feature", "frontend", "orders", "invoices", "pos"],
+        "summary": "Sprint 3 frontend: POS screen, order history, invoice viewer. All routes wired. TS build clean.",
+        "features_added": [
+          "POS screen (/pos): product search, cart management, confirm-payment modal",
+          "Order history (/orders): paginated list with status/date filters",
+          "Invoice list (/invoices): paginated with status filter, cancel action for accountant",
+          "Invoice detail (/invoices/:id and /orders/:orderId/invoice): full VAT subtotals view",
+          "API hooks: frontend/src/lib/orders.ts + frontend/src/lib/invoices.ts"
+        ],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "New routes: /pos, /orders, /orders/:orderId/invoice, /invoices, /invoices/:id. All guarded by RequireAuth."
+      },
+      {
+        "version": "0.12.0",
+        "date": "2026-04-12",
+        "sprint": "3",
+        "tags": ["feature", "backend", "orders", "invoices"],
+        "summary": "Sprint 3 backend: Order + Invoice modules. 36 new unit tests. EventEmitter2 inter-module integration.",
+        "features_added": [
+          "Orders module: POST /orders, POST /orders/:id/items, POST /orders/:id/confirm-payment, POST /orders/:id/cancel, GET /orders, GET /orders/:id",
+          "Invoices module: GET /invoices, GET /invoices/:id, PATCH /invoices/:id/cancel, GET /orders/:orderId/invoice",
+          "Order state machine: pending → processing → completed | cancelled | refunded",
+          "Invoice auto-generation via EventEmitter2 on order.processing event",
+          "Per-store per-year invoice sequence with FOR UPDATE pessimistic lock",
+          "VAT calculation: Math.floor(taxableVnd * rate / 100) — integer VNĐ",
+          "3 DB migrations: orders, order_items, invoices + invoice_sequences tables",
+          "36 unit tests: orders.service.spec.ts (25 tests) + invoices.service.spec.ts (11 tests)"
+        ],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "Added @nestjs/event-emitter to backend deps. EventEmitterModule.forRoot() registered in AppModule."
+      },
         "version": "0.11.2",
         "date": "2026-04-12",
         "sprint": "2",
