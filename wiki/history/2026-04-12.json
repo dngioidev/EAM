@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 1,
+    "version": 2,
     "last_updated": "2026-04-12",
     "title": "Session — 2026-04-12",
     "owner": "vibe-project-manager"
@@ -93,7 +93,21 @@
       "created wiki-app/components/views/ApiContractView.tsx — contract renderer: status, baseUrl, business rules, endpoint cards (method badge, auth badge, expandable schema table + response list)",
       "updated wiki-app/app/wiki/[section]/[slug]/page.tsx — section routing: features→FeatureView, api-contracts→ApiContractView, default→JsonBlock; title resolves from meta.title/content.title/module",
       "updated .claude/skills/vibe-wiki-app-nextjs/SKILL.md — documented new components, section routing, admin actions, StatusBadge, write/patch API",
-      "updated .claude/skills/vibe-wiki-app-nextjs/references/json-reader.md — added writeWikiFile/patchWikiFile docs"
+      "updated .claude/skills/vibe-wiki-app-nextjs/references/json-reader.md — added writeWikiFile/patchWikiFile docs",
+      "WIKI-APP VIEWS SESSION — all remaining sections given human-friendly views; section index upgraded to preview cards",
+      "created wiki-app/components/views/WorkflowView.tsx — WF-XXX step cards with trigger/actor, numbered steps (string or object), atomicity box, failure paths, postconditions, legal note; dual-schema (data.workflows OR data.content.workflows)",
+      "created wiki-app/components/views/RulebookView.tsx — auto-detects rules table (id/rule/enforcer), string list, multi-section (coding-standards), decisions table, port policy",
+      "created wiki-app/components/views/TechstackView.tsx — quick-facts grid, package/service tables, volumes/networks, project structure code block",
+      "created wiki-app/components/views/ImpactMapView.tsx — entity registry cards (fields/relations chips) OR actor cards (goal/metric/deadline banner)",
+      "created wiki-app/app/wiki/glossary/page.tsx — standalone page; terms grouped by business/domain/technical category",
+      "created wiki-app/app/wiki/onboarding/page.tsx — standalone page; numbered setup steps with commands, collapsible common issues",
+      "created wiki-app/app/wiki/changelog/page.tsx — standalone page; version timeline with tags, features added, bugs fixed",
+      "updated wiki-app/app/wiki/[section]/page.tsx — parallel preview-card loading (title, status badge, sprint, tldr, owner)",
+      "updated wiki-app/app/wiki/[section]/[slug]/page.tsx — added dispatch for business-workflow/rulebook/techstack/impact-map",
+      "fixed TS2322 in all 4 new views — @types/react@18.3 removed {} from ReactNode; replaced `{record && ...}` with `{record != null && ...}`",
+      "build: npm run type-check (exit 0) + npm run build (Compiled successfully, 10 routes)",
+      "updated .claude/skills/vibe-wiki-app-nextjs/SKILL.md — documented all new views, standalone pages, section index cards, TS2322 fix",
+      "updated wiki/changelog.json — v0.6.0 prepended"
     ],
     "files_created": [
       "wiki-app/package.json",
@@ -118,12 +132,23 @@
       "wiki-app/.dockerignore",
       "wiki-app/Dockerfile"
     ],
+    "files_created_session4": [
+      "wiki-app/components/views/WorkflowView.tsx",
+      "wiki-app/components/views/RulebookView.tsx",
+      "wiki-app/components/views/TechstackView.tsx",
+      "wiki-app/components/views/ImpactMapView.tsx",
+      "wiki-app/app/wiki/glossary/page.tsx",
+      "wiki-app/app/wiki/onboarding/page.tsx",
+      "wiki-app/app/wiki/changelog/page.tsx"
+    ],
     "files_updated": [
       "wiki/dashboard.json",
       "wiki-app/lib/wiki.ts",
       "wiki-app/app/wiki/[section]/[slug]/page.tsx",
+      "wiki-app/app/wiki/[section]/page.tsx",
       ".claude/skills/vibe-wiki-app-nextjs/SKILL.md",
-      ".claude/skills/vibe-wiki-app-nextjs/references/json-reader.md"
+      ".claude/skills/vibe-wiki-app-nextjs/references/json-reader.md",
+      "wiki/changelog.json"
     ],
     "files_created_session3": [
       "wiki-app/app/api/wiki-update/route.ts",

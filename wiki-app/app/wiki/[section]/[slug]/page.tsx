@@ -4,6 +4,10 @@ import { readWikiFile } from '@/lib/wiki';
 import { JsonBlock } from '@/components/JsonBlock';
 import { FeatureView } from '@/components/views/FeatureView';
 import { ApiContractView } from '@/components/views/ApiContractView';
+import { WorkflowView } from '@/components/views/WorkflowView';
+import { RulebookView } from '@/components/views/RulebookView';
+import { TechstackView } from '@/components/views/TechstackView';
+import { ImpactMapView } from '@/components/views/ImpactMapView';
 import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -60,7 +64,7 @@ export default async function WikiEntryPage({ params }: PageProps) {
         <Link href="/wiki" className="hover:text-blue-600 transition-colors">Wiki</Link>
         <span>/</span>
         <Link href={`/wiki/${section}`} className="capitalize hover:text-blue-600 transition-colors">
-          {section.replace('-', ' ')}
+          {section.replace(/-/g, ' ')}
         </Link>
         <span>/</span>
         <span className="text-gray-700">{title}</span>
@@ -79,6 +83,14 @@ export default async function WikiEntryPage({ params }: PageProps) {
         <FeatureView data={data} section={section} slug={slug} />
       ) : section === 'api-contracts' ? (
         <ApiContractView data={data} section={section} slug={slug} />
+      ) : section === 'business-workflow' ? (
+        <WorkflowView data={data} section={section} slug={slug} />
+      ) : section === 'rulebook' ? (
+        <RulebookView data={data} section={section} slug={slug} />
+      ) : section === 'techstack' ? (
+        <TechstackView data={data} section={section} slug={slug} />
+      ) : section === 'impact-map' ? (
+        <ImpactMapView data={data} section={section} slug={slug} />
       ) : (
         <JsonBlock data={data} />
       )}

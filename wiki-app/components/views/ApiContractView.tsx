@@ -267,7 +267,7 @@ export function ApiContractView({
           </h3>
           <ul className="px-4 py-3 space-y-2">
             {contract.businessRules.map((rule, i) => {
-              const match = rule.match(/^(BR-[\w-]+):\s*(.*)/s);
+              const match = rule.match(/^(BR-[\w-]+):\s*(.*)/);
               return (
                 <li key={i} className="flex gap-3 text-sm">
                   <span className="font-mono text-xs text-blue-600 shrink-0 mt-0.5 w-32">

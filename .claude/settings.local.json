@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(list\\(d.keys\\(\\)\\), indent=2\\)\\)\")",
+      "Bash(sed -n '270,285p' components/views/WorkflowView.tsx)",
+      "Bash(sed -n '128,142p' components/views/TechstackView.tsx)",
+      "Bash(sed -n '125,142p' components/views/ImpactMapView.tsx)",
+      "Bash(sed -n '228,244p' components/views/RulebookView.tsx)"
+    ]
+  }
+}

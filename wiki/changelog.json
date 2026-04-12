@@ -6,11 +6,33 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.4.0",
-    "total_entries": 4
+    "current_version": "0.6.0",
+    "total_entries": 6
   },
   "content": {
     "entries": [
+      {
+        "version": "0.6.0",
+        "date": "2026-04-12",
+        "sprint": "1",
+        "tags": ["wiki-app", "ux", "views", "frontend"],
+        "summary": "Wiki-app complete coverage: all remaining sections now have human-friendly views. WorkflowView, RulebookView, TechstackView, ImpactMapView added. Standalone pages for Glossary, Onboarding, Changelog. Section index shows rich preview cards.",
+        "features_added": [
+          "wiki-app: WorkflowView — WF-XXX step cards with trigger/actor, numbered steps (string or object), atomicity box, failure paths, postconditions, legal note",
+          "wiki-app: RulebookView — auto-detects rules table (id/rule/enforcer), string list, multi-section (coding-standards), decisions table, port policy",
+          "wiki-app: TechstackView — quick-facts grid, package/service tables, volumes/networks, project structure code block",
+          "wiki-app: ImpactMapView — entity registry cards (fields/relations chips) OR actor cards (goal/metric/deadline banner)",
+          "wiki-app: /wiki/glossary standalone page — terms grouped by business/domain/technical category",
+          "wiki-app: /wiki/onboarding standalone page — numbered setup steps with commands, collapsible common issues",
+          "wiki-app: /wiki/changelog standalone page — version timeline with tags, features added, bugs fixed",
+          "wiki-app: section index — parallel preview-card loading (title, status badge, sprint, tldr, owner)"
+        ],
+        "bugs_fixed": [
+          "TS2322: @types/react@18.3 removed {} from ReactNode — fixed by using != null checks instead of plain && on Record<string,unknown> values"
+        ],
+        "breaking_changes": [],
+        "notes": "All 10 sidebar sections now render structured views. JsonBlock fallback still available for unrecognised sections."
+      },
       {
         "version": "0.5.0",
         "date": "2026-04-12",

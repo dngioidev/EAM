@@ -10,8 +10,9 @@
 ## BUILD
 - [ ] `npm run build` — backend (if touched) — must pass
 - [ ] `npm run build` — frontend (if touched) — must pass
-- [ ] `npm run build` — wiki-app (if touched) — must pass
+- [ ] `npm run type-check && npm run build` — wiki-app (if touched) — BOTH must pass with zero errors
 - [ ] Every build error → `wiki/bugs/` entry (even if fixed immediately)
+- [ ] **HARD STOP**: Do not write wiki history or mark tasks "done" until all affected builds are green
 
 ## TEST
 - [ ] Unit tests written for every new function, service, or component

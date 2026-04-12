@@ -183,7 +183,7 @@ function BusinessRulesList({ items }: { items: unknown[] }) {
   return (
     <ul className="space-y-2 text-sm">
       {(items as string[]).map((rule, i) => {
-        const match = rule.match(/^(BR-[\w-]+):\s*(.*)/s);
+        const match = rule.match(/^(BR-[\w-]+):\s*(.*)/);
         return (
           <li key={i} className="flex gap-3">
             <span className="font-mono text-xs text-blue-600 shrink-0 mt-0.5 w-28">
