@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -46,7 +47,8 @@ export class StoresService {
     return store;
   }
 
-  async findMyStore(storeId: string): Promise<Store> {
+  async findMyStore(storeId: string | null): Promise<Store> {
+    if (!storeId) throw new ForbiddenException('No store assigned to this user');
     return this.findById(storeId);
   }
 

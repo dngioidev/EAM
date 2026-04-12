@@ -6,11 +6,22 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.11.1",
-    "total_entries": 12
+    "current_version": "0.11.2",
+    "total_entries": 13
   },
   "content": {
     "entries": [
+      {
+        "version": "0.11.2",
+        "date": "2026-04-12",
+        "sprint": "2",
+        "tags": ["bugfix", "backend", "auth", "products", "critical"],
+        "summary": "Critical bugfix: admin storeId null → empty string in JwtStrategy caused UUID crash on all products endpoints.",
+        "features_added": [],
+        "bugs_fixed": ["BUG-0004: admin user storeId=null coerced to '' by jwt.strategy.ts ?? '' fallback — PostgreSQL QueryFailedError: invalid input syntax for type uuid: \"\" on all products and GET /stores/me endpoints"],
+        "breaking_changes": [],
+        "notes": "4-file fix: AuthUser.storeId widened to string|null; jwt.strategy.ts null preserved; ProductsService all public methods guard with ForbiddenException when storeId null; StoresService.findMyStore same guard. TypeScript type-check clean."
+      },
       {
         "version": "0.11.1",
         "date": "2026-04-12",

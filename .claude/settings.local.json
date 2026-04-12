@@ -8,7 +8,10 @@
       "Bash(sed -n '125,142p' components/views/ImpactMapView.tsx)",
       "Bash(sed -n '228,244p' components/views/RulebookView.tsx)",
       "Edit(/.claude/skills/vibe-project-manager/**)",
-      "Edit(/.claude/skills/vibe-git/**)"
+      "Edit(/.claude/skills/vibe-git/**)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

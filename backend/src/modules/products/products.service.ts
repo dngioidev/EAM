@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -26,7 +27,8 @@ export class ProductsService {
     private readonly productsRepository: Repository<Product>,
   ) {}
 
-  async create(dto: CreateProductDto, storeId: string): Promise<Product> {
+  async create(dto: CreateProductDto, storeId: string | null): Promise<Product> {
+    if (!storeId) throw new ForbiddenException('Store assignment required to create products');
     const existing = await this.productsRepository.findOne({
       where: { sku: dto.sku, storeId },
     });
@@ -46,7 +48,8 @@ export class ProductsService {
     return this.productsRepository.save(product);
   }
 
-  async findAll(storeId: string, role: string, query: ProductQuery): Promise<{ data: Product[]; total: number }> {
+  async findAll(storeId: string | null, role: string, query: ProductQuery): Promise<{ data: Product[]; total: number }> {
+    if (!storeId) throw new ForbiddenException('Store assignment required to list products');
     const page = Math.max(1, query.page ?? 1);
     const limit = Math.min(100, Math.max(1, query.limit ?? 20));
     const skip = (page - 1) * limit;
@@ -76,7 +79,8 @@ export class ProductsService {
     return { data, total };
   }
 
-  async findOne(id: string, storeId: string, role: string): Promise<Product> {
+  async findOne(id: string, storeId: string | null, role: string): Promise<Product> {
+    if (!storeId) throw new ForbiddenException('Store assignment required to view products');
     const product = await this.productsRepository.findOne({
       where: { id, storeId },
     });
@@ -93,7 +97,8 @@ export class ProductsService {
     return product;
   }
 
-  async update(id: string, dto: UpdateProductDto & { sku?: unknown }, storeId: string): Promise<Product> {
+  async update(id: string, dto: UpdateProductDto & { sku?: unknown }, storeId: string | null): Promise<Product> {
+    if (!storeId) throw new ForbiddenException('Store assignment required to update products');
     // BR-PROD-05: SKU is immutable
     if ('sku' in dto && dto.sku !== undefined) {
       throw new BadRequestException('SKU cannot be changed after creation');
@@ -108,7 +113,8 @@ export class ProductsService {
     return this.productsRepository.save(product);
   }
 
-  async deactivate(id: string, storeId: string): Promise<Product> {
+  async deactivate(id: string, storeId: string | null): Promise<Product> {
+    if (!storeId) throw new ForbiddenException('Store assignment required to deactivate products');
     const product = await this.findOneForWrite(id, storeId);
     // BR-PROD idempotent
     product.isActive = false;

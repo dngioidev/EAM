@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Admin user storeId null coerced to empty string in JWT strategy causes UUID crash in all products endpoints",
+    "owner": "vibe-qa-general"
+  },
+  "quick_facts": {
+    "bug_id": "BUG-0004",
+    "severity": "critical",
+    "status": "fixed",
+    "sprint": "2"
+  },
+  "content": {
+    "tldr": "Admin user has store_id = NULL in the database. JwtStrategy converted null to '' (empty string) via `?? ''`. Any products API call then passed '' as a UUID to PostgreSQL, crashing with: QueryFailedError: invalid input syntax for type uuid: \"\".",
+    "environment": "backend (NestJS) — all products endpoints (POST /products, GET /products, GET /products/:id, PATCH /products/:id, PATCH /products/:id/deactivate). Reproducible by calling any products endpoint while authenticated as admin.",
+    "steps_to_reproduce": [
+      "Login as admin@eam.local (store_id is NULL in DB).",
+      "Call GET /api/v1/products with a valid Bearer token.",
+      "Observe: 500 Internal Server Error — QueryFailedError: invalid input syntax for type uuid: \"\""
+    ],
+    "expected_behavior": "Admin users without a store assignment receive HTTP 403 Forbidden with message 'Store assignment required to list products' instead of a 500 crash.",
+    "actual_behavior": "JwtStrategy.validate() returned storeId: '' (empty string) for admin. ProductsService.findAll() passed '' directly to TypeORM WHERE clause. PostgreSQL attempted to cast '' to UUID and threw a fatal query error, resulting in an unhandled 500.",
+    "root_cause": "backend/src/modules/auth/strategies/jwt.strategy.ts line 40: `storeId: user.storeId ?? ''` coerces null to empty string. The empty string is an invalid UUID. ProductsService and StoresService had no null guard before passing storeId to repository queries.",
+    "fix_description": "Three-file fix:\n1. current-user.decorator.ts — widened AuthUser.storeId type from `string` to `string | null`.\n2. jwt.strategy.ts — removed `?? ''` fallback; storeId is now passed as-is (null preserved).\n3. products.service.ts — added ForbiddenException guard at top of every public method (create, findAll, findOne, update, deactivate) before any DB query.\n4. stores.service.ts — widened findMyStore(storeId) to accept `string | null`; throws ForbiddenException when null.",
+    "affected_files": [
+      "backend/src/common/decorators/current-user.decorator.ts",
+      "backend/src/modules/auth/strategies/jwt.strategy.ts",
+      "backend/src/modules/products/products.service.ts",
+      "backend/src/modules/stores/stores.service.ts"
+    ],
+    "regression_risk": "Low. The null guard is a pre-DB early-exit. All existing store-assigned users are unaffected (storeId is always a valid UUID for them)."
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T20:30:00Z",
+      "author": "vibe-qa-general",
+      "action": "created",
+      "note": "Bug surfaced during Sprint 2 testing: admin login succeeds but any products API call returns 500. Root cause: null storeId coerced to '' in jwt.strategy.ts."
+    },
+    {
+      "version": 2,
+      "timestamp": "2026-04-12T20:45:00Z",
+      "author": "vibe-backend-nestjs",
+      "action": "fixed",
+      "note": "Preserved null in JWT strategy, widened AuthUser type, added ForbiddenException guards in products and stores services. tsc --noEmit passes clean. Branch: fix/BUG-0004-admin-storeid-null-uuid-crash."
+    }
+  ]
+}
