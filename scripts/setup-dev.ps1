@@ -28,7 +28,7 @@ Set-Location $ProjectRoot
 
 Write-Host ""
 Write-Host "======================================" -ForegroundColor Cyan
-Write-Host "  EAM-Tax — Developer Environment Setup" -ForegroundColor Cyan
+Write-Host "  EAM-Tax - Developer Environment Setup" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -43,7 +43,7 @@ if (-not (Test-Path $EnvFile)) {
 }
 Write-Host "  backend/.env found." -ForegroundColor Green
 
-# Step 2: npm install on host - optional — for IDE TypeScript support
+# Step 2: npm install on host - optional, for IDE TypeScript support
 if (-not $SkipInstall) {
     Write-Host ""
     Write-Host "[2/5] Installing backend npm dependencies (for IDE support)..." -ForegroundColor Yellow
@@ -85,8 +85,16 @@ if ($retries -eq 0) {
 Write-Host ""
 Write-Host "[5/5] Running database migrations..." -ForegroundColor Yellow
 & "$ScriptDir\migrate.ps1" run
+$migrationExitCode = $LASTEXITCODE
 
-# Optional: seed admin
+if ($migrationExitCode -ne 0) {
+    Write-Host ""
+    Write-Host "ERROR: Migrations failed (exit code $migrationExitCode). Seed skipped." -ForegroundColor Red
+    Write-Host "Fix the migration error above, then re-run: ./scripts/migrate.ps1 run" -ForegroundColor Yellow
+    exit $migrationExitCode
+}
+
+# Optional: seed admin (only runs when migrations succeeded)
 if (-not $SkipSeed) {
     Write-Host ""
     Write-Host "[+] Seeding admin user..." -ForegroundColor Yellow
