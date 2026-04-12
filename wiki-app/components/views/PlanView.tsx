@@ -148,8 +148,15 @@ function SprintView({
 }) {
   const committed = content.features_committed as CommittedFeature[] | undefined;
   const outOfScope = content.out_of_scope as string[] | undefined;
-  const dependencies = content.dependencies as string[] | undefined;
-  const riskNotes = content.risk_notes as string[] | undefined;
+  // Support both field names used across sprint files
+  const dependencies = [
+    ...((content.dependencies as string[] | undefined) ?? []),
+    ...((content.prerequisites as string[] | undefined) ?? []),
+  ];
+  const riskNotes = [
+    ...((content.risks as string[] | undefined) ?? []),
+    ...((content.risk_notes as string[] | undefined) ?? []),
+  ];
 
   return (
     <div className="space-y-5">
@@ -211,8 +218,8 @@ function SprintView({
         </section>
       )}
 
-      {/* Dependencies */}
-      {dependencies && dependencies.length > 0 && (
+      {/* Dependencies / Prerequisites */}
+      {dependencies.length > 0 && (
         <section className="rounded-lg border border-gray-200 bg-white overflow-hidden">
           <h3 className="border-b border-gray-100 bg-gray-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
             Dependencies
@@ -227,8 +234,8 @@ function SprintView({
         </section>
       )}
 
-      {/* Risk notes */}
-      {riskNotes && riskNotes.length > 0 && (
+      {/* Risks */}
+      {riskNotes.length > 0 && (
         <section className="rounded-lg border border-amber-200 bg-amber-50 overflow-hidden">
           <h3 className="border-b border-amber-100 bg-amber-100 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-amber-600">
             Risks
