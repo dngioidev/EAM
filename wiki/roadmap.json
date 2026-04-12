@@ -65,9 +65,10 @@
         "title": "Production Hardening",
         "goal": "System is ready for real store deployment: E2E tests pass, Docker Compose verified, onboarding guide tested end-to-end.",
         "sprints": [12, 13],
-        "features": ["e2e-tests", "devops-prod"],
+        "features": ["e2e-suite-completion", "security-audit", "devops-prod"],
         "status": "future",
-        "completion_criteria": "Full Playwright E2E suite green. docker compose up produces working system. Onboarding guide verified by a new team member."
+        "completion_criteria": "Full Playwright E2E suite green (infrastructure from Sprint 4, suite completion in Sprint 12). docker compose up produces working system. Onboarding guide verified by a new team member.",
+        "note": "Playwright was pulled forward to Sprint 4 (P0 cashier E2E). Sprint 12 completes remaining flows."
       },
       {
         "id": "epic-demo-ready",
@@ -161,12 +162,12 @@
       },
       {
         "sprint": 4,
-        "title": "Demo-Ready Frontend",
+        "title": "Demo-Ready Frontend + QA Foundation",
         "dates": "2026-05-25 → 2026-06-07",
-        "features": ["nav-layout", "store-ui", "user-ui"],
-        "milestone": "AppLayout + role-aware nav. Admin manages stores & users. Full system demo-able.",
+        "features": ["nav-layout", "store-ui", "user-ui", "playwright-setup", "integration-test-infra"],
+        "milestone": "AppLayout + role-aware nav. Admin manages stores & users. Full system demo-able. Playwright installed + P0 E2E (cashier flow) written. Auth integration tests written.",
         "status": "planned",
-        "note": "HIGHEST PRIORITY. Ties all existing backend+frontend work into a navigable demo."
+        "note": "HIGHEST PRIORITY. Ties all existing backend+frontend work into a navigable demo. QA gap fixed: Playwright set up here, not Sprint 12. P0 test TC-ORDER-E01 written this sprint."
       },
       {
         "sprint": 5,
@@ -226,11 +227,12 @@
       },
       {
         "sprint": 12,
-        "title": "E2E Testing & Security Audit",
+        "title": "E2E Suite Completion & Security Audit",
         "dates": "2026-09-14 → 2026-09-27",
-        "features": ["e2e-tests", "security-audit"],
-        "milestone": "Full Playwright cashier E2E green. OWASP Top 10 review passed.",
-        "status": "future"
+        "features": ["e2e-suite-completion", "security-audit"],
+        "milestone": "Full Playwright E2E suite green (Playwright started Sprint 4 — this sprint completes accountant/manager/admin flows + CI integration). OWASP Top 10 review passed.",
+        "status": "future",
+        "note": "Playwright infrastructure already exists from Sprint 4. This sprint closes E2E gaps for all roles and adds GitHub Actions CI gate."
       },
       {
         "sprint": 13,
