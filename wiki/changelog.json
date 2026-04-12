@@ -144,6 +144,7 @@
         "breaking_changes": [],
         "notes": "Added @nestjs/event-emitter to backend deps. EventEmitterModule.forRoot() registered in AppModule."
       },
+      {
         "version": "0.11.2",
         "date": "2026-04-12",
         "sprint": "2",
