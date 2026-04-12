@@ -43,7 +43,7 @@ if (-not (Test-Path $EnvFile)) {
 }
 Write-Host "  backend/.env found." -ForegroundColor Green
 
-# Step 2: npm install on host (optional — for IDE TypeScript support)
+# Step 2: npm install on host - optional — for IDE TypeScript support
 if (-not $SkipInstall) {
     Write-Host ""
     Write-Host "[2/5] Installing backend npm dependencies (for IDE support)..." -ForegroundColor Yellow
