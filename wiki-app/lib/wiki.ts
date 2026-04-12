@@ -62,7 +62,9 @@ export async function patchWikiFile(
 export async function readWikiFile<T = unknown>(relativePath: string): Promise<T> {
   const filePath = path.join(WIKI_ROOT, relativePath);
   assertSafe(filePath);
-  const content = await fs.readFile(filePath, 'utf-8');
+  const raw = await fs.readFile(filePath, 'utf-8');
+  // Strip UTF-8 BOM if present (Windows editors may add it)
+  const content = raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw;
   return JSON.parse(content) as T;
 }
 
