@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 4,
+    "version": 5,
     "last_updated": "2026-04-12",
     "title": "Session — 2026-04-12",
     "owner": "vibe-project-manager"
@@ -140,7 +140,31 @@
       "created wiki/bugs/BUG-0003.json — severity: critical, status: fixed, sprint: 2",
       "updated wiki/bugs/_index.json — v3: BUG-0003 added",
       "updated wiki/dashboard.json — v8: bugs_by_severity critical:1, sprint_notes updated, recently_updated updated, audit entry added",
-      "updated wiki/changelog.json — v0.11.1 prepended (bugfix/critical tag)"
+      "updated wiki/changelog.json — v0.11.1 prepended (bugfix/critical tag)",
+      "PLANNING SESSION — 10-sprint roadmap extension (Sprints 4-13) triggered by frontend demo readiness review",
+      "branch: chore/sprint-4-13-planning created from develop",
+      "gap identified: Sprint 3 frontend pages (/pos, /orders, /invoices) exist but no AppLayout/navigation — system un-navigable without URL hacking",
+      "gap identified: admin role has no UI (store/user management only via API)",
+      "gap identified: no role-based landing — all roles fallback to /products",
+      "decision: Sprint 4 = Demo-Ready Frontend (highest priority). No backend work. Pure frontend + admin UI.",
+      "created wiki/plan/sprints/sprint-4.json — AppLayout + nav + store/user admin UI",
+      "created wiki/plan/sprints/sprint-5.json — UX polish (toast, skeleton, invoice print, dashboard) + reporting backend",
+      "created wiki/plan/sprints/sprint-6.json — Reporting frontend + manager dashboard chart (recharts)",
+      "created wiki/plan/sprints/sprint-7.json — Product catalog: categories + barcode lookup + bulk CSV import",
+      "created wiki/plan/sprints/sprint-8.json — Advanced POS: line-item discounts + refund workflow + split payment",
+      "created wiki/plan/sprints/sprint-9.json — Tax compliance: invoice PDF (PDFKit) + XML (Circular 78) + void/replace",
+      "created wiki/plan/sprints/sprint-10.json — Multi-store admin: cross-store dashboard + user reassignment + password reset",
+      "created wiki/plan/sprints/sprint-11.json — Real-time: WebSocket gateway + notification bell + POS audio alert",
+      "created wiki/plan/sprints/sprint-12.json — E2E Playwright suite + OWASP security audit",
+      "created wiki/plan/sprints/sprint-13.json — Production hardening: docker prod + GitHub Actions CI/CD + Swagger + onboarding",
+      "created wiki/features/nav-layout.json — AppLayout + role-aware nav spec",
+      "created wiki/features/store-ui-user-ui.json — admin store/user UI spec",
+      "created wiki/features/reporting.json — reporting backend (S5) + frontend (S6) spec",
+      "updated wiki/roadmap.json v2 — extended from 5 to 13 sprints. 7 new epics added. frontend-first principle stated.",
+      "updated wiki/features/_index.json v4 — 24 features indexed (was 5)",
+      "updated wiki/plan/backlog.json v4 — 24 items, 11 epics (was 5 items, 3 epics)",
+      "updated wiki/dashboard.json v10 — next_sprint_preview added, roadmap_summary added, sprint_notes reflect 13-sprint plan",
+      "updated wiki/changelog.json v0.14.0 prepended"
     ],
     "files_created": [
       "wiki-app/package.json",
@@ -192,12 +216,7 @@
     ]
   },
   "audit": [
-    {
-      "version": 1,
-      "timestamp": "2026-04-12T00:00:00Z",
-      "author": "vibe-wiki-app-nextjs",
-      "action": "created",
-      "note": "Session log for wiki-app creation"
-    }
+    { "version": 1, "timestamp": "2026-04-12T00:00:00Z", "author": "vibe-wiki-app-nextjs",  "action": "created", "note": "Session log for wiki-app creation" },
+    { "version": 5, "timestamp": "2026-04-12T00:00:00Z", "author": "vibe-project-manager", "action": "updated", "note": "Planning session: 10-sprint extension (Sprints 4-13). Frontend-first rebalancing. Sprint 4 = Demo-Ready Frontend (P0)." }
   ]
 }

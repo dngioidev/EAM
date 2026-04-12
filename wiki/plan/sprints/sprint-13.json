@@ -1,0 +1,95 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Sprint 13 — Production Hardening",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "sprint": "13",
+    "sprint_goal": "System is production-ready: Docker Compose verified for production deployment, GitHub Actions CI/CD pipeline live, Swagger/OpenAPI complete, and onboarding guide tested by a new team member end-to-end.",
+    "sprint_start": "2026-09-28",
+    "sprint_end": "2026-10-11",
+    "velocity_planned": 2,
+    "velocity_actual": null,
+    "status": "future",
+    "is_production_release": true
+  },
+  "content": {
+    "tldr": "Final hardening sprint. No new features. Production Docker config, CI/CD pipeline, API documentation, and onboarding verification. System exits this sprint as a deployable product.",
+    "features_committed": [
+      {
+        "id": "devops-prod",
+        "title": "Production Docker & Deployment",
+        "priority": 1,
+        "rationale": "Development docker-compose works but production requires secrets management, resource limits, and health monitoring.",
+        "size": "M",
+        "tasks": [
+          "T127: docker-compose.prod.yml — production overrides: no volume bind mounts, resource limits, restart: always, no pgAdmin",
+          "T128: Backend Dockerfile: multi-stage build, NODE_ENV=production, no devDependencies in final image",
+          "T129: Frontend Dockerfile: verify nginx config serves SPA correctly (try_files fallback for react-router)",
+          "T130: Secrets management: verify all secrets via environment variables (no hardcoded values in any Dockerfile or compose)",
+          "T131: Health check endpoints verified: GET /health (backend), nginx 200 (frontend, wiki-app)",
+          "T132: scripts/backup-db.sh tested and documented",
+          "T133: Deployment runbook written in wiki/onboarding.json 'production-checklist' section"
+        ]
+      },
+      {
+        "id": "ci-cd",
+        "title": "GitHub Actions CI/CD Pipeline",
+        "priority": 2,
+        "rationale": "Manual deployment is error-prone. CI ensures tests run on every PR and main branch is always deployable.",
+        "size": "M",
+        "tasks": [
+          "T134: .github/workflows/ci.yml — on: push to develop + PR to main",
+          "T135: CI steps: checkout → install deps → tsc --noEmit → vitest run → playwright test (headless)",
+          "T136: CI: docker compose build (no push) to verify build integrity",
+          "T137: Backend unit tests in CI: 36+ tests green gate",
+          "T138: Branch protection: PR to main requires CI passing"
+        ]
+      },
+      {
+        "id": "api-docs",
+        "title": "Swagger / OpenAPI Completeness",
+        "priority": 3,
+        "rationale": "API documentation must be complete for any future integration partners or frontend developer handoff.",
+        "size": "S",
+        "tasks": [
+          "T139: Audit all controllers for missing @ApiOperation, @ApiResponse, @ApiBearerAuth decorators",
+          "T140: Add missing decorators to orders, invoices, reporting controllers",
+          "T141: Verify swagger.json snapshot in docs/ — update with current API shape",
+          "T142: Document auth flow in Swagger: @ApiBearerAuth used on all protected endpoints"
+        ]
+      }
+    ],
+    "definition_of_done": {
+      "gate_1_build":      "tsc --noEmit clean, vite build clean, docker compose build succeeds",
+      "gate_2_tests":      "All Vitest unit tests green (36+ backend, frontend coverage >70%)",
+      "gate_3_e2e":        "All Playwright E2E scenarios green (Sprint 12 suites)",
+      "gate_4_security":   "npm audit 0 high/critical vulnerabilities",
+      "gate_5_deploy":     "docker compose -f docker-compose.prod.yml up → system accessible at :80, :3001",
+      "gate_6_onboarding": "A developer unfamiliar with the project can follow wiki/onboarding.json and run the system in < 30 minutes",
+      "gate_7_ci":         "GitHub Actions CI pipeline green on main branch"
+    },
+    "out_of_scope": [
+      "Kubernetes deployment (post-production — Docker Compose sufficient for initial store scale)",
+      "CDN / CloudFront for static assets (post-production)",
+      "External tax authority portal API integration (legal/operational dependency — post-production)"
+    ],
+    "prerequisites": [
+      "Sprint 12: E2E tests green, security audit passed",
+      "All sprints 4-11: features complete and stable"
+    ]
+  },
+  "velocity": { "planned": 2, "completed": null, "carried_over": [] },
+  "retrospective": null,
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "created",
+      "note": "Sprint 13 planned. Final production hardening sprint. Docker prod config + CI/CD + Swagger + onboarding verification. Exit criteria: fully deployable product."
+    }
+  ]
+}

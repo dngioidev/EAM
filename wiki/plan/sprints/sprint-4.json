@@ -1,0 +1,112 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Sprint 4 — Demo-Ready Frontend",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "sprint": "4",
+    "sprint_goal": "Make the entire system demo-able. Every role can log in, navigate to their screen, and perform their core task — without any hand-holding or URL hacking.",
+    "sprint_start": "2026-05-25",
+    "sprint_end": "2026-06-07",
+    "velocity_planned": 2,
+    "velocity_actual": null,
+    "status": "planned",
+    "priority_note": "HIGHEST PRIORITY SPRINT. All backend + Sprint 3 frontend exists but is un-navigable. This sprint is the bridge to demo."
+  },
+  "content": {
+    "tldr": "Sprint 4 is the 'demo unlock' sprint. Backend is 100% feature-complete through Sprint 3. Sprint 4 ties everything together with a shared AppLayout, role-aware navigation, and admin UI for stores and users.",
+    "why_this_sprint": [
+      "POS, Orders, Invoices pages all exist but there is no nav — users must manually type URLs",
+      "No role-based landing: cashier, accountant, and manager all see the same fallback",
+      "Admin has no UI (no store management, no user management)",
+      "Customer demo requires a navigable, role-coherent experience"
+    ],
+    "features_committed": [
+      {
+        "id": "nav-layout",
+        "title": "AppLayout + Sidebar + Role-Aware Navigation",
+        "priority": 1,
+        "rationale": "Foundation for all other UI work this sprint. Without layout, nothing is navigable.",
+        "size": "M",
+        "tasks": [
+          "T010: Create frontend/src/components/AppLayout.tsx — responsive sidebar + topnav shell",
+          "T011: Sidebar items filtered by role (cashier → POS + Orders; accountant → Invoices + Reports; manager → all; admin → all + Admin panel)",
+          "T012: Role-based default landing redirect (cashier → /pos, accountant → /invoices, manager → /orders, admin → /admin/stores)",
+          "T013: Logout button in topnav, clears Zustand auth store + redirects to /login",
+          "T014: Wrap all protected routes in AppLayout in App.tsx"
+        ]
+      },
+      {
+        "id": "store-ui",
+        "title": "Store Management UI (Admin)",
+        "priority": 2,
+        "rationale": "Admin has no UI. Store creation is currently only possible via API. Demo requires admin to onboard a store visually.",
+        "size": "S",
+        "tasks": [
+          "T015: Page /admin/stores — list all stores (name, taxCode, status, createdAt)",
+          "T016: Create store form (RHF + Zod: name required, taxCode 10-digit required, address)",
+          "T017: Deactivate store action with confirmation dialog",
+          "T018: Wire to GET /stores (admin), POST /stores, PATCH /stores/:id/deactivate"
+        ]
+      },
+      {
+        "id": "user-ui",
+        "title": "User Management UI (Admin)",
+        "priority": 3,
+        "rationale": "Admin currently cannot create users via UI. Demo requires admin to create a cashier/accountant account and assign to a store.",
+        "size": "S",
+        "tasks": [
+          "T019: Page /admin/users — list all users (email, role, store, status)",
+          "T020: Create user form (email, password, role selector, store selector)",
+          "T021: Deactivate user action",
+          "T022: Wire to GET /auth/users (admin), POST /auth/register (admin-create), PATCH /auth/users/:id/deactivate"
+        ]
+      }
+    ],
+    "also_this_sprint": [
+      "Add Vitest + React Testing Library setup (sprint-2 retrospective action item)",
+      "AppLayout responsive: sidebar collapses to icon-only on mobile",
+      "Active nav item highlight based on current route"
+    ],
+    "out_of_scope": [
+      "Dashboard stats/charts (Sprint 5)",
+      "Reporting (Sprint 5-6)",
+      "Print invoice (Sprint 5)",
+      "User edit/password change (Sprint 10)"
+    ],
+    "prerequisites": [
+      "Sprint 3 frontend pages: /pos, /orders, /invoices, /invoices/:id — all exist",
+      "Backend: GET /stores (admin), POST /stores, PATCH /stores/:id/deactivate — live",
+      "Backend: GET /auth/users, POST /auth/register, PATCH /auth/users/:id — need to verify or implement"
+    ],
+    "demo_scenario": {
+      "title": "End-to-End Demo Flow",
+      "steps": [
+        "Admin logs in → lands on /admin/stores → creates 'Cửa hàng A' with taxCode",
+        "Admin goes to /admin/users → creates cashier account → assigns to store",
+        "Cashier logs in → auto-redirected to /pos → searches product → adds to cart → confirms payment",
+        "Accountant logs in → lands on /invoices → views invoice → sees VAT breakdown"
+      ]
+    },
+    "api_contracts_needed": [
+      "Verify GET /auth/users (admin), PATCH /auth/users/:id exist — if not, add to sprint backlog"
+    ]
+  },
+  "velocity": {
+    "planned": 2,
+    "completed": null,
+    "carried_over": []
+  },
+  "retrospective": null,
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "created",
+      "note": "Sprint 4 planned as frontend-first demo unlock. Addresses navigation gap and admin UI gap identified in Sprint 3 review."
+    }
+  ]
+}

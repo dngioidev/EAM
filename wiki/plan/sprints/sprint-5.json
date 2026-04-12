@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Sprint 5 — UX Polish + Reporting Backend",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "sprint": "5",
+    "sprint_goal": "Polish the demo experience (print invoice, toasts, skeleton loaders) and deliver the reporting backend so accountants can close the month.",
+    "sprint_start": "2026-06-08",
+    "sprint_end": "2026-06-21",
+    "velocity_planned": 2,
+    "velocity_actual": null,
+    "status": "future"
+  },
+  "content": {
+    "tldr": "Two tracks: (1) frontend UX polish — print invoice, notification toasts, loading skeletons, dashboard home page; (2) reporting backend — daily/monthly revenue + VAT API, CSV export endpoint.",
+    "features_committed": [
+      {
+        "id": "ux-polish",
+        "title": "UX Polish (Frontend)",
+        "priority": 1,
+        "rationale": "Demo experience requires professional polish. Error states, loading feedback, and invoice print are table-stakes for a customer-facing demo.",
+        "size": "M",
+        "tasks": [
+          "T023: Toast/notification system (react-hot-toast or shadcn Toaster) — wire to all mutation success/error",
+          "T024: Skeleton loaders for product list, orders list, invoices list",
+          "T025: Error boundary component (catches unhandled errors, shows friendly Vietnamese message)",
+          "T026: Invoice print view — /invoices/:id/print — formatted for A4, hóa đơn layout, no nav",
+          "T027: Print button on InvoiceDetailPage → window.print() with print-only CSS",
+          "T028: Dashboard home page /dashboard — KPI cards: revenue today (VNĐ), orders today, invoices issued, active products"
+        ]
+      },
+      {
+        "id": "reporting-backend",
+        "title": "Reporting Backend",
+        "priority": 2,
+        "rationale": "Accountants need monthly/daily summaries for Vietnamese tax authority. This is a legal requirement.",
+        "size": "M",
+        "tasks": [
+          "T029: ReportingModule created. GET /reports/daily?date=YYYY-MM-DD — revenue, tax totals, invoice count per store",
+          "T030: GET /reports/monthly?year=YYYY&month=MM — monthly aggregate same shape",
+          "T031: GET /reports/invoices/export?from=&to= — CSV response (Content-Disposition: attachment)",
+          "T032: API contract: wiki/api-contracts/reporting.json approved",
+          "T033: 15+ unit tests for ReportingService (daily/monthly calc, CSV generation)"
+        ]
+      }
+    ],
+    "also_this_sprint": [
+      "Add /dashboard as default landing for store-manager role",
+      "Vitest test for AppLayout role-based nav rendering (from Sprint 4 retrospective)",
+      "Add breadcrumb navigation to all inner pages"
+    ],
+    "out_of_scope": [
+      "Reporting frontend pages (Sprint 6)",
+      "Charts/graphs (Sprint 6)",
+      "Email delivery of invoices (post-MVP)"
+    ],
+    "prerequisites": [
+      "Sprint 4: AppLayout + nav complete",
+      "Sprint 4: Store UI + User UI complete",
+      "Backend: OrdersModule + InvoicesModule complete (Sprint 3)"
+    ]
+  },
+  "velocity": { "planned": 2, "completed": null, "carried_over": [] },
+  "retrospective": null,
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "created",
+      "note": "Sprint 5 planned. Two parallel tracks: UX polish (frontend-first) + reporting backend."
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Feature: Store & User Management UI (Admin)",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "id": "store-ui-user-ui",
+    "sprint": 4,
+    "status": "planned",
+    "epic": "epic-demo-ready",
+    "priority": 2
+  },
+  "content": {
+    "summary": "Admin-facing pages for store management (/admin/stores) and user management (/admin/users). Admin can create stores, deactivate stores, create users with roles assigned, and deactivate users.",
+    "user_stories": [
+      {
+        "id": "US-ADM-01",
+        "as": "admin",
+        "want": "to create a new store with its taxCode and address",
+        "so_that": "the store can onboard and cashiers can be assigned to it"
+      },
+      {
+        "id": "US-ADM-02",
+        "as": "admin",
+        "want": "to create a user account with a specific role and store assignment",
+        "so_that": "staff can log in without needing developer access"
+      },
+      {
+        "id": "US-ADM-03",
+        "as": "admin",
+        "want": "to deactivate a store or user",
+        "so_that": "I can remove access when staff leave or a store closes"
+      }
+    ],
+    "business_rules": [
+      "BR-ADMIN-01: Only admin role can access /admin/* routes",
+      "BR-ADMIN-02: taxCode is immutable after store creation (inherited from BR-STORE-03)",
+      "BR-ADMIN-03: Deactivating a user must flush their Redis sessions immediately",
+      "BR-ADMIN-04: User must be assigned a store unless role is admin"
+    ],
+    "api_endpoints_used": [
+      "GET    /stores            — list all stores (admin only)",
+      "POST   /stores            — create store",
+      "PATCH  /stores/:id/deactivate — deactivate store",
+      "GET    /auth/users        — list all users (admin only, NEEDS VERIFICATION)",
+      "POST   /auth/register     — create user (reuse existing endpoint)",
+      "PATCH  /auth/users/:id/deactivate — deactivate user (NEEDS IMPLEMENTATION CHECK)"
+    ],
+    "tasks": [
+      { "id": "T015", "title": "/admin/stores — list stores page", "status": "not_started" },
+      { "id": "T016", "title": "Create store form (RHF + Zod)", "status": "not_started" },
+      { "id": "T017", "title": "Deactivate store with confirmation dialog", "status": "not_started" },
+      { "id": "T018", "title": "Wire store pages to API", "status": "not_started" },
+      { "id": "T019", "title": "/admin/users — list users page", "status": "not_started" },
+      { "id": "T020", "title": "Create user form (email, password, role, store)", "status": "not_started" },
+      { "id": "T021", "title": "Deactivate user action", "status": "not_started" },
+      { "id": "T022", "title": "Wire user pages to API + verify endpoints exist", "status": "not_started" }
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "created",
+      "note": "store-ui-user-ui feature created. Sprint 4 P2. Backend endpoints may need verification/addition."
+    }
+  ]
+}

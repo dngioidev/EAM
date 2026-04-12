@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Sprint 11 — Real-time & Notifications",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "sprint": "11",
+    "sprint_goal": "Managers see live order activity as it happens. Accountants are notified of pending invoices. POS gives immediate audio+visual feedback on payment — eliminating the need to manually refresh any screen.",
+    "sprint_start": "2026-08-31",
+    "sprint_end": "2026-09-13",
+    "velocity_planned": 2,
+    "velocity_actual": null,
+    "status": "future"
+  },
+  "content": {
+    "tldr": "WebSocket gateway on backend. Frontend WebSocket client. Manager live order feed. Notification bell for accountant. POS audio confirmation on payment.",
+    "features_committed": [
+      {
+        "id": "websocket",
+        "title": "WebSocket Real-time Order Feed",
+        "priority": 1,
+        "rationale": "Managers in busy stores cannot afford to manually refresh. Real-time visibility reduces errors and disputes.",
+        "size": "M",
+        "tasks": [
+          "T098: Install @nestjs/platform-socket.io + socket.io in backend",
+          "T099: OrdersGateway: @WebSocketGateway('/orders') — emit order.created, order.updated events scoped to storeId room",
+          "T100: JWT auth guard on WebSocket handshake (same JWT strategy as HTTP)",
+          "T101: Frontend: Socket.io-client connection in a useOrderSocket hook",
+          "T102: Manager /orders page: live-update list when order.created/updated event received",
+          "T103: Active order count badge in sidebar nav (real-time)"
+        ]
+      },
+      {
+        "id": "notifications",
+        "title": "Notification Bell & Alerts",
+        "priority": 2,
+        "rationale": "Accountants need to know when new invoices are ready to review. POS sound confirms payment without looking at screen.",
+        "size": "M",
+        "tasks": [
+          "T104: Notification bell icon in AppLayout topnav",
+          "T105: Notification store (Zustand): unread count, notification items list",
+          "T106: On invoice.created event: push notification to accountant's bell (storeId-scoped)",
+          "T107: Notification dropdown: list of 'Hóa đơn #INV-XXXX đã được tạo' items, click → navigate",
+          "T108: Mark all as read action",
+          "T109: POS page: play audio beep on confirm-payment success (Web Audio API, no external library)",
+          "T110: POS page: full-screen green flash + 'Thành công!' overlay for 1.5s on payment confirmed"
+        ]
+      }
+    ],
+    "out_of_scope": [
+      "Push notifications (browser native push API) — polling + WebSocket sufficient for in-app",
+      "Email/SMS notifications (post-MVP)",
+      "WebSocket for product stock updates (post-MVP — no inventory tracking)"
+    ],
+    "prerequisites": [
+      "Sprint 3: Order + Invoice EventEmitter2 integration stable",
+      "Sprint 4: AppLayout topnav in place (notification bell added there)"
+    ]
+  },
+  "velocity": { "planned": 2, "completed": null, "carried_over": [] },
+  "retrospective": null,
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "created",
+      "note": "Sprint 11 planned. Real-time: WebSocket gateway + frontend hook + notification bell + POS audio feedback."
+    }
+  ]
+}

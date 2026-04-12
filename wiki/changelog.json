@@ -1,16 +1,44 @@
 {
   "meta": {
-    "version": 1,
-    "last_updated": "2025-01-01",
+    "version": 2,
+    "last_updated": "2026-04-12",
     "title": "Project Changelog",
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.13.0",
-    "total_entries": 15
+    "current_version": "0.14.0",
+    "total_entries": 16
   },
   "content": {
     "entries": [
+      {
+        "version": "0.14.0",
+        "date": "2026-04-12",
+        "sprint": "3",
+        "tags": ["planning", "roadmap", "frontend-priority"],
+        "summary": "10-sprint roadmap extension (Sprints 4-13). Frontend-first rebalancing. Sprint 4 is Demo-Ready Frontend (P0).",
+        "features_added": [
+          "wiki/roadmap.json v2 — extended from 5 to 13 sprints. Frontend-first principle added.",
+          "wiki/plan/sprints/sprint-4.json — Demo-Ready Frontend: AppLayout + nav + store/user admin UI",
+          "wiki/plan/sprints/sprint-5.json — UX Polish + Reporting Backend",
+          "wiki/plan/sprints/sprint-6.json — Reporting Frontend + Manager Dashboard Chart",
+          "wiki/plan/sprints/sprint-7.json — Product Catalog Enhancements (categories, barcode, bulk import)",
+          "wiki/plan/sprints/sprint-8.json — Advanced POS & Refunds (discount, refund, split payment)",
+          "wiki/plan/sprints/sprint-9.json — Tax Compliance: PDF + XML + void/replace (Circular 78)",
+          "wiki/plan/sprints/sprint-10.json — Multi-store Admin: cross-store dashboard + user reassignment",
+          "wiki/plan/sprints/sprint-11.json — Real-time & Notifications: WebSocket + notification bell + POS audio",
+          "wiki/plan/sprints/sprint-12.json — E2E Testing (Playwright) + Security Audit (OWASP Top 10)",
+          "wiki/plan/sprints/sprint-13.json — Production Hardening: Docker prod + GitHub Actions CI/CD + Swagger",
+          "wiki/features/nav-layout.json — AppLayout + role-aware navigation feature spec",
+          "wiki/features/store-ui-user-ui.json — Admin store/user management UI feature spec",
+          "wiki/features/reporting.json — Reporting backend + frontend feature spec",
+          "wiki/features/_index.json v4 — 24 features indexed",
+          "wiki/plan/backlog.json v4 — 24 items, 11 epics"
+        ],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "Priority rebalance triggered by customer demo readiness gap. All backend is feature-complete through Sprint 3. Sprint 4 is the demo unlock: nav ties all frontend pages together. No backend work in Sprint 4 — purely frontend + admin UI."
+      },
       {
         "version": "0.13.0",
         "date": "2026-04-12",

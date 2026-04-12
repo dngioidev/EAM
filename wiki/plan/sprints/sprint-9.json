@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Sprint 9 — Tax Compliance & Invoice Hardening",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "sprint": "9",
+    "sprint_goal": "Invoices become legally submittable: PDF download for customers, Circular 78-compliant XML for the Vietnamese tax authority, and void+replacement workflow for corrected invoices.",
+    "sprint_start": "2026-08-03",
+    "sprint_end": "2026-08-16",
+    "velocity_planned": 2,
+    "velocity_actual": null,
+    "status": "future"
+  },
+  "content": {
+    "tldr": "Two invoice hardening tracks: (1) PDF generation backend + download frontend; (2) XML export compliant with Circular 78/2021/TT-BTC, plus void+replacement invoice workflow.",
+    "legal_reference": "Thông tư 78/2021/TT-BTC — Quy định về hóa đơn điện tử. Invoice fields required: seller taxCode, buyer name/taxCode (optional), invoice number (immutable), issue date, line items with VAT rates, total VNĐ.",
+    "features_committed": [
+      {
+        "id": "invoice-pdf",
+        "title": "Invoice PDF Generation + Download",
+        "priority": 1,
+        "rationale": "Customers expect a printable/downloadable invoice. Vietnamese law requires store to provide invoice on request.",
+        "size": "M",
+        "tasks": [
+          "T076: Install PDFKit (or pdfmake) in backend",
+          "T077: GET /invoices/:id/pdf — streams PDF response (Content-Type: application/pdf)",
+          "T078: PDF template: store name/address/taxCode, invoice number, issue date, line items table, VAT breakdown, totals in VNĐ — Vietnamese layout",
+          "T079: Frontend InvoiceDetailPage: 'Tải PDF' download button → window.open(/invoices/:id/pdf)",
+          "T080: PDF preview iframe in invoice detail (optional, if PDF fits viewport)"
+        ]
+      },
+      {
+        "id": "invoice-xml",
+        "title": "Invoice XML Export (Circular 78 Compliant)",
+        "priority": 2,
+        "rationale": "Tax authority submission requires XML in specified schema under Circular 78.",
+        "size": "M",
+        "tasks": [
+          "T081: GET /invoices/:id/xml — returns application/xml with Circular 78 element structure",
+          "T082: GET /reports/invoices/export-xml?from=&to= — batch XML for monthly submission",
+          "T083: Schema validation in unit test (against reference XSD or sample documents)",
+          "T084: Frontend: 'Xuất XML' button on invoice detail + batch export on reports page"
+        ]
+      },
+      {
+        "id": "invoice-void-replace",
+        "title": "Invoice Void + Replacement Workflow",
+        "priority": 3,
+        "rationale": "Under Vietnamese law, a voided invoice must be replaced by a new invoice with a new number and a reference to the original.",
+        "size": "S",
+        "tasks": [
+          "T085: Invoice entity: add replacedByInvoiceId FK (self-referential, nullable) + migration",
+          "T086: POST /invoices/:id/void-and-replace — creates replacement invoice, links originalInvoiceId",
+          "T087: Void+replace accessible to accountant + admin only",
+          "T088: Frontend: 'Huỷ & Thay thế' button on invoice detail (accountant role)"
+        ]
+      }
+    ],
+    "out_of_scope": [
+      "Direct API submission to Vietnamese tax portal (operational dependency — post-MVP)",
+      "Digital signature on PDF (post-MVP)",
+      "Buyer TaxCode capture on POS (Sprint 10 enhancement)"
+    ],
+    "prerequisites": [
+      "Sprint 3: Invoice module + auto-generation complete",
+      "Sprint 8: Refund workflow complete (refunded invoices need void handling)"
+    ]
+  },
+  "velocity": { "planned": 2, "completed": null, "carried_over": [] },
+  "retrospective": null,
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "created",
+      "note": "Sprint 9 planned. Tax compliance: PDF + XML + void/replace. Full-stack delivery."
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Feature: Navigation Layout (AppLayout + Role-aware Nav)",
+    "owner": "vibe-product-owner"
+  },
+  "quick_facts": {
+    "id": "nav-layout",
+    "sprint": 4,
+    "status": "planned",
+    "epic": "epic-demo-ready",
+    "priority": 1
+  },
+  "content": {
+    "summary": "Shared AppLayout component with sidebar navigation and topnav. Sidebar items filtered by user role. Role-based automatic landing redirect after login. Logout accessible from topnav.",
+    "user_stories": [
+      {
+        "id": "US-NAV-01",
+        "as": "cashier",
+        "want": "to land on the POS screen immediately after login",
+        "so_that": "I don't have to navigate manually to do my job"
+      },
+      {
+        "id": "US-NAV-02",
+        "as": "accountant",
+        "want": "to land on the Invoices list after login",
+        "so_that": "my primary workspace is always the first thing I see"
+      },
+      {
+        "id": "US-NAV-03",
+        "as": "any user",
+        "want": "a consistent sidebar that shows only the screens relevant to my role",
+        "so_that": "I am not confused by links I cannot use"
+      },
+      {
+        "id": "US-NAV-04",
+        "as": "any user",
+        "want": "a visible Log Out button",
+        "so_that": "I can securely end my session"
+      }
+    ],
+    "role_nav_map": {
+      "cashier":       ["/pos", "/orders"],
+      "accountant":    ["/invoices", "/reports"],
+      "store-manager": ["/dashboard", "/pos", "/orders", "/invoices", "/reports", "/products", "/admin/categories"],
+      "admin":         ["/dashboard", "/pos", "/orders", "/invoices", "/reports", "/products", "/admin/stores", "/admin/users", "/admin/categories"]
+    },
+    "role_landing_map": {
+      "cashier":       "/pos",
+      "accountant":    "/invoices",
+      "store-manager": "/dashboard",
+      "admin":         "/admin/stores"
+    },
+    "business_rules": [
+      "BR-NAV-01: A user whose role has no access to a route receives a 403 page, not a silent redirect",
+      "BR-NAV-02: Sidebar nav items are driven by user.role from Zustand auth store — no API call needed",
+      "BR-NAV-03: Active route is highlighted in sidebar",
+      "BR-NAV-04: Logout clears Zustand store + localStorage + redirects to /login"
+    ],
+    "tasks": [
+      { "id": "T010", "title": "AppLayout.tsx — responsive sidebar + topnav shell", "status": "not_started" },
+      { "id": "T011", "title": "Sidebar role-filtered nav items", "status": "not_started" },
+      { "id": "T012", "title": "Role-based landing redirect in RequireAuth guard", "status": "not_started" },
+      { "id": "T013", "title": "Logout button in topnav", "status": "not_started" },
+      { "id": "T014", "title": "Wrap all protected routes in AppLayout", "status": "not_started" }
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "created",
+      "note": "nav-layout feature created. Sprint 4 P1. Addresses navigation gap identified after Sprint 3 frontend delivery."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 4,
+    "version": 5,
     "last_updated": "2026-04-12",
     "title": "Bug Index"
   },
@@ -25,6 +25,14 @@
       "id": "BUG-0003",
       "path": "bugs/BUG-0003.json",
       "title": "Login succeeds but user is immediately redirected back to /login — TransformInterceptor envelope not unwrapped on frontend",
+      "severity": "critical",
+      "status": "fixed",
+      "sprint": "2"
+    },
+    {
+      "id": "BUG-0004",
+      "path": "bugs/BUG-0004.json",
+      "title": "Admin user storeId null coerced to empty string in JWT strategy causes UUID crash in all products endpoints",
       "severity": "critical",
       "status": "fixed",
       "sprint": "2"

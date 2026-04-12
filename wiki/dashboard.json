@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 9,
+    "version": 10,
     "last_updated": "2026-04-12",
     "title": "Sprint Dashboard",
     "owner": "vibe-project-manager"
@@ -19,7 +19,7 @@
     }
   },
   "content": {
-    "tldr": "Sprint 3 IN PROGRESS. Orders + Invoices backend complete (36 new unit tests). Frontend: POS screen, order history, invoice viewer. TS build clean. API contracts approved.",
+    "tldr": "Sprint 3 IN PROGRESS. Orders + Invoices backend complete (36 new unit tests). Frontend: POS screen, order history, invoice viewer. TS build clean. API contracts approved. NEXT: Sprint 4 (Demo-Ready Frontend) — AppLayout + nav + admin UI is the #1 priority to unlock customer demo.",
     "active_features": ["order", "invoice"],
     "open_bugs": 0,
     "bugs_by_severity": {
@@ -31,8 +31,27 @@
     "pending_decisions": [],
     "pending_contracts": [],
     "recently_updated": ["backend/src/common/decorators/current-user.decorator.ts", "backend/src/modules/auth/strategies/jwt.strategy.ts", "backend/src/modules/products/products.service.ts", "backend/src/modules/stores/stores.service.ts", "wiki/bugs/BUG-0004.json"],
-    "blocked_features": ["product (blocked on auth+store — now unblocked)", "order (blocked on product)", "invoice (blocked on order)"],
-    "sprint_notes": "Sprint 2 CLOSED 2026-04-12. Velocity 2/2. Product backend + frontend complete. BUG-0003 (critical, fixed): TransformInterceptor envelope not unwrapped — all auth + product API calls were broken. BUG-0004 (critical, fixed): admin storeId null coerced to '' in JwtStrategy — all products endpoints crashed with UUID error. BUG-0001 (medium, fixed) + BUG-0002 (high, fixed) from Sprint 1.",
+    "blocked_features": [],
+    "next_sprint_preview": {
+      "sprint": 4,
+      "title": "Demo-Ready Frontend",
+      "dates": "2026-05-25 → 2026-06-07",
+      "p0_items": [
+        "AppLayout + Sidebar + Role-aware navigation (T010-T014)",
+        "Role-based landing redirect: cashier→/pos, accountant→/invoices, manager→/dashboard, admin→/admin/stores",
+        "Admin store management UI (T015-T018)",
+        "Admin user management UI (T019-T022)"
+      ],
+      "demo_unlock": "After Sprint 4, a customer demo can run end-to-end from login → role-specific screen → full POS flow — no URL hacking required."
+    },
+    "roadmap_summary": {
+      "total_sprints": 13,
+      "sprints_done": 2,
+      "sprint_in_progress": 3,
+      "sprints_planned": "4-13",
+      "production_target": "2026-10-11 (Sprint 13 end)"
+    },
+    "sprint_notes": "Sprint 2 CLOSED 2026-04-12. Velocity 2/2. Product backend + frontend complete. BUG-0003 (critical, fixed): TransformInterceptor envelope not unwrapped. BUG-0004 (critical, fixed): admin storeId null coerced. Sprint 3 IN PROGRESS: backend done, frontend pages exist but need AppLayout/nav (Sprint 4). 10-sprint extension planned: Sprints 4-13 covering demo-ready frontend → reporting → catalog+ → advanced POS → tax compliance → admin multistore → realtime → E2E → production.",
     "roadmap_ref": "wiki/roadmap.json"
   },
   "audit": [
