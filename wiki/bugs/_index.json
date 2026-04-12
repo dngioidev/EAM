@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 3,
+    "version": 4,
     "last_updated": "2026-04-12",
     "title": "Bug Index"
   },
@@ -28,6 +28,14 @@
       "severity": "critical",
       "status": "fixed",
       "sprint": "2"
+    },
+    {
+      "id": "BUG-0005",
+      "path": "bugs/BUG-0005.json",
+      "title": "eam_backend crashes at startup — @nestjs/event-emitter missing from Docker anonymous node_modules volume",
+      "severity": "critical",
+      "status": "fixed",
+      "sprint": "3"
     }
   ]
 }
