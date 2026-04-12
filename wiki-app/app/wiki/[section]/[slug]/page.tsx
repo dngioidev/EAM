@@ -8,6 +8,9 @@ import { WorkflowView } from '@/components/views/WorkflowView';
 import { RulebookView } from '@/components/views/RulebookView';
 import { TechstackView } from '@/components/views/TechstackView';
 import { ImpactMapView } from '@/components/views/ImpactMapView';
+import { HistoryView } from '@/components/views/HistoryView';
+import { PlanView } from '@/components/views/PlanView';
+import { DesignView } from '@/components/views/DesignView';
 import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -91,6 +94,12 @@ export default async function WikiEntryPage({ params }: PageProps) {
         <TechstackView data={data} section={section} slug={slug} />
       ) : section === 'impact-map' ? (
         <ImpactMapView data={data} section={section} slug={slug} />
+      ) : section === 'history' ? (
+        <HistoryView data={data} section={section} slug={slug} />
+      ) : section === 'plan' ? (
+        <PlanView data={data} section={section} slug={slug} />
+      ) : section === 'design' ? (
+        <DesignView data={data} section={section} slug={slug} />
       ) : (
         <JsonBlock data={data} />
       )}

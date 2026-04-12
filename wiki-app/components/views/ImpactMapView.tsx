@@ -1,5 +1,3 @@
-import { StatusBadge } from '@/components/StatusBadge';
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Entity {
@@ -213,10 +211,7 @@ export function ImpactMapView({
           </h3>
           <div className="px-4 py-3 flex flex-wrap gap-2">
             {affectedEntities.map((e) => (
-              <StatusBadge key={e} status="active" />
-            ))}
-            {affectedEntities.map((e) => (
-              <span key={e} className="text-sm text-gray-700 font-medium">{e}</span>
+              <span key={e} className="text-xs bg-purple-50 text-purple-700 border border-purple-200 rounded px-2 py-0.5 font-medium">{e}</span>
             ))}
           </div>
         </section>
