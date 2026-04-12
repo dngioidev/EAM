@@ -1,0 +1,122 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-13",
+    "title": "Wiki Infrastructure — SQLite + MCP Server",
+    "owner": "vibe-product-owner",
+    "status": "approved"
+  },
+  "quick_facts": {
+    "feature_id": "wiki-infra",
+    "sprint": "4.5",
+    "priority": 8,
+    "size": "M",
+    "type": "infrastructure",
+    "domain": "internal-tooling",
+    "depends_on": []
+  },
+  "approval": {
+    "status": "approved",
+    "approved_by": "po",
+    "approved_at": "2026-04-13",
+    "notes": "Approved as Sprint 4.5 (dedicated infra sprint before Sprint 5). The wiki inconsistency is a cross-cutting overhead on every sprint. 9 sprints remain — fixing now gives maximum ROI. No BA round-trip needed: technical scope is unambiguous."
+  },
+  "content": {
+    "tldr": "Replace the fragile 60-file JSON wiki system with a single SQLite database (wiki.db) and an MCP server that lets AI agents read and write wiki state reliably — with transactions, schema enforcement, and full-text search. wiki-app refactored to read from SQLite directly.",
+    "problem_statement": "The current wiki/ JSON system requires AI agents to manually update 5–8 files per action (feature status, dashboard, changelog, _index files). Files routinely fall out of sync because there are no transactions. JSON schemas in wiki/_schema/ exist but are never enforced at write time. buildSearchIndex() loops all files sequentially. Result: incorrect wiki state after nearly every sprint session.",
+    "solution_summary": "SQLite database (wiki.db) as single source of truth. MCP server exposes structured tools for AI agents (wiki_dashboard, wiki_sprint_close, wiki_search, etc.). wiki-app refactored to query SQLite via better-sqlite3. JSON files become read-only exports for git snapshots.",
+    "actors": [
+      { "role": "vibe-project-manager",  "interaction": "Calls MCP tools for all wiki reads/writes (replaces manual file editing)" },
+      { "role": "vibe-backend-general",  "interaction": "Calls wiki_task_update, wiki_contract_update MCP tools" },
+      { "role": "vibe-qa-general",       "interaction": "Calls wiki_bug_create, wiki_bug_update, wiki_session_log MCP tools" },
+      { "role": "developer (human)",     "interaction": "Views wiki state via wiki-app — unchanged UX, consistent data" }
+    ],
+    "user_stories": [
+      {
+        "id": "US-WIKII-01",
+        "actor": "vibe-project-manager",
+        "story": "As the project manager, I want to call wiki_sprint_close() once and have all 5 related records update atomically, so sprint closure never leaves the wiki in a partial state.",
+        "acceptance_criteria": [
+          "wiki_sprint_close(id) updates sprint status, dashboard quick_facts, changelog, and feature statuses in a single SQL transaction",
+          "If any step fails, the entire transaction rolls back — no partial state",
+          "wiki_dashboard() reflects the closed sprint and new active sprint immediately after the call"
+        ],
+        "size": "M"
+      },
+      {
+        "id": "US-WIKII-02",
+        "actor": "vibe-project-manager",
+        "story": "As the project manager, I want to call wiki_search('auth') and get matching features, bugs, and decisions ranked by relevance, so I can quickly orient to a topic without reading individual files.",
+        "acceptance_criteria": [
+          "wiki_search returns results from features, bugs, decisions, api-contracts sections",
+          "Results include section, id, title, and a text snippet",
+          "Query uses SQLite FTS5 — results return in under 100ms"
+        ],
+        "size": "S"
+      },
+      {
+        "id": "US-WIKII-03",
+        "actor": "developer (human)",
+        "story": "As a developer, I want the wiki-app to show data that is always consistent with what AI agents wrote, so I can trust the wiki-app as the ground truth.",
+        "acceptance_criteria": [
+          "wiki-app reads from wiki.db (not JSON files) via better-sqlite3 in server components",
+          "Any wiki_feature_update call is immediately visible in wiki-app on next page load",
+          "wiki-app build passes with 0 TypeScript errors after lib/wiki.ts → lib/db.ts refactor"
+        ],
+        "size": "M"
+      },
+      {
+        "id": "US-WIKII-04",
+        "actor": "vibe-qa-general",
+        "story": "As QA, I want to call wiki_bug_create() and have the bug ID auto-assigned (BUG-XXXX), so I never have to manually look up the next bug number.",
+        "acceptance_criteria": [
+          "wiki_bug_create auto-increments BUG-ID based on max existing ID in DB",
+          "Bug is immediately queryable via wiki_bug_list()",
+          "Severity and status are validated against allowed enums at insert time — invalid values rejected with clear error"
+        ],
+        "size": "S"
+      }
+    ],
+    "business_rules": [
+      "BR-WIKII-01: All wiki writes go through MCP tools after Sprint 4.5 — direct JSON file writes are deprecated",
+      "BR-WIKII-02: wiki.db is committed to git after each sprint session as the authoritative record",
+      "BR-WIKII-03: wiki_sprint_close and wiki_sprint_open are atomic — partial state is never persisted",
+      "BR-WIKII-04: All MCP write tools log to audit_log table with author, timestamp, and changed fields",
+      "BR-WIKII-05: wiki-app must not read JSON files after P2 complete — all reads go through better-sqlite3",
+      "BR-WIKII-06: SQLite WAL mode (PRAGMA journal_mode=WAL) enabled — allows concurrent reads from wiki-app while MCP writes"
+    ],
+    "tasks": [
+      { "id": "T001", "priority": "P0", "title": "wiki-mcp/ scaffold — package.json, TypeScript config, @modelcontextprotocol/sdk + better-sqlite3 + zod, MCP server entry point with stdio transport", "size": "S", "status": "todo" },
+      { "id": "T002", "priority": "P0", "title": "schema.sql — SQLite tables: features, sprints, tasks, api_contracts, bugs, history, decisions, changelog, audit_log + FTS5 virtual tables for features/bugs/decisions", "size": "M", "status": "todo" },
+      { "id": "T003", "priority": "P0", "title": "migrate.ts — one-time JSON→SQLite importer, reads all wiki/ JSON files and populates DB idempotently (safe to re-run)", "size": "M", "status": "todo" },
+      { "id": "T004", "priority": "P0", "title": "Core read tools — wiki_dashboard(), wiki_feature_get(id), wiki_feature_list(filters), wiki_sprint_get(id), wiki_bug_list(filters), wiki_contract_get(module)", "size": "M", "status": "todo" },
+      { "id": "T005", "priority": "P0", "title": "Core write tools — wiki_feature_update(id, patch), wiki_task_update(id, patch), wiki_session_log(session)", "size": "M", "status": "todo" },
+      { "id": "T006", "priority": "P0", "title": "Register MCP server in .claude/settings.json — mcpServers entry, command: node, args: [wiki-mcp/dist/server.js], auto-approve wiki_* tools", "size": "S", "status": "todo" },
+      { "id": "T007", "priority": "P1", "title": "Composite atomic tools — wiki_sprint_close(id), wiki_sprint_open(id) — single transaction: sprint + dashboard + changelog + feature statuses", "size": "M", "status": "todo" },
+      { "id": "T008", "priority": "P1", "title": "wiki_search(query, section?) — FTS5 full-text search across features/bugs/decisions/contracts — returns {section, id, title, snippet}", "size": "S", "status": "todo" },
+      { "id": "T009", "priority": "P1", "title": "wiki_bug_create(data), wiki_bug_update(id, patch), wiki_bug_list(filters) — auto-increment BUG-ID, Zod enum validation on severity/status", "size": "S", "status": "todo" },
+      { "id": "T010", "priority": "P1", "title": "wiki_contract_update(module, patch) — Zod validation of endpoint shape before insert, version auto-bump", "size": "S", "status": "todo" },
+      { "id": "T011", "priority": "P1", "title": "Update vibe skill prompts — replace file-read patterns with MCP tool calls in vibe-project-manager, vibe-ba, vibe-qa-general skills", "size": "M", "status": "todo" },
+      { "id": "T012", "priority": "P2", "title": "Add better-sqlite3 to wiki-app — server-side only, create lib/db.ts replacing lib/wiki.ts", "size": "M", "status": "todo" },
+      { "id": "T013", "priority": "P2", "title": "Replace readWikiFile() calls in wiki-app page components with SQL queries via lib/db.ts", "size": "M", "status": "todo" },
+      { "id": "T014", "priority": "P2", "title": "wiki-app admin API route — replace patchWikiFile() JSON write with SQL UPDATE via better-sqlite3", "size": "S", "status": "todo" }
+    ],
+    "open_questions": [],
+    "out_of_scope": [
+      "Remote hosting (Turso/LibSQL) — local SQLite only",
+      "wiki_export_json tool — deferred to P3",
+      "Automatic audit trail triggers — manual logging in each tool for now",
+      "REST API for wiki — MCP stdio transport only",
+      "Migrating wiki.db to application PostgreSQL"
+    ]
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-13T00:00:00Z",
+      "author": "vibe-product-owner",
+      "action": "created-and-approved",
+      "note": "Feature created from architect brainstorm session. Approved without BA round-trip — scope is technically clear, no ambiguous business rules. Assigned to Sprint 4.5."
+    }
+  ]
+}

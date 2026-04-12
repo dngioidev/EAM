@@ -1,8 +1,8 @@
 {
   "meta": {
-    "version": 1,
+    "version": 2,
     "date": "2026-04-13",
-    "title": "Sprint 4 Kickoff",
+    "title": "Sprint 4 Kickoff + Sprint 4.5 Wiki-Infra Planning",
     "author": "vibe-project-manager"
   },
   "session": {
@@ -24,7 +24,14 @@
     "[edit] wiki/plan/sprints/sprint-4.json — status → active",
     "[edit] wiki/dashboard.json v11 — Sprint 4 active, bugs_by_severity reset, pending_contracts flagged",
     "[edit] wiki/changelog.json v3 — 0.15.0 entry prepended, total_entries 17",
-    "[create] wiki/history/2026-04-13.json — this file"
+    "[create] wiki/history/2026-04-13.json — this file",
+    "[brainstorm] wiki-infra initiative — SQLite + MCP server replaces JSON wiki system. Option A (SQLite) selected. Option 2 (dedicated Sprint 4.5) approved by user.",
+    "[po-review] wiki-infra approved — no BA round-trip (scope unambiguous). Sprint 4.5 inserted between Sprint 4 and Sprint 5.",
+    "[create] wiki/features/wiki-infra.json — feature spec, 4 user stories, 14 tasks, 6 business rules",
+    "[create] wiki/plan/sprints/sprint-4-5.json — 4-day sprint plan, 3 risks documented",
+    "[edit] wiki/plan/backlog.json v6 — epic-wiki-infra + wiki-infra item added (priority 8). total_items 26, planned 3.",
+    "[edit] wiki/features/_index.json v5 — wiki-infra entry added",
+    "[edit] wiki/dashboard.json v13 — next_sprint_preview → Sprint 4.5, sprint_notes updated"
   ],
   "decisions": [
     {

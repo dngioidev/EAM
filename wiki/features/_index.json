@@ -1,7 +1,7 @@
 {
   "meta": {
-    "version": 4,
-    "last_updated": "2026-04-12",
+    "version": 5,
+    "last_updated": "2026-04-13",
     "title": "Feature Index"
   },
   "files": [
@@ -12,6 +12,7 @@
     { "id": "invoice",           "file": "features/invoice.json",           "status": "done",    "sprint": 3 },
     { "id": "nav-layout",        "file": "features/nav-layout.json",        "status": "planned", "sprint": 4 },
     { "id": "store-ui-user-ui",  "file": "features/store-ui-user-ui.json",  "status": "planned", "sprint": 4 },
+    { "id": "wiki-infra",        "file": "features/wiki-infra.json",         "status": "approved","sprint": "4.5", "note": "SQLite + MCP server. Replaces JSON wiki system. PO-approved 2026-04-13." },
     { "id": "ux-polish",         "file": null,                              "status": "planned", "sprint": 5, "note": "Toast, skeleton, error boundary, invoice print, dashboard home" },
     { "id": "reporting",         "file": "features/reporting.json",         "status": "planned", "sprint": "5-6" },
     { "id": "product-categories","file": null,                              "status": "future",  "sprint": 7 },

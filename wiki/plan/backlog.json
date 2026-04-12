@@ -1,27 +1,28 @@
 {
   "meta": {
-    "version": 5,
+    "version": 6,
     "last_updated": "2026-04-13",
     "title": "Product Backlog",
     "owner": "vibe-product-owner"
   },
   "quick_facts": {
     "current_sprint": "4",
-    "total_items": 25,
+    "total_items": 26,
     "status_summary": {
       "done": 7,
       "in_progress": 0,
-      "planned": 2,
+      "planned": 3,
       "future": 16
     }
   },
   "content": {
-    "tldr": "Sprints 1-4 done (auth+store+product+order+invoice+nav-layout+store-ui-user-ui). Sprint 5-6: UX polish + reporting. Sprints 7-9: catalog+ advanced POS + tax compliance. Sprints 10-13: admin multistore, realtime, QA hardening, production.",
+    "tldr": "Sprints 1-4 done (auth+store+product+order+invoice+nav-layout+store-ui-user-ui). Sprint 4.5: wiki infrastructure (SQLite+MCP). Sprint 5-6: UX polish + reporting. Sprints 7-9: catalog+ advanced POS + tax compliance. Sprints 10-13: admin multistore, realtime, QA hardening, production.",
     "epics": [
       { "id": "epic-foundation",       "title": "Foundation",                "sprints": [1],      "features": ["auth", "store"],                                                "status": "done"        },
       { "id": "epic-catalog",          "title": "Product Catalog",           "sprints": [2],      "features": ["product"],                                                      "status": "done"        },
       { "id": "epic-core-flow",        "title": "Core POS Flow",             "sprints": [3],      "features": ["order", "invoice"],                                             "status": "done"        },
       { "id": "epic-demo-ready",       "title": "Demo-Ready Frontend",       "sprints": [4],      "features": ["nav-layout", "store-ui-user-ui"],                               "status": "done"        },
+      { "id": "epic-wiki-infra",        "title": "Wiki Infrastructure",       "sprints": ["4.5"],  "features": ["wiki-infra"],                                                   "status": "planned"     },
       { "id": "epic-reporting",        "title": "Reporting & Tax",           "sprints": [5, 6],   "features": ["ux-polish", "reporting"],                                       "status": "planned"     },
       { "id": "epic-catalog-plus",     "title": "Catalog Enhancements",      "sprints": [7],      "features": ["product-categories", "barcode", "bulk-import"],                 "status": "future"      },
       { "id": "epic-advanced-pos",     "title": "Advanced POS & Refunds",    "sprints": [8],      "features": ["discount", "refund", "split-payment"],                          "status": "future"      },
@@ -38,24 +39,25 @@
       { "id": "invoice",            "title": "Electronic Invoice Generation",     "epic": "epic-core-flow",        "priority": 5,  "sprint": 3,      "status": "done",    "depends_on": ["order"]                         },
       { "id": "nav-layout",         "title": "AppLayout + Role-aware Nav",        "epic": "epic-demo-ready",       "priority": 6,  "sprint": 4,      "status": "done",    "depends_on": ["order", "invoice"]              },
       { "id": "store-ui-user-ui",   "title": "Admin Store & User UI",             "epic": "epic-demo-ready",       "priority": 7,  "sprint": 4,      "status": "done",    "depends_on": ["nav-layout"]                    },
-      { "id": "ux-polish",          "title": "UX Polish + Invoice Print",         "epic": "epic-reporting",        "priority": 8,  "sprint": 5,      "status": "planned", "depends_on": ["nav-layout"]                    },
-      { "id": "reporting",          "title": "Reporting Backend + Frontend",      "epic": "epic-reporting",        "priority": 9,  "sprint": "5-6",  "status": "planned", "depends_on": ["invoice"]                       },
-      { "id": "product-categories", "title": "Product Categories",                "epic": "epic-catalog-plus",     "priority": 10, "sprint": 7,      "status": "future",  "depends_on": ["product"]                       },
-      { "id": "barcode",            "title": "Barcode SKU Lookup on POS",         "epic": "epic-catalog-plus",     "priority": 11, "sprint": 7,      "status": "future",  "depends_on": ["product"]                       },
-      { "id": "bulk-import",        "title": "Bulk Product CSV Import",           "epic": "epic-catalog-plus",     "priority": 12, "sprint": 7,      "status": "future",  "depends_on": ["product"]                       },
-      { "id": "discount",           "title": "Line-Item Discounts",               "epic": "epic-advanced-pos",     "priority": 13, "sprint": 8,      "status": "future",  "depends_on": ["order"]                         },
-      { "id": "refund",             "title": "Refund Workflow",                   "epic": "epic-advanced-pos",     "priority": 14, "sprint": 8,      "status": "future",  "depends_on": ["invoice"]                       },
-      { "id": "split-payment",      "title": "Split Payment (Cash + Card)",       "epic": "epic-advanced-pos",     "priority": 15, "sprint": 8,      "status": "future",  "depends_on": ["order"]                         },
-      { "id": "invoice-pdf",        "title": "Invoice PDF Download",              "epic": "epic-tax-compliance",   "priority": 16, "sprint": 9,      "status": "future",  "depends_on": ["invoice"]                       },
-      { "id": "invoice-xml",        "title": "Invoice XML Export (Circular 78)",  "epic": "epic-tax-compliance",   "priority": 17, "sprint": 9,      "status": "future",  "depends_on": ["invoice"]                       },
-      { "id": "invoice-void-replace","title": "Invoice Void & Replace",           "epic": "epic-tax-compliance",   "priority": 18, "sprint": 9,      "status": "future",  "depends_on": ["invoice"]                       },
-      { "id": "admin-multistore",   "title": "Multi-store Admin Panel",           "epic": "epic-admin-multistore", "priority": 19, "sprint": 10,     "status": "future",  "depends_on": ["store-ui-user-ui", "reporting"] },
-      { "id": "websocket",          "title": "WebSocket Real-time Order Feed",    "epic": "epic-realtime",         "priority": 20, "sprint": 11,     "status": "future",  "depends_on": ["order"]                         },
-      { "id": "notifications",      "title": "Notification Bell + POS Audio",     "epic": "epic-realtime",         "priority": 21, "sprint": 11,     "status": "future",  "depends_on": ["websocket", "nav-layout"]       },
-      { "id": "e2e-tests",          "title": "Playwright E2E Test Suite",         "epic": "epic-hardening",        "priority": 22, "sprint": 12,     "status": "future",  "depends_on": []                                },
-      { "id": "security-audit",     "title": "Security Audit (OWASP Top 10)",     "epic": "epic-hardening",        "priority": 23, "sprint": 12,     "status": "future",  "depends_on": []                                },
-      { "id": "devops-prod",        "title": "Production Docker + Deployment",    "epic": "epic-hardening",        "priority": 24, "sprint": 13,     "status": "future",  "depends_on": ["e2e-tests"]                     },
-      { "id": "ci-cd",              "title": "GitHub Actions CI/CD Pipeline",     "epic": "epic-hardening",        "priority": 25, "sprint": 13,     "status": "future",  "depends_on": ["e2e-tests"]                     }
+      { "id": "wiki-infra",         "title": "SQLite + MCP Server Wiki Infrastructure","epic": "epic-wiki-infra",       "priority": 8,  "sprint": "4.5",  "status": "planned", "depends_on": []                                },
+      { "id": "ux-polish",          "title": "UX Polish + Invoice Print",         "epic": "epic-reporting",        "priority": 9,  "sprint": 5,      "status": "planned", "depends_on": ["nav-layout"]                    },
+      { "id": "reporting",          "title": "Reporting Backend + Frontend",      "epic": "epic-reporting",        "priority": 10, "sprint": "5-6",  "status": "planned", "depends_on": ["invoice"]                       },
+      { "id": "product-categories", "title": "Product Categories",                "epic": "epic-catalog-plus",     "priority": 11, "sprint": 7,      "status": "future",  "depends_on": ["product"]                       },
+      { "id": "barcode",            "title": "Barcode SKU Lookup on POS",         "epic": "epic-catalog-plus",     "priority": 12, "sprint": 7,      "status": "future",  "depends_on": ["product"]                       },
+      { "id": "bulk-import",        "title": "Bulk Product CSV Import",           "epic": "epic-catalog-plus",     "priority": 13, "sprint": 7,      "status": "future",  "depends_on": ["product"]                       },
+      { "id": "discount",           "title": "Line-Item Discounts",               "epic": "epic-advanced-pos",     "priority": 14, "sprint": 8,      "status": "future",  "depends_on": ["order"]                         },
+      { "id": "refund",             "title": "Refund Workflow",                   "epic": "epic-advanced-pos",     "priority": 15, "sprint": 8,      "status": "future",  "depends_on": ["invoice"]                       },
+      { "id": "split-payment",      "title": "Split Payment (Cash + Card)",       "epic": "epic-advanced-pos",     "priority": 16, "sprint": 8,      "status": "future",  "depends_on": ["order"]                         },
+      { "id": "invoice-pdf",        "title": "Invoice PDF Download",              "epic": "epic-tax-compliance",   "priority": 17, "sprint": 9,      "status": "future",  "depends_on": ["invoice"]                       },
+      { "id": "invoice-xml",        "title": "Invoice XML Export (Circular 78)",  "epic": "epic-tax-compliance",   "priority": 18, "sprint": 9,      "status": "future",  "depends_on": ["invoice"]                       },
+      { "id": "invoice-void-replace","title": "Invoice Void & Replace",           "epic": "epic-tax-compliance",   "priority": 19, "sprint": 9,      "status": "future",  "depends_on": ["invoice"]                       },
+      { "id": "admin-multistore",   "title": "Multi-store Admin Panel",           "epic": "epic-admin-multistore", "priority": 20, "sprint": 10,     "status": "future",  "depends_on": ["store-ui-user-ui", "reporting"] },
+      { "id": "websocket",          "title": "WebSocket Real-time Order Feed",    "epic": "epic-realtime",         "priority": 21, "sprint": 11,     "status": "future",  "depends_on": ["order"]                         },
+      { "id": "notifications",      "title": "Notification Bell + POS Audio",     "epic": "epic-realtime",         "priority": 22, "sprint": 11,     "status": "future",  "depends_on": ["websocket", "nav-layout"]       },
+      { "id": "e2e-tests",          "title": "Playwright E2E Test Suite",         "epic": "epic-hardening",        "priority": 23, "sprint": 12,     "status": "future",  "depends_on": []                                },
+      { "id": "security-audit",     "title": "Security Audit (OWASP Top 10)",     "epic": "epic-hardening",        "priority": 24, "sprint": 12,     "status": "future",  "depends_on": []                                },
+      { "id": "devops-prod",        "title": "Production Docker + Deployment",    "epic": "epic-hardening",        "priority": 25, "sprint": 13,     "status": "future",  "depends_on": ["e2e-tests"]                     },
+      { "id": "ci-cd",              "title": "GitHub Actions CI/CD Pipeline",     "epic": "epic-hardening",        "priority": 26, "sprint": 13,     "status": "future",  "depends_on": ["e2e-tests"]                     }
     ]
   },
   "audit": [
@@ -63,6 +65,7 @@
     { "version": 2, "timestamp": "2026-04-12T00:00:00Z", "author": "vibe-product-owner",   "action": "planned",  "note": "Sprint 1-3 items committed. Foundation + catalog + core flow." },
     { "version": 3, "timestamp": "2026-04-12T12:00:00Z", "author": "vibe-project-manager", "action": "updated",  "note": "BA analysis + impact maps for product/order/invoice. Sprint 2+3 planned." },
     { "version": 4, "timestamp": "2026-04-12T00:00:00Z", "author": "vibe-project-manager", "action": "extended", "note": "10-sprint extension (Sprints 4-13). Frontend-first rebalancing. 24 backlog items. nav-layout P0 (Sprint 4). Full roadmap through production hardening (Sprint 13)." },
-    { "version": 5, "timestamp": "2026-04-13T00:00:00Z", "author": "vibe-project-manager", "action": "fix",      "note": "Fixed corrupted JSON (duplicate content removed). Updated statuses: order/invoice/nav-layout/store-ui-user-ui → done. Epics epic-core-flow/epic-demo-ready → done. Added missing invoice-void-replace item. current_sprint → 4. total_items → 25 (invoice-void-replace added). status_summary corrected: done:7, in_progress:0, planned:2, future:16." }
+    { "version": 5, "timestamp": "2026-04-13T00:00:00Z", "author": "vibe-project-manager", "action": "fix",      "note": "Fixed corrupted JSON (duplicate content removed). Updated statuses: order/invoice/nav-layout/store-ui-user-ui → done. Epics epic-core-flow/epic-demo-ready → done. Added missing invoice-void-replace item. current_sprint → 4. total_items → 25 (invoice-void-replace added). status_summary corrected: done:7, in_progress:0, planned:2, future:16." },
+    { "version": 6, "timestamp": "2026-04-13T01:00:00Z", "author": "vibe-product-owner",   "action": "sprint-4-5-planned", "note": "Sprint 4.5 approved and added to backlog. epic-wiki-infra + wiki-infra item inserted at priority 8 (between store-ui-user-ui and ux-polish). All subsequent priorities shifted by 1. total_items: 26. status_summary: planned: 3." }
   ]
 }

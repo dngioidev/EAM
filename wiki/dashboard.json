@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 12,
+    "version": 13,
     "last_updated": "2026-04-13",
     "title": "Sprint Dashboard",
     "owner": "vibe-project-manager"
@@ -44,16 +44,18 @@
     ],
     "blocked_features": [],
     "next_sprint_preview": {
-      "sprint": 5,
-      "title": "UX Polish + Reporting Backend",
-      "dates": "2026-06-08 → 2026-06-21",
+      "sprint": "4.5",
+      "title": "Wiki Infrastructure — SQLite + MCP Server",
+      "dates": "2026-06-08 → 2026-06-11",
       "p0_items": [
-        "Manager dashboard with sales summary stats",
-        "Reporting backend: daily/monthly sales aggregation endpoints",
-        "Print invoice PDF (browser print stylesheet)",
-        "UX polish: loading states, empty states, error toasts"
+        "wiki-mcp/ scaffold: TypeScript + @modelcontextprotocol/sdk + better-sqlite3",
+        "schema.sql: all wiki tables + FTS5 virtual tables",
+        "migrate.ts: import all 60 JSON files → SQLite (idempotent)",
+        "Core MCP tools: wiki_dashboard, wiki_sprint_close, wiki_search, wiki_session_log",
+        "Register MCP in .claude/settings.json",
+        "wiki-app refactor: readWikiFile() → SQL queries via better-sqlite3"
       ],
-      "demo_unlock": "After Sprint 5, manager has a real dashboard with live data and invoices can be printed."
+      "demo_unlock": "After Sprint 4.5, AI agents use structured MCP tools instead of manual file edits — wiki state is always consistent. Sprint 5 (UX Polish) starts 2026-06-12."
     },
     "roadmap_summary": {
       "total_sprints": 13,
@@ -62,7 +64,7 @@
       "sprints_planned": "5-13",
       "production_target": "2026-10-11 (Sprint 13 end)"
     },
-    "sprint_notes": "Sprint 3 CLOSED 2026-04-13. Velocity 2/2. Orders + Invoices backend complete (36 unit tests) + 3 frontend pages. QA gap: no E2E or integration tests. Sprint 4 now ACTIVE: Demo-Ready Frontend. Key prerequisite gap: user management API endpoints missing in auth controller — must be added before T019-T022.",
+    "sprint_notes": "Sprint 4 COMPLETE (review-ready 2026-04-13). All T010-T022 + QA-T001-QA-T008 done. Sprint 4.5 PLANNED: Wiki Infrastructure (SQLite + MCP Server). PO-approved 2026-04-13. Sprint 4.5 starts after Sprint 4 PR merges. Sprint 5 (UX Polish) shifts to 2026-06-12.",
     "roadmap_ref": "wiki/roadmap.json"
   },
   "audit": [

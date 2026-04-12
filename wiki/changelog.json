@@ -1,16 +1,33 @@
 {
   "meta": {
-    "version": 4,
+    "version": 5,
     "last_updated": "2026-04-13",
     "title": "Project Changelog",
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.16.0",
-    "total_entries": 18
+    "current_version": "0.17.0",
+    "total_entries": 19
   },
   "content": {
     "entries": [
+      {
+        "version": "0.17.0",
+        "date": "2026-04-13",
+        "sprint": "4.5",
+        "tags": ["planning", "wiki-infra", "mcp", "sqlite", "infrastructure"],
+        "summary": "Sprint 4.5 PLANNED — Wiki Infrastructure. PO-approved. SQLite + MCP server replaces JSON wiki system. 14 tasks across P0/P1/P2. Sprint 5 shifts to 2026-06-12.",
+        "features_added": [
+          "wiki/features/wiki-infra.json — feature spec: 4 user stories, 14 tasks (T001-T014), 6 business rules",
+          "wiki/plan/sprints/sprint-4-5.json — 4-day sprint plan (2026-06-08 → 2026-06-11)",
+          "wiki/plan/backlog.json v6 — epic-wiki-infra + wiki-infra item added at priority 8",
+          "wiki/features/_index.json v5 — wiki-infra entry added",
+          "wiki/dashboard.json v13 — next_sprint_preview → Sprint 4.5"
+        ],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "Architecture decision: SQLite (Option A) over PostgreSQL/Turso. Dedicated sprint (Option 2) over Sprint 5 add-on. Key risk: better-sqlite3 native compilation on Windows — fallback is sql.js WASM."
+      },
       {
         "version": "0.16.0",
         "date": "2026-04-13",
