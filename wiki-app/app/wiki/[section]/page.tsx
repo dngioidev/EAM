@@ -37,10 +37,17 @@ async function loadPreview(section: string, slug: string): Promise<EntryPreview>
       (d.module as string | undefined) ??
       slug;
 
+    // goal may be a plain string OR { statement, metric, deadline } — extract string safely
+    const rawGoal = d.goal;
+    const goalString =
+      rawGoal !== null && typeof rawGoal === 'object' && !Array.isArray(rawGoal)
+        ? ((rawGoal as Record<string, unknown>).statement as string | undefined)
+        : (rawGoal as string | undefined);
+
     const tldr =
       (content?.tldr as string | undefined) ??
       (overview?.summary as string | undefined) ??
-      (d.goal as string | undefined) ??
+      goalString ??
       '';
 
     const status =

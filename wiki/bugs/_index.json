@@ -12,6 +12,14 @@
       "severity": "medium",
       "status": "fixed",
       "sprint": "1"
+    },
+    {
+      "id": "BUG-0002",
+      "path": "bugs/BUG-0002.json",
+      "title": "ImpactMap section index crashes with React error #31 for relation files with goal-as-object",
+      "severity": "high",
+      "status": "fixed",
+      "sprint": "1"
     }
   ]
 }
