@@ -1,18 +1,31 @@
 {
   "meta": {
-    "version": 3,
+    "version": 4,
     "last_updated": "2026-04-12",
     "title": "Session — 2026-04-12",
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
     "date": "2026-04-12",
-    "sprint": "0",
+    "sprint": "1",
     "triggered_by": "create wiki app and complete folder structure"
   },
   "content": {
-    "tldr": "Created wiki-app/ Next.js 14 App Router application with full folder structure, components, search API, and Dockerfile.",
+    "tldr": "Full day: wiki-app created + backend Sprint 1 implemented + Sprint 1 officially closed. Velocity 2/2.",
     "scratch_notes": [
+      "SPRINT 1 CLOSURE SESSION — 2026-04-12",
+      "branch: chore/sprint-1-closure created from develop",
+      "checked: backend/src/modules/auth/ — auth.controller.ts, auth.service.ts, auth.service.spec.ts, auth.module.ts, dto/, strategies/ — CONFIRMED",
+      "checked: backend/src/modules/stores/ — stores.controller.ts, stores.service.ts, stores.service.spec.ts, stores.module.ts, dto/, entities/ — CONFIRMED",
+      "checked: wiki/api-contracts/auth.json + wiki/api-contracts/store.json — CONFIRMED approved",
+      "updated wiki/features/auth/progress.json v2 — T001-T010 all marked done with actual hours",
+      "updated wiki/features/store/progress.json v2 — T001-T005 all marked done with actual hours",
+      "updated wiki/features/auth.json v3 — status: planning → done",
+      "updated wiki/features/store.json v3 — status: planning → done",
+      "updated wiki/plan/sprints/sprint-1.json — status: planning → completed, velocity_actual: 2, retrospective written",
+      "updated wiki/dashboard.json v6 — velocity_actual: 2, active_features: [], sprint_notes updated",
+      "updated wiki/changelog.json — v0.9.0 prepended (sprint-1-closure tag)",
+      "SPRINT 1 CLOSED. Product feature unblocked. Sprint 2 ready to begin.",
       "SESSION 2 — vibe-project-manager session start protocol executed 2026-04-12",
       "read wiki/dashboard.json — sprint 0, no active features, no bugs, build not yet tracked",
       "read wiki/changelog.json — v0.1.0 only, no entries last 3 days for current work",

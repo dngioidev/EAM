@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 4,
+    "version": 6,
     "last_updated": "2026-04-12",
     "title": "Sprint Dashboard",
     "owner": "vibe-project-manager"
@@ -11,7 +11,7 @@
     "sprint_start": "2026-04-13",
     "sprint_end": "2026-04-26",
     "velocity_target": 2,
-    "velocity_actual": 0,
+    "velocity_actual": 2,
     "build_status": {
       "backend": "passing",
       "frontend": "not-started",
@@ -19,8 +19,8 @@
     }
   },
   "content": {
-    "tldr": "Sprint 1 implementation complete. NestJS backend built with auth (JWT + Redis refresh rotation) + store management. Build passing, 11 tests green.",
-    "active_features": ["auth", "store"],
+    "tldr": "Sprint 1 CLOSED. All 15 tasks (auth T001-T010 + store T001-T005) done. 11 tests green. Build passing. Sprint 2 ready to start (product catalog + frontend scaffold).",
+    "active_features": [],
     "open_bugs": 0,
     "bugs_by_severity": {
       "critical": 0,
@@ -31,8 +31,8 @@
     "pending_decisions": [],
     "pending_contracts": [],
     "recently_updated": ["backend/src/modules/auth", "backend/src/modules/stores", "wiki/api-contracts/auth.json", "wiki/api-contracts/store.json", "docker-compose.yml"],
-    "blocked_features": ["product (blocked on auth+store)", "order (blocked on product)", "invoice (blocked on order)"],
-    "sprint_notes": "Sprint 1 implementation complete. Docker Compose (6 services), NestJS backend scaffold, common layer (guards/filters/decorators), auth module (JWT + bcryptjs + Redis token rotation), stores module (CRUD + taxCode immutability + deactivation session flush), TypeORM migrations, admin seed, API contracts approved. npm build + 11 unit tests passing.",
+    "blocked_features": ["product (blocked on auth+store — now unblocked)", "order (blocked on product)", "invoice (blocked on order)"],
+    "sprint_notes": "Sprint 1 CLOSED 2026-04-12. Velocity 2/2. Auth: JWT access (15m) + refresh (7d, Redis rotation), bcryptjs cost 12, RolesGuard, @Public() bypass, admin seed. Store: CRUD, taxCode immutable, soft-delete, deactivation session flush. 2 migrations. 11 unit tests green. BUG-0001 (medium, fixed) + BUG-0002 (high, fixed). Docker 6-service stack operational. wiki-app 10 routes passing.",
     "roadmap_ref": "wiki/roadmap.json"
   },
   "audit": [
@@ -49,6 +49,13 @@
       "author": "vibe-product-owner",
       "action": "sprint-1-planned",
       "note": "Sprint 1 planned. Features auth + store committed. Roadmap through Sprint 3 defined."
+    },
+    {
+      "version": 6,
+      "timestamp": "2026-04-12T20:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "sprint-1-closed",
+      "note": "Sprint 1 officially closed. Velocity 2/2. 15 tasks done, 2 bugs fixed, 11 tests green, build passing. active_features cleared. blocked_features updated (product now unblocked). Sprint 2 queued."
     },
     {
       "version": 5,

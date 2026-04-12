@@ -6,11 +6,22 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.8.0",
-    "total_entries": 8
+    "current_version": "0.9.0",
+    "total_entries": 9
   },
   "content": {
     "entries": [
+      {
+        "version": "0.9.0",
+        "date": "2026-04-12",
+        "sprint": "1",
+        "tags": ["sprint-closure", "wiki", "auth", "store", "project-management"],
+        "summary": "Sprint 1 officially closed. All 15 tasks done, retrospective written, wiki progress files updated, changelog entry prepended.",
+        "features_added": [],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "Sprint 1 velocity: 2/2. auth (T001-T010) + store (T001-T005) all marked done. sprint-1.json status: completed. dashboard.json velocity_actual: 2. active_features cleared. Product unblocked for Sprint 2."
+      },
       {
         "version": "0.8.0",
         "date": "2026-04-12",

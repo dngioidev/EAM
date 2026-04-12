@@ -2,12 +2,12 @@
   "meta": {
     "id": "store",
     "type": "feature",
-    "status": "planning",
+    "status": "done",
     "owner": "backend",
     "sprint": 1,
     "last_updated": "2026-04-12",
     "created": "2026-04-12",
-    "version": 2,
+    "version": 3,
     "depends_on": ["auth"],
     "related_to": ["auth"],
     "affects": ["Store"],
@@ -17,8 +17,8 @@
   },
   "quick_facts": {
     "one_line": "Store entity and CRUD endpoints — the root tenant scope for all business data.",
-    "status_reason": "Sprint 1 — second feature. Can start after auth guards are working.",
-    "last_change": "Created at Sprint 1 planning.",
+    "status_reason": "Sprint 1 complete. StoresModule implemented: CRUD, taxCode immutability, deactivation cascade.",
+    "last_change": "2026-04-12 — Sprint 1 closure. All 5 tasks completed.",
     "key_links": [
       "wiki/impact-map/entity-registry.json",
       "wiki/features/auth.json"

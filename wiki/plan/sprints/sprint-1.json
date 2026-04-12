@@ -11,8 +11,8 @@
     "sprint_start": "2026-04-13",
     "sprint_end": "2026-04-26",
     "velocity_planned": 2,
-    "velocity_actual": null,
-    "status": "planning"
+    "velocity_actual": 2,
+    "status": "completed"
   },
   "content": {
     "tldr": "Sprint 1 builds the foundation: JWT auth with RBAC, and store-scoped multi-tenancy. Nothing else can be built without these two modules.",
@@ -46,11 +46,34 @@
   },
   "velocity": {
     "planned": 2,
-    "completed": null,
+    "completed": 2,
     "carried_over": []
   },
-  "retrospective": null,
+  "retrospective": {
+    "what_went_well": [
+      "Both features (auth + store) delivered within sprint. Zero carryover.",
+      "11 unit tests green on first build pass.",
+      "Docker Compose 6-service stack fully operational.",
+      "JWT + Redis refresh token rotation implemented correctly per security rules.",
+      "taxCode immutability and deactivation session flush both working."
+    ],
+    "what_to_improve": [
+      "Wiki progress.json files were not updated in real time during implementation — closed retroactively at sprint end.",
+      "vibe-git branch was not created before implementation code was written (retroactive branch recovery used). Enforce HARD GATE next sprint."
+    ],
+    "action_items": [
+      "Sprint 2: run vibe-git BEFORE any code changes — no exceptions.",
+      "Sprint 2: update progress.json task-by-task as work is completed, not in batch at end."
+    ]
+  },
   "audit": [
+    {
+      "version": 2,
+      "timestamp": "2026-04-12T20:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "sprint-closed",
+      "note": "Sprint 1 closed. Velocity: 2/2. All 15 tasks across auth + store marked done. 11 tests green. Build passing. Retrospective written. wiki progress files updated."
+    },
     {
       "version": 1,
       "timestamp": "2026-04-12T00:00:00Z",
