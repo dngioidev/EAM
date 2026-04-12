@@ -24,42 +24,47 @@ Activated by `vibe-project-manager` when:
 
 ## Pre-Work Reads
 
+> ⚠️ `wiki/` JSON folder was deleted in Sprint 4.5. All wiki data is now in `wiki.db`.
+> Use MCP tools to read — never attempt to read wiki/ files directly.
+
 **At every audit:**
-- `wiki/_index.json` — all existing wiki files listed
-- `wiki/dashboard.json` — current state
-- `wiki/features/_index.json` — verify all features have up-to-date entries
+- `wiki_dashboard()` MCP tool — current sprint state, build status, entity counts
+- `wiki_feature_list()` MCP tool — verify all features have up-to-date entries
+- `wiki_search({ query: "status done" })` MCP tool — identify features marked done this sprint
 
 **At onboarding audit:**
-- `wiki/onboarding.json` — current onboarding steps
+- `getEntry('onboarding', '_index')` via wiki-app → `http://localhost:3001/wiki/onboarding`
+- Or use `vibe-wiki-app-nextjs` admin UI at `/admin/pages` to inspect the onboarding row in pages table
 - Follow all steps from scratch in a clean environment
 
 **STOP reading** when you have identified all inconsistencies to fix.
 
 ## Wiki Audit Checklist
 
-Run this at every sprint end:
+Run this at every sprint end. See `references/wiki-audit-checklist.md` for the full procedure.
 
 ### Feature File Completeness
-- [ ] Every feature with `status: "done"` has `audit` entries from all involved roles
-- [ ] Every feature with `status: "in-progress"` has a `progress.json` sibling
+- [ ] Every feature returned by `wiki_feature_list()` with `status: "done"` has `audit` entries from all involved roles
+- [ ] Every feature `status: "in-progress"` has logged `progress` in its last `wiki_feature_update()` call
 - [ ] No feature has `last_updated` more than 1 sprint old without a note
 
-### Index Accuracy
-- [ ] `wiki/features/_index.json` → all features in the folder are listed
-- [ ] `wiki/bugs/_index.json` → all bug files are listed, all statuses current
-- [ ] `wiki/api-contracts/_index.json` → all contracts listed
-- [ ] `wiki/decisions/_index.json` → all decision files listed
+### Index Accuracy (DB row counts via `/admin` or sqlite-web at :8082)
+- [ ] `features` table row count matches expected features
+- [ ] `bugs` table — all statuses current
+- [ ] `api_contracts` table — all contracts listed
+- [ ] `decisions` table — all decision entries listed
 
 ### Changelog Freshness
-- [ ] `wiki/changelog.json` → last entry date matches last deployment date
+- [ ] Changelog at `/wiki/changelog` — last entry date matches last sprint close date
 
 ### Glossary Currency
-- [ ] `wiki/glossary.json` → all technical terms introduced this sprint are defined
+- [ ] Glossary at `/wiki/glossary` — all technical terms introduced this sprint are defined
 
 ## JSON Schema Validation
 
-All wiki files must conform to their schema in `wiki/_schema/`:
-- Run manual check or machine check against schema for completeness
+All wiki data must conform to the original schemas from `wiki/_schema/` — now enforced at write time by the `wiki-mcp` server.
+- Use `wiki_search()` MCP tool to spot-check field presence
+- Use `/admin` SQLite admin UI to inspect raw `data` JSON for any row
 - Files missing required fields must be flagged to the responsible role
 
 ## Common Documentation Gaps

@@ -75,9 +75,10 @@ Report the current branch to the user at the start of every session regardless o
 - Stop reading when all STOP READING questions are answered
 
 **STEP 4: Open scratch note**
-- Append to `wiki/history/{date}.json` `scratch_notes` as you work
-- Format: `"[action] — [file changed or decision made]"`
+- Call `wiki_session_log()` MCP tool to append to the DB history entry for today
+- Format each note: `"[action] — [file changed or decision made]"`
 - Use this at end of session for accurate wiki updates
+- ⚠️ `wiki/history/` folder no longer exists — `wiki.db` `history` table is the source of truth. Never write JSON files directly.
 
 ---
 
@@ -142,13 +143,16 @@ Every session must pass: **GIT BRANCH** → BUILD → TEST → SECURITY → CODE
 
 ## 7. Wiki Update Protocol
 
+> ⚠️ `wiki/` JSON folder was deleted in Sprint 4.5. All wiki data lives in `wiki.db`.
+> **Always use MCP tools — never write wiki JSON files directly.**
+
 At end of every session (use `scratch_notes` for accuracy):
-- `wiki_session_log(date, session)` MCP tool (preferred) — or write `wiki/history/{date}.json` directly
-- `wiki_feature_update(id, patch)` MCP tool (preferred) — or write `wiki/features/{name}.json`
-- `wiki_task_update(feature_id, task_id, patch)` MCP tool (preferred) — or update task in feature JSON
-- `wiki_contract_update(module, patch)` MCP tool (preferred) — or write `wiki/api-contracts/{module}.json`
-- `wiki_dashboard()` (read) then write updated data via `wiki_feature_update` — refresh all quick_facts
-- Write `wiki/changelog.json` — prepend new entry with relevant tags
+- `wiki_session_log(date, session)` MCP tool — writes to `history` table in wiki.db
+- `wiki_feature_update(id, patch)` MCP tool — updates `features` table in wiki.db
+- `wiki_task_update(feature_id, task_id, patch)` MCP tool — updates task in features JSON
+- `wiki_contract_update(module, patch)` MCP tool — updates `api_contracts` table in wiki.db
+- `wiki_dashboard()` (read) then update quick_facts via `wiki_feature_update`
+- Update changelog via `wiki_session_log` or direct DB update — prepend new entry with relevant tags
 
 ---
 
