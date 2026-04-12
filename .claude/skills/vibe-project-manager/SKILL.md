@@ -13,6 +13,31 @@ applyTo: "**"
 
 # vibe-project-manager — Master Orchestrator
 
+---
+
+## ⛔ HARD GATE — Branch Before Code
+
+This rule overrides everything else in this skill.
+
+**BEFORE calling any role skill that writes code or files:**
+**BEFORE using Edit / Write / Bash to modify any file in `backend/`, `frontend/`, `wiki-app/`, or `wiki/`:**
+
+→ `vibe-git` MUST be invoked  
+→ `vibe-git` MUST confirm: *"Branch created: {name} — Ready to begin"*  
+→ Only THEN may any other skill or file-editing tool run
+
+```
+Does this request touch code or files?
+  YES → invoke vibe-git FIRST → wait for branch confirmation → then proceed
+  NO  → (planning / review / design only) → skip vibe-git
+```
+
+**If you catch yourself about to write a file and no branch has been confirmed this session → STOP. Run vibe-git now.**
+
+Violation example from this project (2026-04-12): implemented all wiki-app readability fixes on `develop` before invoking `vibe-git`. Branch was created retroactively. This pattern MUST NOT repeat.
+
+---
+
 ## 1. Session Start Protocol
 
 Every session, in this exact order:
@@ -121,6 +146,8 @@ At end of every session (use `scratch_notes` for accuracy):
 
 ## Do Not
 
+- **NEVER edit or create any file before vibe-git has confirmed branch creation** ← highest priority
+- **NEVER invoke a role skill (backend, frontend, qa, etc.) before vibe-git has confirmed branch creation**
 - Never skip reading `wiki/dashboard.json` at the start of any session
 - Never route to a Layer 2 skill without going through the Layer 1 general skill first
 - Never mark a feature "done" without completing the full completion checklist
