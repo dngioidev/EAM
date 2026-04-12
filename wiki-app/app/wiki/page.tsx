@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { readWikiFile } from '@/lib/wiki';
+import { getDashboard } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Dashboard' };
@@ -21,7 +21,7 @@ interface Dashboard {
 }
 
 export default async function WikiDashboardPage() {
-  const dashboard = await readWikiFile<Dashboard>('dashboard.json');
+  const dashboard = getDashboard() as unknown as Dashboard;
   const { meta, quick_facts: qf, content } = dashboard;
 
   return (

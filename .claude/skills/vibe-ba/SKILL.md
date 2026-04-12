@@ -23,12 +23,12 @@ Activated by `vibe-project-manager` when:
 ## Pre-Work Reads
 
 **ALWAYS read before starting:**
-- `wiki/dashboard.json` — current sprint, blocked features, active work
-- `wiki/features/_index.json` — all feature IDs (avoid ID conflicts)
+- Call `wiki_dashboard()` MCP tool (preferred) — falls back to `wiki/dashboard.json` if unavailable — current sprint, blocked features, active work
+- Call `wiki_feature_list()` MCP tool (preferred) — falls back to `wiki/features/_index.json` — all feature IDs (avoid ID conflicts)
 - `wiki/impact-map/entity-registry.json` — all known entities
 
 **Read ONLY if feature touches an existing module:**
-- `wiki/features/{related-feature}.json` — understand existing behavior
+- Call `wiki_feature_get({ id })` MCP tool (preferred) — falls back to `wiki/features/{related-feature}.json` — understand existing behavior
 - `wiki/business-workflow/{topic}.json` — understand business rules in scope
 
 **STOP reading when you can answer:**

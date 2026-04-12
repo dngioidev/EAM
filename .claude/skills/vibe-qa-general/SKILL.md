@@ -54,10 +54,11 @@ Activated by `vibe-project-manager` when:
 ## Bug Filing Protocol
 
 When a test fails or manual testing discovers a bug:
-1. Create `wiki/bugs/{date}-{slug}.json` using bug.template.json
-2. Classify severity: critical | high | medium | low | ux-regression
-3. Write exact reproduction steps
-4. Link to the failing test (file + line)
+1. Call `wiki_bug_create({ title, severity, description, feature, sprint })` MCP tool (preferred)
+   — falls back to creating `wiki/bugs/{id}.json` using bug.template.json if MCP unavailable
+2. Classify severity: critical | high | medium | low
+3. Write exact reproduction steps in `description`
+4. Link to the failing test (file + line) in description
 5. Flag severity to PM
 
 ## Critical Bug Action

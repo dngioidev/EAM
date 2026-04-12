@@ -137,9 +137,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       inputSchema: {
         type: "object" as const,
         properties: {
-          data: { type: "object", description: "Bug fields: title, severity, feature, description" },
+          title:       { type: "string" },
+          description: { type: "string" },
+          severity:    { type: "string", enum: ["critical", "high", "medium", "low"] },
+          feature:     { type: "string", description: "Feature ID this bug belongs to (optional)" },
+          sprint:      { type: "string", description: "Sprint ID (optional)" },
+          reporter:    { type: "string", description: "Reporter name (optional)" },
         },
-        required: ["data"],
+        required: ["title", "severity"],
       },
     },
     {
@@ -160,7 +165,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       description: "Atomically closes a sprint: updates sprint status, dashboard quick_facts, changelog, and all in-scope feature statuses in a single SQL transaction.",
       inputSchema: {
         type: "object" as const,
-        properties: { id: { type: "string", description: "Sprint ID to close" } },
+        properties: {
+          id: { type: "string", description: "Sprint ID to close" },
+          velocity_actual: { type: "number", description: "Actual story points completed (optional)" },
+        },
         required: ["id"],
       },
     },

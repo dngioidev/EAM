@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { StatusBadge } from '@/components/StatusBadge';
-import { readWikiFile } from '@/lib/wiki';
+import { getChangelog } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Changelog' };
@@ -15,12 +15,6 @@ interface ChangeEntry {
   bugs_fixed?: string[];
   breaking_changes?: string[];
   notes?: string;
-}
-
-interface Changelog {
-  meta: { title: string; last_updated: string };
-  quick_facts: { current_version: string; total_entries: number };
-  content: { entries: ChangeEntry[] };
 }
 
 const TAG_STYLES: Record<string, string> = {
@@ -44,8 +38,13 @@ function TagBadge({ tag }: { tag: string }) {
 }
 
 export default async function ChangelogPage() {
-  const data = await readWikiFile<Changelog>('changelog.json');
-  const { meta, quick_facts: qf, content } = data;
+  const entries = getChangelog() as unknown as ChangeEntry[];
+  const lastEntry = entries[0];
+  const meta = { title: 'Changelog', last_updated: lastEntry?.date ?? '' };
+  const qf = {
+    total_entries: entries.length,
+    current_version: lastEntry?.version ?? '',
+  };
 
   return (
     <div>
@@ -65,7 +64,7 @@ export default async function ChangelogPage() {
         <div className="absolute left-3.5 top-0 bottom-0 w-0.5 bg-gray-200" aria-hidden="true" />
 
         <div className="space-y-6 pl-10">
-          {content.entries.map((entry) => (
+          {entries.map((entry) => (
             <article key={entry.version} className="relative">
               {/* Timeline dot */}
               <div className="absolute -left-[26px] top-3.5 w-3 h-3 rounded-full bg-blue-600 border-2 border-white ring-2 ring-blue-100" />
