@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "version": 1,
+    "date": "2026-04-13",
+    "title": "Sprint 4 Kickoff",
+    "author": "vibe-project-manager"
+  },
+  "session": {
+    "goal": "Start Sprint 4 as planned",
+    "branch": "chore/sprint-4-kickoff",
+    "outcome": "Sprint 3 closed, Sprint 4 activated, prerequisite gap documented"
+  },
+  "scratch_notes": [
+    "[read] wiki/dashboard.json — Sprint 3 active, all builds passing, 0 bugs open",
+    "[read] wiki/changelog.json — 0.14.0 is latest; 10-sprint roadmap extension current",
+    "[read] wiki/plan/sprints/sprint-3.json — status in_progress, velocity 2/2",
+    "[read] wiki/plan/sprints/sprint-4.json — status planned, full task list reviewed",
+    "[read] wiki/features/nav-layout.json — T010-T014 planned, role_nav_map confirmed",
+    "[read] wiki/features/store-ui-user-ui.json — T015-T022 planned",
+    "[check] backend/src/modules/auth/auth.controller.ts — MISSING: GET /auth/users, POST /auth/register (admin-create), PATCH /auth/users/:id/deactivate",
+    "[check] backend/src/modules/users/users.service.ts — has findByEmail, findById, create, save, findActiveByStoreId but NO findAll or deactivate",
+    "[git] branch chore/sprint-4-kickoff created from develop (up to date)",
+    "[edit] wiki/plan/sprints/sprint-3.json — status → closed, velocity_actual → 2, retrospective written",
+    "[edit] wiki/plan/sprints/sprint-4.json — status → active",
+    "[edit] wiki/dashboard.json v11 — Sprint 4 active, bugs_by_severity reset, pending_contracts flagged",
+    "[edit] wiki/changelog.json v3 — 0.15.0 entry prepended, total_entries 17",
+    "[create] wiki/history/2026-04-13.json — this file"
+  ],
+  "decisions": [
+    {
+      "decision": "User management API endpoints (GET /auth/users, POST /auth/register admin-create, PATCH /auth/users/:id/deactivate) must be contracted and implemented BEFORE T019-T022 frontend work begins",
+      "rationale": "Sprint 4 plan noted this as 'needs verification' — verification confirms they are absent from auth.controller.ts and UsersService lacks findAll/deactivate",
+      "action": "Contractor must update wiki/api-contracts/auth.json; backend must implement 3 endpoints before T019 begins"
+    }
+  ],
+  "prerequisite_gaps": [
+    {
+      "gap": "GET /auth/users (admin list all users)",
+      "status": "MISSING",
+      "blocks": "T019 (/admin/users list page)"
+    },
+    {
+      "gap": "POST /auth/register (admin-initiated user creation with role + storeId)",
+      "status": "MISSING — only POST /auth/login and POST /auth/refresh exist",
+      "blocks": "T020 (create user form)"
+    },
+    {
+      "gap": "PATCH /auth/users/:id/deactivate",
+      "status": "MISSING",
+      "blocks": "T021 (deactivate user action)"
+    }
+  ],
+  "sprint_4_task_order": [
+    "QA-T001 — Install Playwright (unblocked immediately)",
+    "T010-T014 — AppLayout + nav (unblocked immediately)",
+    "[CONTRACT] auth.json — add user management endpoints (unblocked immediately)",
+    "[BACKEND] GET /auth/users + POST /auth/register (admin) + PATCH /auth/users/:id/deactivate",
+    "T015-T018 — Admin store UI (unblocked — store endpoints all exist)",
+    "QA-T002/T003/T004 — E2E specs (unblocked after Playwright setup)",
+    "QA-T005/T006 — Backend integration tests",
+    "QA-T007/T008 — Frontend unit tests",
+    "T019-T022 — Admin user UI (unblocked after backend endpoints exist)"
+  ]
+}
