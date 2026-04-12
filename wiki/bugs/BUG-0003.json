@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "version": 1,
+    "last_updated": "2026-04-12",
+    "title": "Login succeeds but user is immediately redirected back to /login — TransformInterceptor envelope not unwrapped on frontend",
+    "owner": "vibe-qa-general"
+  },
+  "quick_facts": {
+    "bug_id": "BUG-0003",
+    "severity": "critical",
+    "status": "fixed",
+    "sprint": "2"
+  },
+  "content": {
+    "tldr": "Admin could authenticate successfully (POST /auth/login returned 200) but was sent back to /login immediately. The accessToken was never stored in Zustand because the frontend read data.accessToken from the raw axios response, while the backend TransformInterceptor wraps every response as { data: <payload>, meta: { timestamp } }.",
+    "environment": "frontend (React + Zustand) — all auth + product API calls. Reproducible with any role including admin.",
+    "steps_to_reproduce": [
+      "Navigate to http://localhost/ (redirects to /login).",
+      "Enter valid admin credentials (e.g. admin@store.vn).",
+      "Submit the login form.",
+      "Observe: the page navigates to /products then immediately bounces back to /login.",
+      "Open DevTools → Application → Local Storage → 'eam-auth': confirm accessToken is null."
+    ],
+    "expected_behavior": "After successful login, accessToken and refreshToken are stored in Zustand (persisted to localStorage), and the user stays on /products.",
+    "actual_behavior": "POST /auth/login returns HTTP 200 with body { data: { accessToken, refreshToken, user }, meta: { timestamp } }. The frontend did apiClient.post<LoginResponse>('/auth/login'), then read data.accessToken — but axios data here is the full envelope { data: {...}, meta: {...} }, so data.accessToken is undefined. setTokens(undefined, undefined) is called; RequireAuth sees null accessToken and redirects to /login.",
+    "root_cause": "The global NestJS TransformInterceptor (backend/src/common/interceptors/transform.interceptor.ts) wraps every response payload. The frontend api-client.ts had NO envelope-unwrapping logic, so every apiClient call received the envelope as the payload. This silently broke login (and would have broken all product API calls too once auth was working).",
+    "fix_description": "Added a response interceptor in frontend/src/lib/api-client.ts that checks for the { data, meta } envelope and unwraps it before any caller sees the response:\n\n  apiClient.interceptors.response.use((res) => {\n    if (res.data && Object.prototype.hasOwnProperty.call(res.data, 'data')) {\n      res.data = res.data.data;\n    }\n    return res;\n  }, ...);\n\nAlso fixed the raw axios.post in the refresh-token path (which bypasses apiClient interceptors) to manually unwrap: reads envelope.data instead of data directly.",
+    "affected_files": [
+      "frontend/src/lib/api-client.ts"
+    ],
+    "regression_risk": "Low. The unwrap guard uses hasOwnProperty('data') — only envelopes match. Any non-envelope response (e.g. 204 No Content) passes through unchanged."
+  },
+  "audit": [
+    {
+      "version": 1,
+      "timestamp": "2026-04-12T12:00:00Z",
+      "author": "vibe-qa-general",
+      "action": "created",
+      "note": "Bug reported by user: logged in as admin, cannot access /products. Root cause identified: TransformInterceptor envelope not unwrapped."
+    },
+    {
+      "version": 2,
+      "timestamp": "2026-04-12T12:05:00Z",
+      "author": "vibe-frontend-general",
+      "action": "fixed",
+      "note": "Added response interceptor to api-client.ts to unwrap { data, meta } envelope. Fixed refresh-token raw axios path separately. Branch: fix/BUG-0003-api-envelope-unwrap."
+    }
+  ]
+}

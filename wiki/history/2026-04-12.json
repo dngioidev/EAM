@@ -131,7 +131,16 @@
       "updated wiki/bugs/_index.json — v2: BUG-0002 added",
       "updated wiki/dashboard.json — bugs_by_severity high:1 medium:1",
       "docker compose build --no-cache wiki → FINISHED exit 0; up -d → Started",
-      "updated wiki/changelog.json — v0.8.0 prepended"
+      "updated wiki/changelog.json — v0.8.0 prepended",
+      "BUG-0003 SESSION — Critical: login envelope mismatch (Sprint 2 post-completion)",
+      "⚠️ BRANCH GATE VIOLATION: api-client.ts was edited on develop before vibe-git was invoked — recovered by creating fix/BUG-0003-api-envelope-unwrap retroactively",
+      "root cause: backend TransformInterceptor wraps ALL responses as { data: <payload>, meta: { timestamp } } — frontend api-client.ts read axios data directly as payload, so data.accessToken was always undefined",
+      "fixed frontend/src/lib/api-client.ts — added response interceptor to unwrap { data, meta } envelope globally for all apiClient calls",
+      "fixed frontend/src/lib/api-client.ts — refresh-token raw axios path also unwraps envelope manually (bypasses apiClient interceptors)",
+      "created wiki/bugs/BUG-0003.json — severity: critical, status: fixed, sprint: 2",
+      "updated wiki/bugs/_index.json — v3: BUG-0003 added",
+      "updated wiki/dashboard.json — v8: bugs_by_severity critical:1, sprint_notes updated, recently_updated updated, audit entry added",
+      "updated wiki/changelog.json — v0.11.1 prepended (bugfix/critical tag)"
     ],
     "files_created": [
       "wiki-app/package.json",

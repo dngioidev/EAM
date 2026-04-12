@@ -6,11 +6,22 @@
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.11.0",
-    "total_entries": 11
+    "current_version": "0.11.1",
+    "total_entries": 12
   },
   "content": {
     "entries": [
+      {
+        "version": "0.11.1",
+        "date": "2026-04-12",
+        "sprint": "2",
+        "tags": ["bugfix", "frontend", "auth", "critical"],
+        "summary": "Critical bugfix: login envelope unwrap. Users could not access any protected route after login.",
+        "features_added": [],
+        "bugs_fixed": ["BUG-0003: TransformInterceptor envelope { data, meta } not unwrapped in api-client.ts — accessToken was always undefined, RequireAuth bounced all authenticated users back to /login"],
+        "breaking_changes": [],
+        "notes": "Single-file fix in frontend/src/lib/api-client.ts. Added response interceptor to unwrap backend envelope globally. Also fixed raw axios refresh-token path. Regression risk: low (hasOwnProperty guard)."
+      },
       {
         "version": "0.11.0",
         "date": "2026-04-12",

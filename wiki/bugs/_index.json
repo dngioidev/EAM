@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": 2,
+    "version": 3,
     "last_updated": "2026-04-12",
     "title": "Bug Index"
   },
@@ -20,6 +20,14 @@
       "severity": "high",
       "status": "fixed",
       "sprint": "1"
+    },
+    {
+      "id": "BUG-0003",
+      "path": "bugs/BUG-0003.json",
+      "title": "Login succeeds but user is immediately redirected back to /login — TransformInterceptor envelope not unwrapped on frontend",
+      "severity": "critical",
+      "status": "fixed",
+      "sprint": "2"
     }
   ]
 }
