@@ -67,6 +67,11 @@ export function BugView({
   const actualBehavior    = content?.actual_behavior   as string | undefined;
   const rootCause         = content?.root_cause        as string | undefined;
   const fixDescription    = content?.fix_description   as string | undefined;
+  const affectedRaw       = content?.affected_files;
+  const affectedFiles     = Array.isArray(affectedRaw) ? (affectedRaw as string[]) : [];
+  const prevention        = (content?.prevention ?? content?.regression_risk) as string | undefined;
+  const linkedRaw         = content?.linked_features;
+  const linkedFeatures    = Array.isArray(linkedRaw) ? (linkedRaw as string[]) : [];
 
   const isFixed = status === 'fixed' || status === 'verified';
 
@@ -146,6 +151,39 @@ export function BugView({
       {fixDescription && (
         <Section title="Fix">
           <p className="text-sm text-gray-700 leading-relaxed font-mono whitespace-pre-wrap">{fixDescription}</p>
+        </Section>
+      )}
+
+      {/* ── Affected files ── */}
+      {affectedFiles.length > 0 && (
+        <Section title="Affected Files">
+          <ul className="space-y-1">
+            {affectedFiles.map((f, i) => (
+              <li key={i} className="text-xs font-mono text-gray-700 bg-gray-50 rounded px-2 py-1 border border-gray-100">
+                {f}
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {/* ── Prevention / regression risk ── */}
+      {prevention && (
+        <Section title="Prevention">
+          <p className="text-sm text-gray-700 leading-relaxed">{prevention}</p>
+        </Section>
+      )}
+
+      {/* ── Linked features ── */}
+      {linkedFeatures.length > 0 && (
+        <Section title="Linked Features">
+          <div className="flex flex-wrap gap-2">
+            {linkedFeatures.map((f, i) => (
+              <span key={i} className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 text-xs font-medium">
+                {f}
+              </span>
+            ))}
+          </div>
         </Section>
       )}
 
