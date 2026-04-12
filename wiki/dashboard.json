@@ -1,17 +1,17 @@
 {
   "meta": {
-    "version": 10,
-    "last_updated": "2026-04-12",
+    "version": 11,
+    "last_updated": "2026-04-13",
     "title": "Sprint Dashboard",
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "sprint": "3",
-    "sprint_goal": "Core POS Flow — cashier processes a sale end-to-end: cart → payment → auto-issued Vietnamese tax invoice.",
-    "sprint_start": "2026-05-11",
-    "sprint_end": "2026-05-24",
+    "sprint": "4",
+    "sprint_goal": "Make the entire system demo-able. Every role can log in, navigate to their screen, and perform their core task — without any hand-holding or URL hacking.",
+    "sprint_start": "2026-05-25",
+    "sprint_end": "2026-06-07",
     "velocity_target": 2,
-    "velocity_actual": 2,
+    "velocity_actual": null,
     "build_status": {
       "backend": "passing",
       "frontend": "passing",
@@ -19,39 +19,46 @@
     }
   },
   "content": {
-    "tldr": "Sprint 3 IN PROGRESS. Orders + Invoices backend complete (36 new unit tests). Frontend: POS screen, order history, invoice viewer. TS build clean. API contracts approved. NEXT: Sprint 4 (Demo-Ready Frontend) — AppLayout + nav + admin UI is the #1 priority to unlock customer demo.",
-    "active_features": ["order", "invoice"],
+    "tldr": "Sprint 4 ACTIVE — Demo-Ready Frontend. P0: AppLayout + role-aware nav (T010-T014). P1: Admin store UI (T015-T018). P2: Admin user UI (T019-T022). QA: Playwright E2E setup + integration tests (QA-T001–QA-T008). PREREQUISITE GAP: GET /auth/users and PATCH /auth/users/:id/deactivate backend endpoints missing — must implement before user-ui frontend work begins.",
+    "active_features": ["nav-layout", "store-ui-user-ui"],
     "open_bugs": 0,
     "bugs_by_severity": {
-      "critical": 2,
-      "high": 1,
-      "medium": 1,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
       "low": 0
     },
     "pending_decisions": [],
-    "pending_contracts": [],
-    "recently_updated": ["backend/src/common/decorators/current-user.decorator.ts", "backend/src/modules/auth/strategies/jwt.strategy.ts", "backend/src/modules/products/products.service.ts", "backend/src/modules/stores/stores.service.ts", "wiki/bugs/BUG-0004.json"],
+    "pending_contracts": [
+      "GET /auth/users — verify or add to auth.json contract",
+      "PATCH /auth/users/:id/deactivate — verify or add to auth.json contract"
+    ],
+    "recently_updated": [
+      "wiki/plan/sprints/sprint-3.json",
+      "wiki/plan/sprints/sprint-4.json",
+      "wiki/dashboard.json"
+    ],
     "blocked_features": [],
     "next_sprint_preview": {
-      "sprint": 4,
-      "title": "Demo-Ready Frontend",
-      "dates": "2026-05-25 → 2026-06-07",
+      "sprint": 5,
+      "title": "UX Polish + Reporting Backend",
+      "dates": "2026-06-08 → 2026-06-21",
       "p0_items": [
-        "AppLayout + Sidebar + Role-aware navigation (T010-T014)",
-        "Role-based landing redirect: cashier→/pos, accountant→/invoices, manager→/dashboard, admin→/admin/stores",
-        "Admin store management UI (T015-T018)",
-        "Admin user management UI (T019-T022)"
+        "Manager dashboard with sales summary stats",
+        "Reporting backend: daily/monthly sales aggregation endpoints",
+        "Print invoice PDF (browser print stylesheet)",
+        "UX polish: loading states, empty states, error toasts"
       ],
-      "demo_unlock": "After Sprint 4, a customer demo can run end-to-end from login → role-specific screen → full POS flow — no URL hacking required."
+      "demo_unlock": "After Sprint 5, manager has a real dashboard with live data and invoices can be printed."
     },
     "roadmap_summary": {
       "total_sprints": 13,
-      "sprints_done": 2,
-      "sprint_in_progress": 3,
-      "sprints_planned": "4-13",
+      "sprints_done": 3,
+      "sprint_in_progress": 4,
+      "sprints_planned": "5-13",
       "production_target": "2026-10-11 (Sprint 13 end)"
     },
-    "sprint_notes": "Sprint 2 CLOSED 2026-04-12. Velocity 2/2. Product backend + frontend complete. BUG-0003 (critical, fixed): TransformInterceptor envelope not unwrapped. BUG-0004 (critical, fixed): admin storeId null coerced. Sprint 3 IN PROGRESS: backend done, frontend pages exist but need AppLayout/nav (Sprint 4). 10-sprint extension planned: Sprints 4-13 covering demo-ready frontend → reporting → catalog+ → advanced POS → tax compliance → admin multistore → realtime → E2E → production.",
+    "sprint_notes": "Sprint 3 CLOSED 2026-04-13. Velocity 2/2. Orders + Invoices backend complete (36 unit tests) + 3 frontend pages. QA gap: no E2E or integration tests. Sprint 4 now ACTIVE: Demo-Ready Frontend. Key prerequisite gap: user management API endpoints missing in auth controller — must be added before T019-T022.",
     "roadmap_ref": "wiki/roadmap.json"
   },
   "audit": [
@@ -96,6 +103,13 @@
       "author": "vibe-qa-general",
       "action": "bug-fixed",
       "note": "BUG-0003 (critical) created and fixed. TransformInterceptor { data, meta } envelope was not unwrapped by frontend api-client.ts. All login attempts stored undefined tokens; RequireAuth bounced every user back to /login. Fixed with response interceptor + refresh-token path unwrap."
+    },
+    {
+      "version": 11,
+      "timestamp": "2026-04-13T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "sprint-4-started",
+      "note": "Sprint 3 closed (velocity 2/2). Sprint 4 Demo-Ready Frontend now ACTIVE. Prerequisite gap identified: GET /auth/users and PATCH /auth/users/:id/deactivate missing from auth controller — must be contracted and implemented before T019-T022. QA-T001 through QA-T008 (Playwright + integration tests) included in Sprint 4 scope."
     }
   ]
 }

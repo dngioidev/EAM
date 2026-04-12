@@ -12,7 +12,7 @@
     "sprint_end": "2026-05-24",
     "velocity_planned": 2,
     "velocity_actual": 2,
-    "status": "in_progress",
+    "status": "closed",
     "is_mvp": true
   },
   "content": {
@@ -56,10 +56,28 @@
   },
   "velocity": {
     "planned": 2,
-    "completed": null,
+    "completed": 2,
     "carried_over": []
   },
-  "retrospective": null,
+  "retrospective": {
+    "date": "2026-04-13",
+    "what_went_well": [
+      "Orders + Invoices backend complete with 36 unit tests",
+      "EventEmitter2 inter-module integration worked cleanly",
+      "All 3 frontend pages (/pos, /orders, /invoices) delivered",
+      "BUG-0005 (Docker missing event-emitter) identified and fixed"
+    ],
+    "what_to_improve": [
+      "No integration tests or E2E tests — safety net gap identified",
+      "Frontend pages exist but are un-navigable (no AppLayout/nav) — Sprint 4 must fix this",
+      "User management API endpoints (GET /auth/users, PATCH /auth/users/:id/deactivate) not yet built"
+    ],
+    "action_items": [
+      "Sprint 4: Implement AppLayout + role-aware nav as P0",
+      "Sprint 4: Pull forward Playwright E2E setup (was Sprint 12 originally)",
+      "Sprint 4: Add missing user management backend endpoints before user-ui frontend work"
+    ]
+  },
   "audit": [
     {
       "version": 1,
@@ -67,6 +85,13 @@
       "author": "vibe-product-owner",
       "action": "created",
       "note": "Sprint 3 (MVP) planned at high-level roadmap session."
+    },
+    {
+      "version": 2,
+      "timestamp": "2026-04-13T00:00:00Z",
+      "author": "vibe-project-manager",
+      "action": "closed",
+      "note": "Sprint 3 closed. Velocity 2/2. Backend (orders + invoices + 36 unit tests) and 3 frontend pages complete. QA gap noted: no E2E or integration tests exist. Sprint 4 kickoff initiated."
     }
   ]
 }

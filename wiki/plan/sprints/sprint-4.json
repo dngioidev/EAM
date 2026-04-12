@@ -12,7 +12,7 @@
     "sprint_end": "2026-06-07",
     "velocity_planned": 2,
     "velocity_actual": null,
-    "status": "planned",
+    "status": "active",
     "priority_note": "HIGHEST PRIORITY SPRINT. All backend + Sprint 3 frontend exists but is un-navigable. This sprint is the bridge to demo."
   },
   "content": {

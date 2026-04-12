@@ -1,16 +1,31 @@
 {
   "meta": {
-    "version": 2,
-    "last_updated": "2026-04-12",
+    "version": 3,
+    "last_updated": "2026-04-13",
     "title": "Project Changelog",
     "owner": "vibe-project-manager"
   },
   "quick_facts": {
-    "current_version": "0.14.0",
-    "total_entries": 16
+    "current_version": "0.15.0",
+    "total_entries": 17
   },
   "content": {
     "entries": [
+      {
+        "version": "0.15.0",
+        "date": "2026-04-13",
+        "sprint": "4",
+        "tags": ["sprint-start", "planning", "nav-layout", "store-ui-user-ui", "qa"],
+        "summary": "Sprint 4 ACTIVE — Demo-Ready Frontend. Sprint 3 closed (velocity 2/2). Prerequisite gap flagged: user management API endpoints missing.",
+        "features_added": [
+          "sprint-4.json status → active",
+          "sprint-3.json status → closed, retrospective written",
+          "dashboard.json v11 — Sprint 4 active, bugs_by_severity reset, pending_contracts flagged"
+        ],
+        "bugs_fixed": [],
+        "breaking_changes": [],
+        "notes": "Prerequisite gap: GET /auth/users and PATCH /auth/users/:id/deactivate not yet implemented in auth controller. Must contract + build before T019-T022 (user management UI). UsersService has findByEmail/findById/create but no findAll or deactivate method. QA-T001 through QA-T008 (Playwright E2E + integration tests) are in Sprint 4 scope."
+      },
       {
         "version": "0.14.0",
         "date": "2026-04-12",
