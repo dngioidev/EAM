@@ -14,6 +14,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from '../src/modules/auth/auth.module';
 import { UsersModule } from '../src/modules/users/users.module';
 import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
+import { Reflector } from '@nestjs/core';
 import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
 import { User } from '../src/modules/users/entities/user.entity';
 import { Store } from '../src/modules/stores/entities/store.entity';
@@ -52,7 +53,7 @@ export async function createTestApp(): Promise<{ app: INestApplication; module: 
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
   );
-  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalInterceptors(new TransformInterceptor(new Reflector()));
   app.useGlobalFilters(new HttpExceptionFilter());
   app.setGlobalPrefix('api/v1');
   await app.init();

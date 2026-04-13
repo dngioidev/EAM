@@ -8,6 +8,8 @@ import InvoicesPage from '@/pages/invoices/InvoicesPage';
 import InvoiceDetailPage from '@/pages/invoices/InvoiceDetailPage';
 import AdminStoresPage from '@/pages/admin/AdminStoresPage';
 import AdminUsersPage from '@/pages/admin/AdminUsersPage';
+import ReportsPage from '@/pages/reports/ReportsPage';
+import DashboardPage from '@/pages/DashboardPage';
 import AppLayout from '@/components/AppLayout';
 import { RequireAuth, RedirectIfAuth } from '@/components/RouteGuards';
 import { useAuthStore } from '@/stores/auth.store';
@@ -49,6 +51,10 @@ export default function App() {
           {/* Invoices — accountant + store-manager + admin */}
           <Route path="/invoices" element={<InvoicesPage />} />
           <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+
+          {/* Reports — accountant + store-manager + admin (T034-T039) */}
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
 
           {/* Admin */}
           <Route path="/admin/stores" element={<AdminStoresPage />} />
