@@ -5,7 +5,7 @@ export interface AuthUser {
   id: string;
   email: string;
   role: string;
-  storeId: string;
+  storeId: string | null;
 }
 
 interface AuthState {
