@@ -11,6 +11,7 @@ import { StoresModule } from './modules/stores/stores.module';
 import { ProductsModule } from './modules/products/products.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
+import { ReportsModule } from './modules/reports/reports.module';
 import { User } from './modules/users/entities/user.entity';
 import { Store } from './modules/stores/entities/store.entity';
 import { Product } from './modules/products/entities/product.entity';
@@ -74,6 +75,7 @@ import { InvoiceSequence } from './modules/invoices/entities/invoice-sequence.en
     ProductsModule,
     OrdersModule,
     InvoicesModule,
+    ReportsModule,
   ],
   controllers: [AppController],
 })
