@@ -153,6 +153,146 @@ export async function handleWriteTool(
       return ok({ ok: true, date });
     }
 
+    case "wiki_pages_update": {
+      const { section, slug, patch } = args;
+      if (!section) return fail("section is required");
+      if (!slug)    return fail("slug is required");
+      if (!patch || typeof patch !== "object" || Array.isArray(patch))
+        return fail("patch must be an object");
+
+      const existing = db
+        .prepare("SELECT data FROM pages WHERE section = ? AND slug = ?")
+        .get(String(section), String(slug)) as { data: string } | null;
+      if (!existing) return fail(`Page '${section}/${slug}' not found`);
+
+      const current = JSON.parse(existing.data) as Record<string, unknown>;
+      const merged = deepMerge(current, patch as Record<string, unknown>);
+      const p = patch as Record<string, unknown>;
+
+      db.transaction(() => {
+        db.prepare(
+          `UPDATE pages SET
+            title = COALESCE(?, title),
+            data = ?,
+            updated_at = datetime('now')
+          WHERE section = ? AND slug = ?`
+        ).run(
+          (p.title as string | undefined) ?? null,
+          JSON.stringify(merged),
+          String(section),
+          String(slug)
+        );
+        auditLog(db, "pages", `${section}/${slug}`, "update", patch);
+      })();
+
+      return ok({ ok: true, section, slug });
+    }
+
+    case "wiki_decision_create": {
+      const { id, title, feature, decision } = args;
+      if (!id)    return fail("id is required (e.g. 'DEC-0001')");
+      if (!title) return fail("title is required");
+      if (!decision || typeof decision !== "object" || Array.isArray(decision))
+        return fail("decision object is required");
+
+      db.transaction(() => {
+        db.prepare(
+          `INSERT OR IGNORE INTO decisions (id, title, status, feature, data, created_at, updated_at)
+           VALUES (?, ?, 'accepted', ?, ?, datetime('now'), datetime('now'))`
+        ).run(String(id), String(title), feature ? String(feature) : null, JSON.stringify(decision));
+        auditLog(db, "decisions", String(id), "create", decision);
+      })();
+
+      return ok({ ok: true, id });
+    }
+
+    case "wiki_decision_update": {
+      const { id, patch } = args;
+      if (!id) return fail("id is required");
+      if (!patch || typeof patch !== "object" || Array.isArray(patch))
+        return fail("patch must be an object");
+
+      const existing = db
+        .prepare("SELECT data FROM decisions WHERE id = ?")
+        .get(String(id)) as { data: string } | null;
+      if (!existing) return fail(`Decision '${id}' not found`);
+
+      const current = JSON.parse(existing.data) as Record<string, unknown>;
+      const merged = deepMerge(current, patch as Record<string, unknown>);
+      const p = patch as Record<string, unknown>;
+
+      db.transaction(() => {
+        db.prepare(
+          `UPDATE decisions SET
+            title = COALESCE(?, title),
+            status = COALESCE(?, status),
+            data = ?,
+            updated_at = datetime('now')
+          WHERE id = ?`
+        ).run(
+          (p.title as string | undefined) ?? null,
+          (p.status as string | undefined) ?? null,
+          JSON.stringify(merged),
+          String(id)
+        );
+        auditLog(db, "decisions", String(id), "update", patch);
+      })();
+
+      return ok({ ok: true, id });
+    }
+
+    case "wiki_changelog_create": {
+      const { version, date, sprint, summary, changelog } = args;
+      if (!version) return fail("version is required (semver)");
+      if (!date)    return fail("date is required (YYYY-MM-DD)");
+      if (!summary) return fail("summary is required");
+      if (!changelog || typeof changelog !== "object" || Array.isArray(changelog))
+        return fail("changelog object is required");
+
+      db.transaction(() => {
+        db.prepare(
+          `INSERT OR IGNORE INTO changelog (version, date, sprint, summary, data, created_at)
+           VALUES (?, ?, ?, ?, ?, datetime('now'))`
+        ).run(String(version), String(date), sprint ? String(sprint) : null, String(summary), JSON.stringify(changelog));
+        auditLog(db, "changelog", String(version), "create", changelog);
+      })();
+
+      return ok({ ok: true, version });
+    }
+
+    case "wiki_changelog_update": {
+      const { version, patch } = args;
+      if (!version) return fail("version is required");
+      if (!patch || typeof patch !== "object" || Array.isArray(patch))
+        return fail("patch must be an object");
+
+      const existing = db
+        .prepare("SELECT data FROM changelog WHERE version = ?")
+        .get(String(version)) as { data: string } | null;
+      if (!existing) return fail(`Changelog for version '${version}' not found`);
+
+      const current = JSON.parse(existing.data) as Record<string, unknown>;
+      const merged = deepMerge(current, patch as Record<string, unknown>);
+      const p = patch as Record<string, unknown>;
+
+      db.transaction(() => {
+        db.prepare(
+          `UPDATE changelog SET
+            summary = COALESCE(?, summary),
+            data = ?,
+            created_at = datetime('now')
+          WHERE version = ?`
+        ).run(
+          (p.summary as string | undefined) ?? null,
+          JSON.stringify(merged),
+          String(version)
+        );
+        auditLog(db, "changelog", String(version), "update", patch);
+      })();
+
+      return ok({ ok: true, version });
+    }
+
     default:
       return fail(`Unknown write tool: ${name}`);
   }

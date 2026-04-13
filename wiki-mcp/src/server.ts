@@ -75,6 +75,70 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ["module"],
       },
     },
+    {
+      name: "wiki_pages_get",
+      description: "Get a page entry (glossary, onboarding, techstack, rulebook, design, etc.) by section and slug.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          section: { type: "string" },
+          slug: { type: "string", description: "Page slug, or '_index' for single-file sections" },
+        },
+        required: ["section", "slug"],
+      },
+    },
+    {
+      name: "wiki_pages_list",
+      description: "List all pages in a section (e.g. 'techstack', 'glossary', 'design').",
+      inputSchema: {
+        type: "object" as const,
+        properties: { section: { type: "string" } },
+        required: ["section"],
+      },
+    },
+    {
+      name: "wiki_bug_get",
+      description: "Get full bug record by ID (e.g. 'BUG-0001').",
+      inputSchema: {
+        type: "object" as const,
+        properties: { id: { type: "string", description: "Bug ID" } },
+        required: ["id"],
+      },
+    },
+    {
+      name: "wiki_sprint_list",
+      description: "List all sprints with status, dates, and goals.",
+      inputSchema: { type: "object" as const, properties: {}, required: [] },
+    },
+    {
+      name: "wiki_contract_list",
+      description: "List all API contracts with version and status.",
+      inputSchema: { type: "object" as const, properties: {}, required: [] },
+    },
+    {
+      name: "wiki_history_get",
+      description: "Get a single history entry by date (YYYY-MM-DD).",
+      inputSchema: {
+        type: "object" as const,
+        properties: { date: { type: "string", description: "ISO date (YYYY-MM-DD)" } },
+        required: ["date"],
+      },
+    },
+    {
+      name: "wiki_history_list",
+      description: "List all history entries in reverse chronological order.",
+      inputSchema: { type: "object" as const, properties: {}, required: [] },
+    },
+    {
+      name: "wiki_decisions_list",
+      description: "List all architectural decisions.",
+      inputSchema: { type: "object" as const, properties: {}, required: [] },
+    },
+    {
+      name: "wiki_changelog_list",
+      description: "List all changelog entries in reverse chronological order.",
+      inputSchema: { type: "object" as const, properties: {}, required: [] },
+    },
     // Write tools (T005)
     {
       name: "wiki_feature_update",
@@ -111,6 +175,72 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           session: { type: "object", description: "Session entry object" },
         },
         required: ["date", "session"],
+      },
+    },
+    {
+      name: "wiki_pages_update",
+      description: "Update a page entry (glossary, onboarding, techstack, etc.) by section and slug.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          section: { type: "string" },
+          slug: { type: "string" },
+          patch: { type: "object", description: "Fields to update" },
+        },
+        required: ["section", "slug", "patch"],
+      },
+    },
+    {
+      name: "wiki_decision_create",
+      description: "Create a new architectural decision entry.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          id: { type: "string", description: "Decision ID (e.g. 'DEC-0001')" },
+          title: { type: "string" },
+          feature: { type: "string", description: "Feature this decision applies to (optional)" },
+          decision: { type: "object", description: "Decision object with rationale, etc." },
+        },
+        required: ["id", "title", "decision"],
+      },
+    },
+    {
+      name: "wiki_decision_update",
+      description: "Update an architectural decision entry. Logs to audit_log.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          id: { type: "string" },
+          patch: { type: "object" },
+        },
+        required: ["id", "patch"],
+      },
+    },
+    {
+      name: "wiki_changelog_create",
+      description: "Create a new changelog entry for a version.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          version: { type: "string", description: "Semver (e.g. '0.17.0')" },
+          date: { type: "string", description: "ISO date (YYYY-MM-DD)" },
+          sprint: { type: "string", description: "Sprint ID (optional)" },
+          summary: { type: "string" },
+          changelog: { type: "object", description: "Full changelog object" },
+        },
+        required: ["version", "date", "summary", "changelog"],
+      },
+    },
+    {
+      name: "wiki_changelog_update",
+      description: "Update a changelog entry. Logs to audit_log.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          version: { type: "string" },
+          patch: { type: "object" },
+        },
+        required: ["version", "patch"],
       },
     },
     // Search (T008)
