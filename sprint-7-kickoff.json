@@ -1,0 +1,114 @@
+{
+  "quick_facts": {
+    "one_line": "Sprint 7 — Complete Admin Panel and finalize MVP",
+    "sprint_number": 7,
+    "status": "planning",
+    "sprint_goal": "Implement and test complete admin panel (user management, disable/enable, platform stats); finalize all admin use cases (UC-08, UC-09, UC-10)",
+    "capacity": "medium",
+    "expected_features": 3,
+    "start_date": "2026-04-16",
+    "end_date": "2026-04-30"
+  },
+  "content": {
+    "rationale": "Sprint 5/6 completed the reporting module. Sprint 7 focuses on the final admin features necessary for MVP completion. Owner-facing features (UC-01 through UC-07) are implemented; admin-facing features (UC-08, UC-09, UC-10) require frontend + E2E validation.",
+    "planned_features": [
+      {
+        "id": "ADMIN-01",
+        "title": "Admin User List Page with Pagination",
+        "description": "Frontend page showing all registered users with email, role, status, registered date, product count. Implements pagination (?page=1&limit=50). Connects to GET /admin/users endpoint.",
+        "type": "feature",
+        "owner": "frontend",
+        "priority": "high",
+        "status": "not-started",
+        "effort": "M",
+        "acceptance_criteria": [
+          "Page renders paginated user table with 50 items per page",
+          "Shows columns: Email, Role (OWNER|ADMIN), Status (ACTIVE|DISABLED), Registered Date, Product Count",
+          "Pagination controls work (prev/next, jump to page)",
+          "Admin user badge distinguishes admin accounts",
+          "Links to Enable/Disable actions per user"
+        ]
+      },
+      {
+        "id": "ADMIN-02",
+        "title": "Disable/Enable User Account Actions",
+        "description": "Frontend modal + backend logic to disable/enable user accounts. Increments token_version on disable to invalidate all active sessions. Implements UC-09.",
+        "type": "feature",
+        "owner": "backend+frontend",
+        "priority": "high",
+        "status": "not-started",
+        "effort": "M",
+        "acceptance_criteria": [
+          "Disable button opens confirmation modal",
+          "Confirmation shows: 'Disable user {email}? This will log them out from all sessions.'",
+          "Disable sets status=DISABLED and increments token_version",
+          "Enable button visible on disabled users, re-enables account",
+          "Page refreshes to show updated status",
+          "E2E: Disabled user cannot log in after disable action"
+        ]
+      },
+      {
+        "id": "ADMIN-03",
+        "title": "Platform Stats Dashboard Widget",
+        "description": "Admin dashboard widget showing aggregate stats: total registered users, disabled users count, total products across all workspaces, total transactions (all time). Implements UC-10.",
+        "type": "feature",
+        "owner": "frontend",
+        "priority": "high",
+        "status": "not-started",
+        "effort": "S",
+        "acceptance_criteria": [
+          "Stats display on admin dashboard as 4-card widget",
+          "Cards show: Total Users, Disabled Users, Total Products, Total Transactions",
+          "Stats update when user list is refreshed",
+          "Numbers are correctly aggregated across all workspaces",
+          "E2E: Stats update after test user creates products"
+        ]
+      }
+    ],
+    "backend_readiness": {
+      "admin_endpoints_status": "Review Required",
+      "notes": [
+        "GET /admin/users endpoint: needs verification (may already exist)",
+        "PATCH /admin/users/:id/status endpoint: needs verification (may already exist)",
+        "GET /admin/stats endpoint: needs verification (may already exist)",
+        "Token version invalidation on disable: verify implementation in guards",
+        "All endpoints require AdminGuard: verify @UseGuards(RolesGuard, AdminGuard)"
+      ]
+    },
+    "frontend_readiness": {
+      "admin_layout_status": "Partially Complete",
+      "notes": [
+        "Admin sidebar routes exist",
+        "Admin panel pages may be stubs",
+        "Form components (input, button, modal) available via shadcn/ui",
+        "React Query hooks for API calls: establish for admin endpoints"
+      ]
+    },
+    "testing_scope": [
+      "E2E: Admin login → view user list → paginate",
+      "E2E: Admin disable user → verify user cannot log in",
+      "E2E: Admin enable user → verify user can log in again",
+      "E2E: Platform stats reflect accurate counts",
+      "Unit: Token version validation logic on API calls",
+      "Unit: Admin role guard enforcement"
+    ],
+    "dependencies": "None — all dependencies already resolved in previous sprints",
+    "risks": [
+      "Admin endpoints may have incomplete implementation — review backend first",
+      "Token version checking may have edge cases in multi-request scenarios",
+      "Pagination offset calculation may differ from expected (0-indexed vs 1-indexed)"
+    ],
+    "carried_over_from_sprint": [],
+    "notes": "Sprint 7 represents the final push to complete the MVP. After this sprint, all 10 use cases should be implemented, tested, and documented. Post-MVP work (Orders, Invoices, Stores integration) deferred to Sprint 8+."
+  },
+  "velocity": {
+    "planned": 3,
+    "completed": 0,
+    "carried_over": []
+  },
+  "retrospective": {
+    "went_well": [],
+    "to_improve": [],
+    "action_items": []
+  }
+}
