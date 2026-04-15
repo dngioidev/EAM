@@ -2,10 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { User, UserRole } from '../users/entities/user.entity';
+import { Product } from '../products/entities/product.entity';
+import { Order } from '../orders/entities/order.entity';
 
 // Mock ioredis
 jest.mock('ioredis', () => {
@@ -26,6 +29,14 @@ const mockUsersService = {
 const mockJwtService = {
   sign: jest.fn().mockReturnValue('mock.jwt.token'),
   verify: jest.fn(),
+};
+
+const mockProductsRepository = {
+  count: jest.fn().mockResolvedValue(0),
+};
+
+const mockOrdersRepository = {
+  count: jest.fn().mockResolvedValue(0),
 };
 
 const mockConfigService = {
@@ -66,6 +77,8 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: UsersService, useValue: mockUsersService },
+        { provide: getRepositoryToken(Product), useValue: mockProductsRepository },
+        { provide: getRepositoryToken(Order), useValue: mockOrdersRepository },
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
