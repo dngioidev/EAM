@@ -15,7 +15,8 @@
       "Bash(git add:*)",
       "Bash(git commit -m ':*)",
       "Bash(git -C \"d:/dngioi/EAM\" branch --show-current)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(node -e ':*)"
     ]
   }
 }
