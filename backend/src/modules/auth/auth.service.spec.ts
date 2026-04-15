@@ -24,6 +24,7 @@ const mockUsersService = {
   findByEmail: jest.fn(),
   findById: jest.fn(),
   findActiveByStoreId: jest.fn(),
+  setActiveStatus: jest.fn(),
 };
 
 const mockJwtService = {
@@ -62,6 +63,7 @@ const buildUser = (overrides: Partial<User> = {}): User => ({
   role: UserRole.ADMIN,
   storeId: null,
   isActive: true,
+  tokenVersion: 0,
   createdAt: new Date(),
   updatedAt: new Date(),
   deletedAt: null,
@@ -98,6 +100,13 @@ describe('AuthService', () => {
 
       expect(result.accessToken).toBeDefined();
       expect(result.user.email).toBe('admin@eam.local');
+      expect(mockJwtService.sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sub: user.id,
+          tokenVersion: user.tokenVersion,
+        }),
+        expect.any(Object),
+      );
     });
 
     it('throws 401 when password is wrong — SAME error as unknown email (BR-AUTH-08)', async () => {

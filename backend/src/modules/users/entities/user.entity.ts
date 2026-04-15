@@ -30,6 +30,9 @@ export class User extends BaseEntity {
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
 
+  @Column({ name: 'token_version', type: 'integer', default: 0 })
+  tokenVersion: number;
+
   @ManyToOne(() => Store, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'store_id' })
   store: Store;

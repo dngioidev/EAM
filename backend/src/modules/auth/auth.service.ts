@@ -24,6 +24,7 @@ interface JwtPayload {
   email: string;
   role: string;
   storeId: string | null;
+  tokenVersion: number;
 }
 
 @Injectable()
@@ -93,6 +94,10 @@ export class AuthService {
       throw new UnauthorizedException('User is inactive');
     }
 
+    if (user.tokenVersion !== payload.tokenVersion) {
+      throw new UnauthorizedException('Token version mismatch');
+    }
+
     // Mandatory token rotation — delete old key before issuing new
     await this.redis.del(`refresh:${payload.sub}`);
 
@@ -136,7 +141,7 @@ export class AuthService {
       // Force re-login for disabled users.
       await this.redis.del(`refresh:${userId}`);
     }
-    return this.usersService.setActiveStatus(userId, isActive);
+    return this.usersService.setActiveStatus(userId, isActive, !isActive);
   }
 
   async getAdminStats() {
@@ -161,6 +166,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
       storeId: user.storeId,
+      tokenVersion: user.tokenVersion,
     };
 
     const accessToken = this.jwtService.sign(payload, {

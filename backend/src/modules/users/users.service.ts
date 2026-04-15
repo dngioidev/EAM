@@ -10,6 +10,7 @@ export interface AdminUserView {
   role: User['role'];
   storeId: string | null;
   isActive: boolean;
+  tokenVersion: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -80,10 +81,31 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async setActiveStatus(id: string, isActive: boolean): Promise<User> {
+  async setActiveStatus(
+    id: string,
+    isActive: boolean,
+    incrementTokenVersion = false,
+  ): Promise<User> {
     const user = await this.findById(id);
-    if (user.isActive === isActive) return user;
-    user.isActive = isActive;
+
+    const wasActive = user.isActive;
+    let changed = false;
+
+    if (wasActive !== isActive) {
+      user.isActive = isActive;
+      changed = true;
+    }
+
+    // Disabling an active user must invalidate every issued JWT.
+    if (incrementTokenVersion && !isActive && wasActive) {
+      user.tokenVersion += 1;
+      changed = true;
+    }
+
+    if (!changed) {
+      return user;
+    }
+
     return this.usersRepository.save(user);
   }
 
@@ -103,6 +125,7 @@ export class UsersService {
       role: user.role,
       storeId: user.storeId,
       isActive: user.isActive,
+      tokenVersion: user.tokenVersion,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
