@@ -6,8 +6,9 @@ import { z } from 'zod';
 import { Plus, UserX, Users } from 'lucide-react';
 import {
   fetchUsers,
+  fetchAdminStats,
   createUser,
-  deactivateUser,
+  setUserStatus,
   type AdminUser,
   type UserRole,
 } from '@/lib/users';
@@ -41,6 +42,8 @@ const ROLE_LABELS: Record<string, string> = Object.fromEntries(
   ROLES.map((r) => [r.value, r.label]),
 );
 
+const PAGE_LIMIT = 50;
+
 const createUserSchema = z
   .object({
     email: z.string().email('Email không hợp lệ'),
@@ -60,14 +63,24 @@ type CreateUserFormData = z.infer<typeof createUserSchema>;
 
 export default function AdminUsersPage() {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
   const [deactivateTarget, setDeactivateTarget] = useState<AdminUser | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
 
   // ── Queries ──────────────────────────────────────────────────────────────
-  const { data: users = [], isLoading: usersLoading } = useQuery({
-    queryKey: ['admin', 'users'],
-    queryFn: fetchUsers,
+  const { data: usersPage, isLoading: usersLoading } = useQuery({
+    queryKey: ['admin', 'users', page],
+    queryFn: () => fetchUsers(page, PAGE_LIMIT),
+  });
+
+  const users = usersPage?.items ?? [];
+  const total = usersPage?.total ?? 0;
+  const totalPages = usersPage?.totalPages ?? 1;
+
+  const { data: stats } = useQuery({
+    queryKey: ['admin', 'stats'],
+    queryFn: fetchAdminStats,
   });
 
   const { data: stores = [] } = useQuery({
@@ -82,6 +95,7 @@ export default function AdminUsersPage() {
     mutationFn: createUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
       setCreateOpen(false);
       resetCreate();
     },
@@ -93,10 +107,12 @@ export default function AdminUsersPage() {
   });
 
   // ── Deactivate mutation ───────────────────────────────────────────────────
-  const deactivateMutation = useMutation({
-    mutationFn: (id: string) => deactivateUser(id),
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: 'ACTIVE' | 'DISABLED' }) =>
+      setUserStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
       setDeactivateTarget(null);
     },
   });
@@ -140,7 +156,7 @@ export default function AdminUsersPage() {
       {/* Users table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Danh sách người dùng ({users.length})</CardTitle>
+          <CardTitle className="text-base">Danh sách người dùng ({total})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {usersLoading ? (
@@ -158,6 +174,7 @@ export default function AdminUsersPage() {
                     <th className="px-4 py-3 text-left font-medium text-muted-foreground">Email</th>
                     <th className="px-4 py-3 text-left font-medium text-muted-foreground">Tên</th>
                     <th className="px-4 py-3 text-left font-medium text-muted-foreground">Vai trò</th>
+                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">Ngày đăng ký</th>
                     <th className="px-4 py-3 text-left font-medium text-muted-foreground">Cửa hàng</th>
                     <th className="px-4 py-3 text-left font-medium text-muted-foreground">Trạng thái</th>
                     <th className="px-4 py-3" />
@@ -172,6 +189,9 @@ export default function AdminUsersPage() {
                         <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
                           {ROLE_LABELS[user.role] ?? user.role}
                         </span>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {new Date(user.createdAt).toLocaleDateString('vi-VN')}
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">
                         {user.storeId ? (storeMap[user.storeId] ?? user.storeId) : '—'}
@@ -189,7 +209,7 @@ export default function AdminUsersPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        {user.isActive && (
+                        {user.isActive ? (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -200,6 +220,16 @@ export default function AdminUsersPage() {
                             <UserX className="h-4 w-4 mr-1" />
                             Vô hiệu
                           </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={statusMutation.isPending}
+                            onClick={() => statusMutation.mutate({ id: user.id, status: 'ACTIVE' })}
+                            aria-label={`Kích hoạt tài khoản ${user.email}`}
+                          >
+                            Kích hoạt
+                          </Button>
                         )}
                       </td>
                     </tr>
@@ -208,8 +238,68 @@ export default function AdminUsersPage() {
               </table>
             </div>
           )}
+
+          <div className="flex items-center justify-between border-t px-4 py-3">
+            <p className="text-xs text-muted-foreground">
+              Trang {page}/{totalPages}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              >
+                Trước
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+              >
+                Sau
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
+
+      {/* Platform stats */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Tổng người dùng</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{stats?.totalUsers ?? 0}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Người dùng bị khóa</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-red-600">{stats?.disabledUsers ?? 0}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Tổng sản phẩm</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{stats?.totalProducts ?? 0}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Tổng giao dịch</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{stats?.totalTransactions ?? 0}</p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Create user dialog */}
       <Dialog
@@ -338,10 +428,13 @@ export default function AdminUsersPage() {
             </Button>
             <Button
               variant="destructive"
-              disabled={deactivateMutation.isPending}
-              onClick={() => deactivateTarget && deactivateMutation.mutate(deactivateTarget.id)}
+              disabled={statusMutation.isPending}
+              onClick={() =>
+                deactivateTarget &&
+                statusMutation.mutate({ id: deactivateTarget.id, status: 'DISABLED' })
+              }
             >
-              {deactivateMutation.isPending ? 'Đang xử lý…' : 'Xác nhận vô hiệu'}
+              {statusMutation.isPending ? 'Đang xử lý…' : 'Xác nhận vô hiệu'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -10,6 +10,7 @@ interface JwtPayload {
   email: string;
   role: string;
   storeId: string | null;
+  tokenVersion: number;
 }
 
 @Injectable()
@@ -29,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     // Validate the token belongs to an active user/store
     const user = await this.usersService.findById(payload.sub);
 
-    if (!user || !user.isActive) {
+    if (!user || !user.isActive || user.tokenVersion !== payload.tokenVersion) {
       throw new UnauthorizedException();
     }
 
@@ -38,6 +39,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       email: user.email,
       role: user.role,
       storeId: user.storeId,
+      tokenVersion: user.tokenVersion,
     };
   }
 }

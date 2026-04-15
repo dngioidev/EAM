@@ -6,6 +6,9 @@ import {
   Body,
   Param,
   ParseUUIDPipe,
+  DefaultValuePipe,
+  ParseIntPipe,
+  Query,
   HttpCode,
   HttpStatus,
   UseGuards,
@@ -21,6 +24,7 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { SetUserStatusDto } from './dto/set-user-status.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser, AuthUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -79,8 +83,11 @@ export class AuthController {
   @ApiOperation({ summary: '[Admin] List all users' })
   @ApiResponse({ status: 200, description: 'Array of user objects' })
   @ApiResponse({ status: 403, description: 'Forbidden — admin only' })
-  async listUsers() {
-    return this.usersService.findAll();
+  async listUsers(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
+  ) {
+    return this.usersService.findAllPaginated(page, limit);
   }
 
   @Post('register')
@@ -90,7 +97,22 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'User created' })
   @ApiResponse({ status: 409, description: 'Email already registered' })
   async register(@Body() dto: CreateUserDto) {
-    return this.authService.registerUser(dto);
+    const user = await this.authService.registerUser(dto);
+    return this.usersService.toAdminUserView(user);
+  }
+
+  @Patch('users/:id/status')
+  @Roles('admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '[Admin] Enable or disable a user account' })
+  @ApiResponse({ status: 200, description: 'User status updated' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async setUserStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: SetUserStatusDto,
+  ) {
+    const user = await this.authService.setUserStatus(id, dto.status === 'ACTIVE');
+    return this.usersService.toAdminUserView(user);
   }
 
   @Patch('users/:id/deactivate')
@@ -100,6 +122,16 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'User deactivated' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async deactivateUser(@Param('id', ParseUUIDPipe) id: string) {
-    return this.authService.deactivateUser(id);
+    const user = await this.authService.deactivateUser(id);
+    return this.usersService.toAdminUserView(user);
+  }
+
+  @Get('stats')
+  @Roles('admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '[Admin] Get platform statistics' })
+  @ApiResponse({ status: 200, description: 'Platform stats' })
+  async getAdminStats() {
+    return this.authService.getAdminStats();
   }
 }

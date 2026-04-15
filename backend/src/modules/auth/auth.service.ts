@@ -12,6 +12,8 @@ import * as bcrypt from 'bcryptjs';
 import * as IORedis from 'ioredis';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
+import { Product } from '../products/entities/product.entity';
+import { Order } from '../orders/entities/order.entity';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -22,6 +24,7 @@ interface JwtPayload {
   email: string;
   role: string;
   storeId: string | null;
+  tokenVersion: number;
 }
 
 @Injectable()
@@ -31,6 +34,10 @@ export class AuthService {
 
   constructor(
     private readonly usersService: UsersService,
+    @InjectRepository(Product)
+    private readonly productsRepository: Repository<Product>,
+    @InjectRepository(Order)
+    private readonly ordersRepository: Repository<Order>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
@@ -87,6 +94,10 @@ export class AuthService {
       throw new UnauthorizedException('User is inactive');
     }
 
+    if (user.tokenVersion !== payload.tokenVersion) {
+      throw new UnauthorizedException('Token version mismatch');
+    }
+
     // Mandatory token rotation — delete old key before issuing new
     await this.redis.del(`refresh:${payload.sub}`);
 
@@ -122,8 +133,31 @@ export class AuthService {
 
   async deactivateUser(userId: string): Promise<User> {
     // Flush Redis session before deactivating (BR-ADMIN-03)
-    await this.redis.del(`refresh:${userId}`);
-    return this.usersService.deactivate(userId);
+    return this.setUserStatus(userId, false);
+  }
+
+  async setUserStatus(userId: string, isActive: boolean): Promise<User> {
+    if (!isActive) {
+      // Force re-login for disabled users.
+      await this.redis.del(`refresh:${userId}`);
+    }
+    return this.usersService.setActiveStatus(userId, isActive, !isActive);
+  }
+
+  async getAdminStats() {
+    const [totalUsers, disabledUsers, totalProducts, totalTransactions] = await Promise.all([
+      this.usersService.countAll(),
+      this.usersService.countDisabled(),
+      this.productsRepository.count(),
+      this.ordersRepository.count(),
+    ]);
+
+    return {
+      totalUsers,
+      disabledUsers,
+      totalProducts,
+      totalTransactions,
+    };
   }
 
   private async issueTokens(user: User): Promise<AuthResponseDto> {
@@ -132,6 +166,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
       storeId: user.storeId,
+      tokenVersion: user.tokenVersion,
     };
 
     const accessToken = this.jwtService.sign(payload, {

@@ -2,10 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { User, UserRole } from '../users/entities/user.entity';
+import { Product } from '../products/entities/product.entity';
+import { Order } from '../orders/entities/order.entity';
 
 // Mock ioredis
 jest.mock('ioredis', () => {
@@ -21,11 +24,20 @@ const mockUsersService = {
   findByEmail: jest.fn(),
   findById: jest.fn(),
   findActiveByStoreId: jest.fn(),
+  setActiveStatus: jest.fn(),
 };
 
 const mockJwtService = {
   sign: jest.fn().mockReturnValue('mock.jwt.token'),
   verify: jest.fn(),
+};
+
+const mockProductsRepository = {
+  count: jest.fn().mockResolvedValue(0),
+};
+
+const mockOrdersRepository = {
+  count: jest.fn().mockResolvedValue(0),
 };
 
 const mockConfigService = {
@@ -51,6 +63,7 @@ const buildUser = (overrides: Partial<User> = {}): User => ({
   role: UserRole.ADMIN,
   storeId: null,
   isActive: true,
+  tokenVersion: 0,
   createdAt: new Date(),
   updatedAt: new Date(),
   deletedAt: null,
@@ -66,6 +79,8 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: UsersService, useValue: mockUsersService },
+        { provide: getRepositoryToken(Product), useValue: mockProductsRepository },
+        { provide: getRepositoryToken(Order), useValue: mockOrdersRepository },
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
@@ -85,6 +100,13 @@ describe('AuthService', () => {
 
       expect(result.accessToken).toBeDefined();
       expect(result.user.email).toBe('admin@eam.local');
+      expect(mockJwtService.sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sub: user.id,
+          tokenVersion: user.tokenVersion,
+        }),
+        expect.any(Object),
+      );
     });
 
     it('throws 401 when password is wrong — SAME error as unknown email (BR-AUTH-08)', async () => {
