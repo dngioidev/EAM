@@ -25,6 +25,8 @@ const mockUsersService = {
   findById: jest.fn(),
   findActiveByStoreId: jest.fn(),
   setActiveStatus: jest.fn(),
+  countAll: jest.fn(),
+  countDisabled: jest.fn(),
 };
 
 const mockJwtService = {
@@ -73,6 +75,7 @@ const buildUser = (overrides: Partial<User> = {}): User => ({
 
 describe('AuthService', () => {
   let service: AuthService;
+  let redisMock: { get: jest.Mock; set: jest.Mock; del: jest.Mock };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -87,6 +90,8 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+    const IORedis = require('ioredis');
+    redisMock = new IORedis.Redis();
     jest.clearAllMocks();
   });
 
@@ -146,6 +151,79 @@ describe('AuthService', () => {
 
       await service.logout('user-uuid-1');
       // Behaviour verified by no-throw
+    });
+  });
+
+  describe('refresh', () => {
+    it('throws 401 when token version mismatches user version', async () => {
+      const refreshToken = 'refresh-token';
+      mockJwtService.verify.mockReturnValue({
+        sub: 'user-uuid-1',
+        tokenVersion: 0,
+      });
+      redisMock.get.mockResolvedValue(refreshToken);
+      mockUsersService.findById.mockResolvedValue(buildUser({ tokenVersion: 1 }));
+
+      await expect(service.refresh(refreshToken)).rejects.toThrow(
+        new UnauthorizedException('Token version mismatch'),
+      );
+    });
+
+    it('rotates refresh token when payload and user token version match', async () => {
+      const refreshToken = 'refresh-token';
+      mockJwtService.verify.mockReturnValue({
+        sub: 'user-uuid-1',
+        tokenVersion: 2,
+      });
+      redisMock.get.mockResolvedValue(refreshToken);
+      mockUsersService.findById.mockResolvedValue(buildUser({ tokenVersion: 2 }));
+
+      const result = await service.refresh(refreshToken);
+
+      expect(result.accessToken).toBeDefined();
+      expect(redisMock.del).toHaveBeenCalledWith('refresh:user-uuid-1');
+    });
+  });
+
+  describe('setUserStatus', () => {
+    it('disables user with token-version increment and session revoke', async () => {
+      const updated = buildUser({ isActive: false, tokenVersion: 3 });
+      mockUsersService.setActiveStatus.mockResolvedValue(updated);
+
+      const result = await service.setUserStatus('user-uuid-1', false);
+
+      expect(redisMock.del).toHaveBeenCalledWith('refresh:user-uuid-1');
+      expect(mockUsersService.setActiveStatus).toHaveBeenCalledWith('user-uuid-1', false, true);
+      expect(result).toBe(updated);
+    });
+
+    it('enables user without forcing token-version increment', async () => {
+      const updated = buildUser({ isActive: true, tokenVersion: 3 });
+      mockUsersService.setActiveStatus.mockResolvedValue(updated);
+
+      const result = await service.setUserStatus('user-uuid-1', true);
+
+      expect(redisMock.del).not.toHaveBeenCalled();
+      expect(mockUsersService.setActiveStatus).toHaveBeenCalledWith('user-uuid-1', true, false);
+      expect(result).toBe(updated);
+    });
+  });
+
+  describe('getAdminStats', () => {
+    it('returns aggregated platform stats', async () => {
+      mockUsersService.countAll.mockResolvedValue(12);
+      mockUsersService.countDisabled.mockResolvedValue(2);
+      mockProductsRepository.count.mockResolvedValue(30);
+      mockOrdersRepository.count.mockResolvedValue(45);
+
+      const result = await service.getAdminStats();
+
+      expect(result).toEqual({
+        totalUsers: 12,
+        disabledUsers: 2,
+        totalProducts: 30,
+        totalTransactions: 45,
+      });
     });
   });
 });
