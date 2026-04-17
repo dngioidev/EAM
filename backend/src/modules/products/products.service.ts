@@ -10,6 +10,11 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { computeStatus, StockStatus } from '../../common/helpers/stock-status.helper';
+
+export interface ProductWithStatus extends Omit<Product, never> {
+  status: StockStatus;
+}
 
 const MANAGER_ROLES = ['admin', 'store-manager', 'accountant'];
 const CASHIER_VISIBLE_ROLES = ['cashier', 'viewer'];
@@ -76,7 +81,10 @@ export class ProductsService {
     }
 
     const [data, total] = await qb.getManyAndCount();
-    return { data, total };
+    return {
+      data: data.map((p) => ({ ...p, status: computeStatus(p.quantity, p.threshold) })),
+      total,
+    };
   }
 
   async findOne(id: string, storeId: string | null, role: string): Promise<Product> {
@@ -94,7 +102,7 @@ export class ProductsService {
       throw new NotFoundException('Product not found');
     }
 
-    return product;
+    return { ...product, status: computeStatus(product.quantity, product.threshold) } as ProductWithStatus;
   }
 
   async update(id: string, dto: UpdateProductDto & { sku?: unknown }, storeId: string | null): Promise<Product> {
@@ -110,7 +118,8 @@ export class ProductsService {
     if (dto.priceVnd !== undefined) product.priceVnd = dto.priceVnd;
     if (dto.taxRatePercent !== undefined) product.taxRatePercent = dto.taxRatePercent;
 
-    return this.productsRepository.save(product);
+    const saved = await this.productsRepository.save(product);
+    return { ...saved, status: computeStatus(saved.quantity, saved.threshold) } as ProductWithStatus;
   }
 
   async deactivate(id: string, storeId: string | null): Promise<Product> {
