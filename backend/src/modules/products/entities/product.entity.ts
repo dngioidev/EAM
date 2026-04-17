@@ -17,6 +17,12 @@ export class Product extends BaseEntity {
   @Column({ name: 'tax_rate_percent', type: 'smallint' })
   taxRatePercent: number;
 
+  @Column({ type: 'integer', default: 0 })
+  quantity: number;
+
+  @Column({ type: 'integer', default: 0 })
+  threshold: number;
+
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
 
