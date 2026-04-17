@@ -13,6 +13,7 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 import { User } from './modules/users/entities/user.entity';
 import { Store } from './modules/stores/entities/store.entity';
 import { Product } from './modules/products/entities/product.entity';
@@ -20,6 +21,7 @@ import { Order } from './modules/orders/entities/order.entity';
 import { OrderItem } from './modules/orders/entities/order-item.entity';
 import { Invoice } from './modules/invoices/entities/invoice.entity';
 import { InvoiceSequence } from './modules/invoices/entities/invoice-sequence.entity';
+import { Transaction } from './modules/inventory/entities/transaction.entity';
 
 @Module({
   imports: [
@@ -54,7 +56,7 @@ import { InvoiceSequence } from './modules/invoices/entities/invoice-sequence.en
         username: config.get<string>('DATABASE_USER'),
         password: config.get<string>('DATABASE_PASSWORD'),
         database: config.get<string>('DATABASE_NAME'),
-        entities: [User, Store, Product, Order, OrderItem, Invoice, InvoiceSequence],
+        entities: [User, Store, Product, Order, OrderItem, Invoice, InvoiceSequence, Transaction],
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
         synchronize: config.get<boolean>('DATABASE_SYNCHRONIZE', false),
         logging: config.get<string>('NODE_ENV') !== 'production',
@@ -78,6 +80,7 @@ import { InvoiceSequence } from './modules/invoices/entities/invoice-sequence.en
     InvoicesModule,
     ReportsModule,
     DashboardModule,
+    InventoryModule,
   ],
   controllers: [AppController],
 })

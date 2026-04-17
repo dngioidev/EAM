@@ -103,7 +103,7 @@ export default function ProductListPage() {
                     <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3 font-mono text-xs text-gray-700">{p.sku}</td>
                       <td className="px-4 py-3 font-medium">
-                        <Link to={`/products/${p.id}/edit`} className="hover:underline text-blue-700">
+                        <Link to={`/products/${p.id}`} className="hover:underline text-blue-700">
                           {p.name}
                         </Link>
                       </td>
@@ -123,7 +123,7 @@ export default function ProductListPage() {
                       {canWrite && (
                         <td className="px-4 py-3 text-right space-x-2">
                           <Button asChild variant="outline" size="sm">
-                            <Link to={`/products/${p.id}/edit`}>Sửa</Link>
+                            <Link to={`/products/${p.id}`}>Chi tiết</Link>
                           </Button>
                           {p.isActive && (
                             <Button

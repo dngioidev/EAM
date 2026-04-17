@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '@/pages/LoginPage';
 import ProductListPage from '@/pages/ProductListPage';
 import ProductFormPage from '@/pages/ProductFormPage';
+import ProductDetailPage from '@/pages/ProductDetailPage';
 import PosPage from '@/pages/pos/PosPage';
 import OrdersPage from '@/pages/orders/OrdersPage';
 import InvoicesPage from '@/pages/invoices/InvoicesPage';
@@ -39,6 +40,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path="/products" element={<ProductListPage />} />
           <Route path="/products/new" element={<ProductFormPage />} />
+          <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/products/:id/edit" element={<ProductFormPage />} />
 
           {/* POS — cashier + store-manager */}
