@@ -1,6 +1,6 @@
 # docker-compose.yml Blueprint
 
-The canonical 8-service compose definition for V-Smart Ledger / EAM-Tax.
+The canonical 8-service compose definition for EAM.
 
 **Port summary:**
 | Port | Service | Reason exposed |

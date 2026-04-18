@@ -1,7 +1,7 @@
 ---
 name: vibe-cache-redis
 description: |
-  Layer 2 Redis-specific patterns for V-Smart Ledger / EAM-Tax. Covers Redis 7.x + ioredis: connection setup, key namespacing, TTL strategy, cache-aside implementation, session storage, and testing utilities. Activates alongside vibe-backend-nestjs when caching is involved.
+  Layer 2 Redis-specific patterns for EAM. Covers Redis 7.x + ioredis: connection setup, key namespacing, TTL strategy, cache-aside implementation, session storage, and testing utilities. Activates alongside vibe-backend-nestjs when caching is involved.
   
   LAYER 2 — Technology-Specific. Requires Layer 1 (vibe-backend-general) + vibe-backend-nestjs activation.
   STACK VALIDATION GUARD: Verify wiki/techstack/backend.json → cache = "Redis 7.x"

@@ -1,6 +1,6 @@
 # Security Checklist
 
-## OWASP Top 10 Coverage for V-Smart Ledger
+## OWASP Top 10 Coverage for EAM
 
 ### A01 — Broken Access Control
 

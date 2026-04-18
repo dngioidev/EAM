@@ -1,7 +1,7 @@
 ---
 name: vibe-documentation
 description: |
-  Layer 1 Documentation Engineer for V-Smart Ledger / EAM-Tax. Maintains all wiki JSON files, performs wiki audits, updates onboarding docs, and ensures the wiki structure is internally consistent. Use when: wiki audit needed, onboarding update required, documentation is out of sync with implementation, or a sprint ends and documentation must be finalized.
+  Layer 1 Documentation Engineer for EAM. Maintains all wiki JSON files, performs wiki audits, updates onboarding docs, and ensures the wiki structure is internally consistent. Use when: wiki audit needed, onboarding update required, documentation is out of sync with implementation, or a sprint ends and documentation must be finalized.
   
   LAYER 1 — Role-General. Delegates wiki-app rendering specifics to vibe-wiki-app-nextjs (Layer 2).
 applyTo: "**"

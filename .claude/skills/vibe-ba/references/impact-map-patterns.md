@@ -40,7 +40,7 @@ GOAL
 
 ---
 
-## V-Smart Ledger Impact Map Conventions
+## EAM Impact Map Conventions
 
 1. **Goals must be quantified**
    - BAD: "Improve checkout efficiency"

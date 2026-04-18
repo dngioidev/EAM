@@ -1,7 +1,7 @@
 ---
 name: vibe-backend-nestjs
 description: |
-  Layer 2 NestJS Backend Implementation for V-Smart Ledger / EAM-Tax. Tech-specific implementation patterns for NestJS 10.x + TypeORM 0.3.x + class-validator + Passport/JWT. Activates alongside vibe-backend-general when writing actual backend code. Enforces Stack Validation Guard and Layer 1 Bypass Guard.
+  Layer 2 NestJS Backend Implementation for EAM. Tech-specific implementation patterns for NestJS 10.x + TypeORM 0.3.x + class-validator + Passport/JWT. Activates alongside vibe-backend-general when writing actual backend code. Enforces Stack Validation Guard and Layer 1 Bypass Guard.
   
   LAYER 2 — Technology-Specific. Requires Layer 1 (vibe-backend-general) approval to activate.
   STACK VALIDATION GUARD: Only activates if backend stack is NestJS 10.x + TypeORM 0.3.x.

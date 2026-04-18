@@ -1,7 +1,7 @@
 ---
 name: vibe-git
 description: |
-  Layer 1 Git Version Control for V-Smart Ledger / EAM-Tax. Manages all git branching, committing, and merge readiness workflows. Activates automatically before any feature, fix, chore, or hotfix work begins, and again at session end. Enforces branch-per-task discipline from develop. Alerts user for review and merge when work is complete.
+  Layer 1 Git Version Control for EAM. Manages all git branching, committing, and merge readiness workflows. Activates automatically before any feature, fix, chore, or hotfix work begins, and again at session end. Enforces branch-per-task discipline from develop. Alerts user for review and merge when work is complete.
 
   LAYER 1 — Role-General. Activates at START and END of every coding session.
   BRANCH GUARD: Every task starts on a new branch from develop. NEVER commit directly to develop or main.

@@ -40,13 +40,10 @@ Then  [observable outcome]
 
 ---
 
-## Common Actors in V-Smart Ledger
+## Common Actors in EAM
 
-- **Cashier** (Thu ngân) — daily transaction operations
-- **Store Manager** (Quản lý cửa hàng) — reports, approvals
-- **Accountant** (Kế toán) — tax reconciliation, exports
-- **System Admin** (Quản trị hệ thống) — configuration, audit logs
-- **Tax Inspector** (Kiểm toán thuế) — read-only audit access
+- **Owner** (Chủ cửa hàng) — shop owner who registers, manages products, imports/exports stock, views dashboard
+- **Admin** (Quản trị viên) — platform admin seeded into DB, views all users, can disable/enable accounts
 
 ---
 

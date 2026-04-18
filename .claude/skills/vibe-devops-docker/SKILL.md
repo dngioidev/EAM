@@ -1,7 +1,7 @@
 ---
 name: vibe-devops-docker
 description: |
-  Layer 2 Docker/Docker Compose patterns for V-Smart Ledger / EAM-Tax. Full docker-compose.yml with 8 services, Dockerfiles for backend and wiki-app, nginx reverse proxy, pgAdmin DB UI, health checks, volume mounts, network config, and .dockerignore. Activates alongside vibe-devops-general.
+  Layer 2 Docker/Docker Compose patterns for EAM. Full docker-compose.yml with 8 services, Dockerfiles for backend and wiki-app, nginx reverse proxy, pgAdmin DB UI, health checks, volume mounts, network config, and .dockerignore. Activates alongside vibe-devops-general.
   
   LAYER 2 — Technology-Specific. Requires Layer 1 (vibe-devops-general) environment approval.
   STACK GUARD: Verify docker-compose.yml exists and matches this blueprint before modifying.

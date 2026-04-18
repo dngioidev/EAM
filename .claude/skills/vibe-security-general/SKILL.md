@@ -1,7 +1,7 @@
 ---
 name: vibe-security-general
 description: |
-  Layer 1 Security Engineer for V-Smart Ledger / EAM-Tax. Reviews all code for security vulnerabilities, designs auth/roles policies, enforces secret management. Activates before and after any auth-related implementation. Produces security wiki decisions and rotates secrets when needed. Use when: auth design, role-based access control, secret management, security audit of new code, incident response.
+  Layer 1 Security Engineer for EAM. Reviews all code for security vulnerabilities, designs auth/roles policies, enforces secret management. Activates before and after any auth-related implementation. Produces security wiki decisions and rotates secrets when needed. Use when: auth design, role-based access control, secret management, security audit of new code, incident response.
   
   LAYER 1 — Role-General. Delegates NestJS guard specifics to vibe-security-nestjs (Layer 2).
 applyTo: "**"

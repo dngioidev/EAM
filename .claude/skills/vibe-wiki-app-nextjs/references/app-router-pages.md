@@ -8,7 +8,7 @@ import type { Metadata } from 'next';
 import { WikiSidebar } from '@/components/WikiSidebar';
 
 export const metadata: Metadata = {
-  title: 'V-Smart Ledger Wiki',
+  title: 'EAM Wiki',
   description: 'Project knowledge base',
 };
 

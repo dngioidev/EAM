@@ -1,7 +1,7 @@
 ---
 name: vibe-db-general
 description: |
-  Layer 1 Database Engineer for V-Smart Ledger / EAM-Tax. Designs schema, writes migrations, manages data integrity rules. Delegates PostgreSQL-specific implementations to vibe-db-postgresql (Layer 2). Use when: new entity needed, schema change required, migration needed, data integrity review, or index optimization.
+  Layer 1 Database Engineer for EAM. Designs schema, writes migrations, manages data integrity rules. Delegates PostgreSQL-specific implementations to vibe-db-postgresql (Layer 2). Use when: new entity needed, schema change required, migration needed, data integrity review, or index optimization.
   
   LAYER 1 — Role-General. Delegates PostgreSQL/TypeORM specifics to vibe-db-postgresql (Layer 2).
 applyTo: "**"

@@ -1,7 +1,7 @@
 ---
 name: vibe-qa-stack
 description: |
-  Layer 2 QA stack implementation patterns for V-Smart Ledger / EAM-Tax. Covers Vitest 1.x + React Testing Library + Playwright 1.x: config files, test fixtures, page object pattern, coverage setup, and CI integration. Activates alongside vibe-qa-general.
+  Layer 2 QA stack implementation patterns for EAM. Covers Vitest 1.x + React Testing Library + Playwright 1.x: config files, test fixtures, page object pattern, coverage setup, and CI integration. Activates alongside vibe-qa-general.
   
   LAYER 2 — Technology-Specific. Requires Layer 1 (vibe-qa-general) test strategy approval.
 applyTo: "**"

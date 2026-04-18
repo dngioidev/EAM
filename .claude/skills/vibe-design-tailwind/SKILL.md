@@ -1,7 +1,7 @@
 ---
 name: vibe-design-tailwind
 description: |
-  Layer 2 Tailwind CSS + shadcn/ui implementation patterns for V-Smart Ledger / EAM-Tax. Covers Tailwind 3.x config for Vietnamese FinTech (VND display, WCAG 2.1 AA colors), cn() utility, responsive utilities, dark mode, and shadcn/ui customization.
+  Layer 2 Tailwind CSS + shadcn/ui implementation patterns for EAM. Covers Tailwind 3.x config for Vietnamese FinTech (VND display, WCAG 2.1 AA colors), cn() utility, responsive utilities, dark mode, and shadcn/ui customization.
   
   LAYER 2 — Technology-Specific. Requires Layer 1 (vibe-designer-uxui + vibe-frontend-general) activation.
   STACK VALIDATION GUARD: Verify wiki/techstack/frontend.json → styling = "Tailwind CSS 3.x"
@@ -10,7 +10,7 @@ applyTo: "**"
 
 # vibe-design-tailwind
 
-## Tailwind Config for V-Smart Ledger
+## Tailwind Config for EAM
 
 ```typescript
 // tailwind.config.ts

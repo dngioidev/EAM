@@ -1,7 +1,7 @@
 ---
 name: vibe-designer-uxui
 description: |
-  Layer 1 UX/UI Designer for V-Smart Ledger / EAM-Tax. Produces wireframes, component specifications, and design system decisions. Activates after BA feature approval and before frontend implementation. Outputs JSON design artifacts to wiki/design/. NEVER writes React/CSS code — expresses intent as structured design specs.
+  Layer 1 UX/UI Designer for EAM. Produces wireframes, component specifications, and design system decisions. Activates after BA feature approval and before frontend implementation. Outputs JSON design artifacts to wiki/design/. NEVER writes React/CSS code — expresses intent as structured design specs.
   
   LAYER 1 — Role-General. No Tailwind or component library specifics.
 applyTo: "**"
@@ -89,13 +89,13 @@ For every feature with UI:
 }
 ```
 
-## Design Constraints (V-Smart Ledger)
+## Design Constraints (EAM)
 
 - Currency: always VND, formatted as `1.234.567 ₫`
 - Dates: `dd/MM/yyyy` format for Vietnamese locale
 - Text: support both Vietnamese and English — never hardcode Vietnamese strings inline
 - Accessibility: WCAG 2.1 AA minimum
-- Responsive: mobile-first (cashier uses tablet); minimum 768px viewport
+- Responsive: mobile-first (shop owner uses phone); minimum 390px viewport
 - Loading states: every async operation must have a loading state
 - Error states: every form field that validates server-side must have an error state
 

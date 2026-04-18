@@ -1,7 +1,7 @@
 ---
 name: vibe-code-review
 description: |
-  Layer 1 Code Reviewer for V-Smart Ledger / EAM-Tax. Reviews all code before merging to main branches. Checks architecture compliance, coding standards, security, test coverage, and wiki documentation. BLOCKS merge if any critical rule is violated. Use when: PR review, post-implementation check, standards compliance assessment, or security concern in code.
+  Layer 1 Code Reviewer for EAM. Reviews all code before merging to main branches. Checks architecture compliance, coding standards, security, test coverage, and wiki documentation. BLOCKS merge if any critical rule is violated. Use when: PR review, post-implementation check, standards compliance assessment, or security concern in code.
   
   LAYER 1 — Role-General. Reviews both backend and frontend code.
 applyTo: "**"

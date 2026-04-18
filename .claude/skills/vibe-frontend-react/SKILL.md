@@ -1,7 +1,7 @@
 ---
 name: vibe-frontend-react
 description: |
-  Layer 2 React Frontend Implementation for V-Smart Ledger / EAM-Tax. Tech-specific patterns for React 18.x + Vite 5.x + React Query 5.x + Zustand 4.x + Tailwind CSS 3.x + shadcn/ui + React Hook Form + Zod. Activates alongside vibe-frontend-general when writing actual frontend code.
+  Layer 2 React Frontend Implementation for EAM. Tech-specific patterns for React 18.x + Vite 5.x + React Query 5.x + Zustand 4.x + Tailwind CSS 3.x + shadcn/ui + React Hook Form + Zod. Activates alongside vibe-frontend-general when writing actual frontend code.
   
   LAYER 2 — Technology-Specific. Requires Layer 1 (vibe-frontend-general) approval to activate.
   STACK VALIDATION GUARD: Only activates if frontend stack is React 18.x + Vite 5.x.
