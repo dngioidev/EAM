@@ -1,6 +1,6 @@
 # Test Strategy
 
-## Test Types in V-Smart Ledger
+## Test Types in EAM
 
 | Layer | Tool | Scope | Location |
 |-------|------|-------|----------|

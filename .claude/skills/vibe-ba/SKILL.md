@@ -1,7 +1,7 @@
 ---
 name: vibe-ba
 description: |
-  Layer 1 Business Analyst for V-Smart Ledger / EAM-Tax. Activates when a new feature or change request arrives. Produces feature Wiki entry, user story breakdown, and impact map. ALWAYS outputs JSON wiki artifacts. Use when: new feature request from PO, change request for existing feature, impact analysis needed for a decision.
+  Layer 1 Business Analyst for EAM. Activates when a new feature or change request arrives. Produces feature Wiki entry, user story breakdown, and impact map. ALWAYS outputs JSON wiki artifacts. Use when: new feature request from PO, change request for existing feature, impact analysis needed for a decision.
   
   LAYER 1 — Role-General. No technology assumptions.
 applyTo: "**"

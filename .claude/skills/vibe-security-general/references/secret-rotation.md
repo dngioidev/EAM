@@ -12,7 +12,7 @@
 
 ---
 
-## Secret Inventory (V-Smart Ledger)
+## Secret Inventory (EAM)
 
 Maintain this list. All secrets must be in `.env`. Never hardcode.
 

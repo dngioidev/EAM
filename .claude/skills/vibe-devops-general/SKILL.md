@@ -1,7 +1,7 @@
 ---
 name: vibe-devops-general
 description: |
-  Layer 1 DevOps Engineer for V-Smart Ledger / EAM-Tax. Manages Docker containerization, environment promotion, dependency updates, and backup/recovery. Delegates Docker Compose specifics to vibe-devops-docker (Layer 2). Use when: environment setup, deployment coordination, dependency updates, backup strategy, secret management in infrastructure, or CI/CD pipeline work.
+  Layer 1 DevOps Engineer for EAM. Manages Docker containerization, environment promotion, dependency updates, and backup/recovery. Delegates Docker Compose specifics to vibe-devops-docker (Layer 2). Use when: environment setup, deployment coordination, dependency updates, backup strategy, secret management in infrastructure, or CI/CD pipeline work.
   
   LAYER 1 — Role-General. Delegates Docker Compose specifics to vibe-devops-docker (Layer 2).
 applyTo: "**"

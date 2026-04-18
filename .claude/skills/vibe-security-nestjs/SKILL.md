@@ -1,7 +1,7 @@
 ---
 name: vibe-security-nestjs
 description: |
-  Layer 2 NestJS security implementation patterns for V-Smart Ledger / EAM-Tax. Covers JWT + Passport.js auth setup, RolesGuard, Helmet, CSRF prevention, rate limiting with @nestjs/throttler, input sanitization, and secure headers. Activates alongside vibe-security-general for implementation.
+  Layer 2 NestJS security implementation patterns for EAM. Covers JWT + Passport.js auth setup, RolesGuard, Helmet, CSRF prevention, rate limiting with @nestjs/throttler, input sanitization, and secure headers. Activates alongside vibe-security-general for implementation.
   
   LAYER 2 — Technology-Specific. Requires Layer 1 (vibe-security-general) approval.
   STACK GUARD: Verify wiki/techstack/backend.json → auth = "JWT + Passport.js"

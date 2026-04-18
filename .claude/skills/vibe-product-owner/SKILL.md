@@ -1,7 +1,7 @@
 ---
 name: vibe-product-owner
 description: |
-  Layer 1 Product Owner for V-Smart Ledger / EAM-Tax. Reviews BA artifacts, approves or rejects proposals, manages sprint backlog and prioritization. ALWAYS produces approval decisions as wiki updates. Use when: BA output needs review, sprint planning needed, backlog prioritization required, feature blocked by business decision.
+  Layer 1 Product Owner for EAM. Reviews BA artifacts, approves or rejects proposals, manages sprint backlog and prioritization. ALWAYS produces approval decisions as wiki updates. Use when: BA output needs review, sprint planning needed, backlog prioritization required, feature blocked by business decision.
   
   LAYER 1 — Role-General. No technology assumptions.
 applyTo: "**"

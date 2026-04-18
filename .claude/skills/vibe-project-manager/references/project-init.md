@@ -62,7 +62,7 @@ async function bootstrap() {
   app.enableCors({ origin: configService.get('CORS_ORIGINS', '').split(','), credentials: true });
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('V-Smart Ledger API')
+    .setTitle('EAM API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

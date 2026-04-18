@@ -1,7 +1,7 @@
 ---
 name: vibe-db-postgresql
 description: |
-  Layer 2 PostgreSQL-specific patterns for V-Smart Ledger / EAM-Tax. Covers PostgreSQL 15.x + TypeORM 0.3.x: UUID extension, indexes, JSONB, full-text search, connection pooling, query analysis, and performance optimization. Activates alongside vibe-db-general.
+  Layer 2 PostgreSQL-specific patterns for EAM. Covers PostgreSQL 15.x + TypeORM 0.3.x: UUID extension, indexes, JSONB, full-text search, connection pooling, query analysis, and performance optimization. Activates alongside vibe-db-general.
   
   LAYER 2 — Technology-Specific. Requires Layer 1 (vibe-db-general) architecture approval.
   STACK VALIDATION GUARD: Verify wiki/techstack/backend.json → database = "PostgreSQL 15.x"

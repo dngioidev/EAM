@@ -1,7 +1,7 @@
 ---
 name: vibe-api-contractor
 description: |
-  Layer 1 API Contractor for V-Smart Ledger / EAM-Tax. Negotiates and finalizes API contracts between backend and frontend. Produces approved wiki/api-contracts/{module}.json files. NOTHING is implemented before the API contract is approved. Use when: new module API needed, existing contract revision needed, frontend-backend shape mismatch discovered.
+  Layer 1 API Contractor for EAM. Negotiates and finalizes API contracts between backend and frontend. Produces approved wiki/api-contracts/{module}.json files. NOTHING is implemented before the API contract is approved. Use when: new module API needed, existing contract revision needed, frontend-backend shape mismatch discovered.
   
   LAYER 1 — Role-General. No NestJS or React implementation specifics.
 applyTo: "**"

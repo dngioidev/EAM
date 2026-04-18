@@ -1,7 +1,7 @@
 ---
 name: vibe-wiki-app-nextjs
 description: |
-  Layer 2 Wiki Viewer implementation patterns for V-Smart Ledger / EAM-Tax. Next.js 14.x App Router wiki viewer: reading from SQLite (wiki.db via better-sqlite3), human-friendly section views, admin actions (approve/reject), search, dynamic routing, and sidebar navigation. Serves wiki content at port 3001. wiki/ JSON folder was deleted in Sprint 4.5 — all data lives in wiki.db.
+  Layer 2 Wiki Viewer implementation patterns for EAM. Next.js 14.x App Router wiki viewer: reading from SQLite (wiki.db via better-sqlite3), human-friendly section views, admin actions (approve/reject), search, dynamic routing, and sidebar navigation. Serves wiki content at port 3001. wiki/ JSON folder was deleted in Sprint 4.5 — all data lives in wiki.db.
   
   LAYER 2 — Technology-Specific. Requires Layer 1 (vibe-documentation) to verify wiki schema.
   STACK GUARD: Verify wiki/techstack/frontend.json → wiki = "Next.js 14.x App Router"

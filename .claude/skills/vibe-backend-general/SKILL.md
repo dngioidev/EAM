@@ -1,7 +1,7 @@
 ---
 name: vibe-backend-general
 description: |
-  Layer 1 Backend Engineer for V-Smart Ledger / EAM-Tax. Implements backend features using approved API contracts. Follows N-tier architecture. Works with TypeScript, NestJS 10.x patterns defined by the Layer 2 skill. Produces tested, wiki-documented, build-passing code. Use when: backend endpoint implementation, service layer logic, DTO validation, entity business rules, or backend refactoring.
+  Layer 1 Backend Engineer for EAM. Implements backend features using approved API contracts. Follows N-tier architecture. Works with TypeScript, NestJS 10.x patterns defined by the Layer 2 skill. Produces tested, wiki-documented, build-passing code. Use when: backend endpoint implementation, service layer logic, DTO validation, entity business rules, or backend refactoring.
   
   LAYER 1 — Role-General. Delegates NestJS-specifics to vibe-backend-nestjs (Layer 2).
 applyTo: "**"

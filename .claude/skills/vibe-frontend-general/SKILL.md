@@ -1,7 +1,7 @@
 ---
 name: vibe-frontend-general
 description: |
-  Layer 1 Frontend Engineer for V-Smart Ledger / EAM-Tax. Implements UI features from approved design specifications. Works with React 18.x + Vite 5.x + Zustand + React Query patterns defined by Layer 2 skill. Produces tested, wiki-documented, build-passing React code. Use when: component implementation, page/route creation, state management, API integration, or frontend refactoring.
+  Layer 1 Frontend Engineer for EAM. Implements UI features from approved design specifications. Works with React 18.x + Vite 5.x + Zustand + React Query patterns defined by Layer 2 skill. Produces tested, wiki-documented, build-passing React code. Use when: component implementation, page/route creation, state management, API integration, or frontend refactoring.
   
   LAYER 1 — Role-General. Delegates React/Tailwind specifics to vibe-frontend-react (Layer 2).
 applyTo: "**"
