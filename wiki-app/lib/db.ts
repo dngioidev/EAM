@@ -96,8 +96,9 @@ export async function getEntry(section: string, slug: string): Promise<Record<st
   const pool = getPool();
 
   // 1. Dedicated table (features, bugs, decisions, api-contracts, history)
+  //    Skip for '_index' — section indices live in wiki.pages, not the dedicated table
   const mapping = SECTION_TABLE[section];
-  if (mapping) {
+  if (mapping && slug !== '_index') {
     const { rows } = await pool.query(
       `SELECT data FROM ${mapping.table} WHERE ${mapping.idCol} = $1`, [slug]
     );
@@ -131,7 +132,7 @@ export async function listSection(section: string): Promise<string[]> {
   const mapping = SECTION_TABLE[section];
   if (mapping) {
     const { rows } = await pool.query(
-      `SELECT ${mapping.idCol} AS id FROM ${mapping.table} ORDER BY ${mapping.idCol}`
+      `SELECT ${mapping.idCol}::text AS id FROM ${mapping.table} ORDER BY ${mapping.idCol}`
     );
     return rows.map((r: { id: string }) => r.id);
   }

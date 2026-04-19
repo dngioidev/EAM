@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { readWikiFile, listWikiFiles } from '@/lib/wiki';
 import { getEntry, listSection } from '@/lib/db';
 import { StatusBadge } from '@/components/StatusBadge';
 
@@ -25,10 +24,9 @@ interface EntryPreview {
 
 async function loadPreview(section: string, slug: string): Promise<EntryPreview> {
   try {
-    // Try DB first for known structured sections; fall back to file for static sections
-    const d: Record<string, unknown> =
-      await getEntry(section, slug) ??
-      await readWikiFile<Record<string, unknown>>(`${section}/${slug}.json`);
+    // Load from DB
+    const d: Record<string, unknown> | null = await getEntry(section, slug);
+    if (!d) return { slug, title: slug, tldr: '' };
     const meta = d.meta as Record<string, unknown> | undefined;
     const content = d.content as Record<string, unknown> | undefined;
     const qf = d.quick_facts as Record<string, unknown> | undefined;
@@ -83,9 +81,7 @@ export default async function SectionPage({ params }: PageProps) {
 
   let slugs: string[] = [];
   try {
-    // DB first; readWikiFiles is a dead fallback (wiki/ deleted) but harmless
-    const dbSlugs = await listSection(section);
-    slugs = dbSlugs.length > 0 ? dbSlugs : await listWikiFiles(section);
+    slugs = await listSection(section);
   } catch {
     slugs = [];
   }

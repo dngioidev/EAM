@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { StatusBadge } from '@/components/StatusBadge';
 import { getChangelog } from '@/lib/db';
 
@@ -37,12 +38,20 @@ function TagBadge({ tag }: { tag: string }) {
   );
 }
 
-export default async function ChangelogPage() {
-  const entries = await getChangelog() as unknown as ChangeEntry[];
-  const lastEntry = entries[0];
+export default async function ChangelogPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const allEntries = await getChangelog() as unknown as ChangeEntry[];
+  const PAGE_SIZE = 20;
+  const page = Math.max(1, parseInt(searchParams.page ?? '1', 10));
+  const totalPages = Math.ceil(allEntries.length / PAGE_SIZE);
+  const entries = allEntries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const lastEntry = allEntries[0];
   const meta = { title: 'Changelog', last_updated: lastEntry?.date ?? '' };
   const qf = {
-    total_entries: entries.length,
+    total_entries: allEntries.length,
     current_version: lastEntry?.version ?? '',
   };
 
@@ -145,6 +154,33 @@ export default async function ChangelogPage() {
           ))}
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex items-center justify-between">
+          <span className="text-sm text-gray-500">
+            Page {page} of {totalPages}
+          </span>
+          <div className="flex gap-2">
+            {page > 1 && (
+              <Link
+                href={`/wiki/changelog?page=${page - 1}`}
+                className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                ← Previous
+              </Link>
+            )}
+            {page < totalPages && (
+              <Link
+                href={`/wiki/changelog?page=${page + 1}`}
+                className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                Next →
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

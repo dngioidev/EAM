@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { readWikiFile } from '@/lib/wiki';
 import { getEntry } from '@/lib/db';
 import { JsonBlock } from '@/components/JsonBlock';
 import { FeatureView } from '@/components/views/FeatureView';
@@ -23,9 +22,8 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
-    const data =
-      await getEntry(params.section, params.slug) ??
-      await readWikiFile<Record<string, unknown>>(`${params.section}/${params.slug}.json`);
+    const data = await getEntry(params.section, params.slug);
+    if (!data) return { title: params.slug };
     const title = resolveTitle(data, params.slug);
     return { title };
   } catch {
@@ -54,9 +52,9 @@ export default async function WikiEntryPage({ params }: PageProps) {
 
   let data: Record<string, unknown>;
   try {
-    data =
-      await getEntry(section, slug) ??
-      await readWikiFile<Record<string, unknown>>(`${section}/${slug}.json`);
+    const result = await getEntry(section, slug);
+    if (!result) notFound();
+    data = result;
   } catch {
     notFound();
   }

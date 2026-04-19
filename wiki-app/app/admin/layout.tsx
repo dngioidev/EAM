@@ -5,8 +5,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex items-center gap-3">
           <span className="text-2xl">🗄</span>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">SQLite Admin</h1>
-            <p className="text-xs text-gray-500">wiki.db — browse migrated data</p>
+            <h1 className="text-xl font-bold text-gray-900">Database Admin</h1>
+            <p className="text-xs text-gray-500">PostgreSQL · wiki schema</p>
           </div>
         </div>
         <div className="mt-2 flex gap-4 text-sm">
