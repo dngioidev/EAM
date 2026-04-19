@@ -1,28 +1,32 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { computeStatus, StockStatus } from '../../common/helpers/stock-status.helper';
 
-export interface ProductWithStatus extends Omit<Product, never> {
+export interface ProductWithStatus extends Product {
   status: StockStatus;
+  updated_at: string;
 }
-
-const MANAGER_ROLES = ['admin', 'store-manager', 'accountant'];
-const CASHIER_VISIBLE_ROLES = ['cashier', 'viewer'];
 
 export interface ProductQuery {
   q?: string;
   page?: number;
   limit?: number;
+}
+
+export interface ProductsPage {
+  items: ProductWithStatus[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 @Injectable()
@@ -32,109 +36,111 @@ export class ProductsService {
     private readonly productsRepository: Repository<Product>,
   ) {}
 
-  async create(dto: CreateProductDto, storeId: string | null): Promise<Product> {
-    if (!storeId) throw new ForbiddenException('Store assignment required to create products');
-    const existing = await this.productsRepository.findOne({
-      where: { sku: dto.sku, storeId },
-    });
+  async create(dto: CreateProductDto, storeId: string | null): Promise<ProductWithStatus> {
+    if (!storeId) throw new ForbiddenException('Workspace assignment required to create products');
 
-    if (existing) {
-      throw new ConflictException('SKU already exists in this store');
+    if (dto.sku) {
+      const existing = await this.productsRepository.findOne({
+        where: { sku: dto.sku, storeId },
+      });
+      if (existing) {
+        throw new ConflictException('SKU already exists in this workspace');
+      }
     }
 
     const product = this.productsRepository.create({
-      sku: dto.sku,
+      sku: dto.sku ?? null,
       name: dto.name,
-      priceVnd: dto.priceVnd,
-      taxRatePercent: dto.taxRatePercent,
+      priceVnd: 0,
+      taxRatePercent: 0,
+      threshold: dto.threshold ?? 0,
       storeId,
     });
 
-    return this.productsRepository.save(product);
+    const saved = await this.productsRepository.save(product);
+    return this.toResponse(saved);
   }
 
-  async findAll(storeId: string | null, role: string, query: ProductQuery): Promise<{ data: Product[]; total: number }> {
-    if (!storeId) throw new ForbiddenException('Store assignment required to list products');
+  async findAll(storeId: string | null, _role: string, query: ProductQuery): Promise<ProductsPage> {
     const page = Math.max(1, query.page ?? 1);
     const limit = Math.min(100, Math.max(1, query.limit ?? 20));
     const skip = (page - 1) * limit;
 
     const qb = this.productsRepository
       .createQueryBuilder('product')
-      .where('product.store_id = :storeId', { storeId })
       .andWhere('product.deleted_at IS NULL')
       .orderBy('product.created_at', 'DESC')
       .skip(skip)
       .take(limit);
 
-    // BR-PROD-07/09: cashier and viewer see only active products
-    if (CASHIER_VISIBLE_ROLES.includes(role)) {
-      qb.andWhere('product.is_active = true');
+    if (storeId) {
+      qb.where('product.store_id = :storeId', { storeId });
     }
 
-    // BR-PROD-11: diacritic-insensitive search with unaccent
     if (query.q) {
-      qb.andWhere(
-        '(unaccent(product.name) ILIKE unaccent(:q) OR product.sku = :exactQ)',
-        { q: `%${query.q}%`, exactQ: query.q },
-      );
+      const condition = storeId
+        ? '(unaccent(product.name) ILIKE unaccent(:q) OR product.sku = :exactQ)'
+        : '(unaccent(product.name) ILIKE unaccent(:q) OR product.sku = :exactQ)';
+      qb.andWhere(condition, { q: `%${query.q}%`, exactQ: query.q });
     }
 
-    const [data, total] = await qb.getManyAndCount();
+    const [items, total] = await qb.getManyAndCount();
     return {
-      data: data.map((p) => ({ ...p, status: computeStatus(p.quantity, p.threshold) })),
+      items: items.map((p) => this.toResponse(p)),
       total,
+      page,
+      limit,
     };
   }
 
-  async findOne(id: string, storeId: string | null, role: string): Promise<Product> {
-    if (!storeId) throw new ForbiddenException('Store assignment required to view products');
-    const product = await this.productsRepository.findOne({
-      where: { id, storeId },
-    });
+  async findOne(id: string, storeId: string | null, _role: string): Promise<ProductWithStatus> {
+    const where = storeId ? { id, storeId } : { id, storeId: IsNull() };
+    const product = await this.productsRepository.findOne({ where: { id } });
 
     if (!product) {
       throw new NotFoundException('Product not found');
     }
 
-    // BR-PROD-07: cashier/viewer cannot see deactivated products
-    if (!product.isActive && CASHIER_VISIBLE_ROLES.includes(role)) {
+    if (storeId && product.storeId !== storeId) {
       throw new NotFoundException('Product not found');
     }
 
-    return { ...product, status: computeStatus(product.quantity, product.threshold) } as ProductWithStatus;
+    return this.toResponse(product);
   }
 
-  async update(id: string, dto: UpdateProductDto & { sku?: unknown }, storeId: string | null): Promise<Product> {
-    if (!storeId) throw new ForbiddenException('Store assignment required to update products');
-    // BR-PROD-05: SKU is immutable
-    if ('sku' in dto && dto.sku !== undefined) {
-      throw new BadRequestException('SKU cannot be changed after creation');
-    }
-
-    const product = await this.findOneForWrite(id, storeId);
+  async update(id: string, dto: UpdateProductDto, storeId: string | null): Promise<ProductWithStatus> {
+    const product = await this.findRaw(id, storeId);
 
     if (dto.name !== undefined) product.name = dto.name;
-    if (dto.priceVnd !== undefined) product.priceVnd = dto.priceVnd;
-    if (dto.taxRatePercent !== undefined) product.taxRatePercent = dto.taxRatePercent;
+    if (dto.threshold !== undefined) product.threshold = dto.threshold;
 
     const saved = await this.productsRepository.save(product);
-    return { ...saved, status: computeStatus(saved.quantity, saved.threshold) } as ProductWithStatus;
+    return this.toResponse(saved);
   }
 
-  async deactivate(id: string, storeId: string | null): Promise<Product> {
-    if (!storeId) throw new ForbiddenException('Store assignment required to deactivate products');
-    const product = await this.findOneForWrite(id, storeId);
-    // BR-PROD idempotent
-    product.isActive = false;
-    return this.productsRepository.save(product);
-  }
-
-  private async findOneForWrite(id: string, storeId: string): Promise<Product> {
-    const product = await this.productsRepository.findOne({
-      where: { id, storeId },
-    });
+  private async findRaw(id: string, storeId: string | null): Promise<Product> {
+    const product = await this.productsRepository.findOne({ where: { id } });
     if (!product) throw new NotFoundException('Product not found');
+    if (storeId && product.storeId !== storeId) throw new NotFoundException('Product not found');
     return product;
+  }
+
+  private toResponse(p: Product): ProductWithStatus {
+    return {
+      id: p.id,
+      sku: p.sku,
+      name: p.name,
+      quantity: p.quantity,
+      threshold: p.threshold,
+      isActive: p.isActive,
+      storeId: p.storeId,
+      priceVnd: p.priceVnd,
+      taxRatePercent: p.taxRatePercent,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+      deletedAt: p.deletedAt,
+      status: computeStatus(p.quantity, p.threshold),
+      updated_at: p.updatedAt?.toISOString() ?? new Date().toISOString(),
+    } as ProductWithStatus;
   }
 }

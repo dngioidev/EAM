@@ -6,7 +6,7 @@ import { Product } from '../products/entities/product.entity';
 export interface DashboardItem {
   id: string;
   name: string;
-  sku: string;
+  sku: string | null;
   quantity: number;
   threshold: number;
 }

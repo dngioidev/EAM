@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { User, UserRole } from '../users/entities/user.entity';
 import { Product } from '../products/entities/product.entity';
-import { Order } from '../orders/entities/order.entity';
+import { Store } from '../stores/entities/store.entity';
 
 // Mock ioredis
 jest.mock('ioredis', () => {
@@ -23,10 +23,11 @@ jest.mock('ioredis', () => {
 const mockUsersService = {
   findByEmail: jest.fn(),
   findById: jest.fn(),
-  findActiveByStoreId: jest.fn(),
   setActiveStatus: jest.fn(),
   countAll: jest.fn(),
   countDisabled: jest.fn(),
+  create: jest.fn(),
+  existsByEmail: jest.fn(),
 };
 
 const mockJwtService = {
@@ -38,8 +39,9 @@ const mockProductsRepository = {
   count: jest.fn().mockResolvedValue(0),
 };
 
-const mockOrdersRepository = {
-  count: jest.fn().mockResolvedValue(0),
+const mockStoresRepository = {
+  create: jest.fn(),
+  save: jest.fn(),
 };
 
 const mockConfigService = {
@@ -83,7 +85,7 @@ describe('AuthService', () => {
         AuthService,
         { provide: UsersService, useValue: mockUsersService },
         { provide: getRepositoryToken(Product), useValue: mockProductsRepository },
-        { provide: getRepositoryToken(Order), useValue: mockOrdersRepository },
+        { provide: getRepositoryToken(Store), useValue: mockStoresRepository },
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
@@ -106,15 +108,12 @@ describe('AuthService', () => {
       expect(result.accessToken).toBeDefined();
       expect(result.user.email).toBe('admin@eam.local');
       expect(mockJwtService.sign).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sub: user.id,
-          tokenVersion: user.tokenVersion,
-        }),
+        expect.objectContaining({ sub: user.id, tokenVersion: user.tokenVersion }),
         expect.any(Object),
       );
     });
 
-    it('throws 401 when password is wrong — SAME error as unknown email (BR-AUTH-08)', async () => {
+    it('throws 401 when password is wrong (BR-AUTH-08)', async () => {
       const hash = await bcrypt.hash('other_password', 12);
       const user = buildUser({ passwordHash: hash });
       mockUsersService.findByEmail.mockResolvedValue(user);
@@ -124,7 +123,7 @@ describe('AuthService', () => {
       );
     });
 
-    it('throws 401 when user does not exist — SAME error as wrong password (BR-AUTH-08)', async () => {
+    it('throws 401 when user does not exist (BR-AUTH-08)', async () => {
       mockUsersService.findByEmail.mockResolvedValue(null);
 
       await expect(service.login('notexist@eam.local', 'any_password')).rejects.toThrow(
@@ -146,21 +145,16 @@ describe('AuthService', () => {
   describe('logout', () => {
     it('deletes refresh token key from Redis', async () => {
       const IORedis = require('ioredis');
-      const redisMock = new IORedis.Redis();
-      redisMock.del.mockResolvedValue(1);
-
+      const mock = new IORedis.Redis();
+      mock.del.mockResolvedValue(1);
       await service.logout('user-uuid-1');
-      // Behaviour verified by no-throw
     });
   });
 
   describe('refresh', () => {
     it('throws 401 when token version mismatches user version', async () => {
       const refreshToken = 'refresh-token';
-      mockJwtService.verify.mockReturnValue({
-        sub: 'user-uuid-1',
-        tokenVersion: 0,
-      });
+      mockJwtService.verify.mockReturnValue({ sub: 'user-uuid-1', tokenVersion: 0 });
       redisMock.get.mockResolvedValue(refreshToken);
       mockUsersService.findById.mockResolvedValue(buildUser({ tokenVersion: 1 }));
 
@@ -169,24 +163,20 @@ describe('AuthService', () => {
       );
     });
 
-    it('rotates refresh token when payload and user token version match', async () => {
+    it('rotates refresh token when token versions match', async () => {
       const refreshToken = 'refresh-token';
-      mockJwtService.verify.mockReturnValue({
-        sub: 'user-uuid-1',
-        tokenVersion: 2,
-      });
+      mockJwtService.verify.mockReturnValue({ sub: 'user-uuid-1', tokenVersion: 2 });
       redisMock.get.mockResolvedValue(refreshToken);
       mockUsersService.findById.mockResolvedValue(buildUser({ tokenVersion: 2 }));
 
       const result = await service.refresh(refreshToken);
-
       expect(result.accessToken).toBeDefined();
       expect(redisMock.del).toHaveBeenCalledWith('refresh:user-uuid-1');
     });
   });
 
   describe('setUserStatus', () => {
-    it('disables user with token-version increment and session revoke', async () => {
+    it('disables user: revokes session and increments token version', async () => {
       const updated = buildUser({ isActive: false, tokenVersion: 3 });
       mockUsersService.setActiveStatus.mockResolvedValue(updated);
 
@@ -197,7 +187,7 @@ describe('AuthService', () => {
       expect(result).toBe(updated);
     });
 
-    it('enables user without forcing token-version increment', async () => {
+    it('enables user without session revoke', async () => {
       const updated = buildUser({ isActive: true, tokenVersion: 3 });
       mockUsersService.setActiveStatus.mockResolvedValue(updated);
 
@@ -210,19 +200,18 @@ describe('AuthService', () => {
   });
 
   describe('getAdminStats', () => {
-    it('returns aggregated platform stats', async () => {
+    it('returns snake_case platform stats', async () => {
       mockUsersService.countAll.mockResolvedValue(12);
       mockUsersService.countDisabled.mockResolvedValue(2);
       mockProductsRepository.count.mockResolvedValue(30);
-      mockOrdersRepository.count.mockResolvedValue(45);
 
       const result = await service.getAdminStats();
 
       expect(result).toEqual({
-        totalUsers: 12,
-        disabledUsers: 2,
-        totalProducts: 30,
-        totalTransactions: 45,
+        total_users: 12,
+        disabled_users: 2,
+        total_products: 30,
+        total_transactions: 0,
       });
     });
   });

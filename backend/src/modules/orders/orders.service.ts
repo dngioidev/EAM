@@ -105,11 +105,11 @@ export class OrdersService {
         orderId,
         productId: dto.productId,
         productName: product.name,   // BR-ORDER-01: snapshot
-        sku: product.sku,            // BR-ORDER-01: snapshot
+        sku: product.sku ?? '',      // BR-ORDER-01: snapshot
         quantity: dto.quantity,
-        unitPriceVnd: product.priceVnd,     // BR-ORDER-01: snapshot
-        taxRatePercent: product.taxRatePercent, // BR-ORDER-01: snapshot
-        lineTotalVnd: product.priceVnd * dto.quantity,
+        unitPriceVnd: product.priceVnd ?? 0,     // BR-ORDER-01: snapshot
+        taxRatePercent: product.taxRatePercent ?? 0, // BR-ORDER-01: snapshot
+        lineTotalVnd: (product.priceVnd ?? 0) * dto.quantity,
       });
     }
 

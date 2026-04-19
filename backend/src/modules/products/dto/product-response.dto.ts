@@ -1,13 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ProductResponseDto {
   @ApiProperty() id: string;
-  @ApiProperty() sku: string;
+  @ApiPropertyOptional() sku: string | null;
   @ApiProperty() name: string;
-  @ApiProperty() priceVnd: number;
-  @ApiProperty() taxRatePercent: number;
-  @ApiProperty() isActive: boolean;
-  @ApiProperty() storeId: string;
-  @ApiProperty() createdAt: Date;
-  @ApiProperty() updatedAt: Date;
+  @ApiProperty() quantity: number;
+  @ApiProperty() threshold: number;
+  @ApiProperty({ enum: ['OUT_OF_STOCK', 'LOW_STOCK', 'IN_STOCK'] }) status: string;
+  @ApiProperty() updated_at: string;
 }

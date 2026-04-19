@@ -3,11 +3,8 @@ import { BaseEntity } from '../../../common/entities/base.entity';
 import { Store } from '../../stores/entities/store.entity';
 
 export enum UserRole {
-  ADMIN = 'admin',
-  STORE_MANAGER = 'store-manager',
-  CASHIER = 'cashier',
-  ACCOUNTANT = 'accountant',
-  VIEWER = 'viewer',
+  OWNER = 'OWNER',
+  ADMIN = 'ADMIN',
 }
 
 @Entity('users')
@@ -18,10 +15,10 @@ export class User extends BaseEntity {
   @Column({ name: 'password_hash', type: 'varchar', length: 255 })
   passwordHash: string;
 
-  @Column({ type: 'varchar', length: 50 })
-  name: string;
+  @Column({ type: 'varchar', length: 50, nullable: true, default: '' })
+  name: string | null;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.VIEWER })
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.OWNER })
   role: UserRole;
 
   @Column({ name: 'store_id', type: 'uuid', nullable: true })

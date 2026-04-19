@@ -2,7 +2,7 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
+  Put,
   Body,
   Param,
   Query,
@@ -35,8 +35,8 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @Roles('admin', 'store-manager')
-  @ApiOperation({ summary: 'Create a product in caller\'s store' })
+  @Roles('OWNER', 'ADMIN')
+  @ApiOperation({ summary: "Create a product in caller's workspace" })
   @ApiResponse({ status: 201, type: ProductResponseDto })
   async create(
     @Body() dto: CreateProductDto,
@@ -46,9 +46,9 @@ export class ProductsController {
   }
 
   @Get()
-  @Roles('admin', 'store-manager', 'cashier', 'accountant', 'viewer')
-  @ApiOperation({ summary: 'List/search products — cashier sees active only' })
-  @ApiQuery({ name: 'q', required: false, description: 'Diacritic-insensitive search' })
+  @Roles('OWNER', 'ADMIN')
+  @ApiOperation({ summary: 'List/search products in caller workspace' })
+  @ApiQuery({ name: 'q', required: false, description: 'Search by name or SKU' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200 })
@@ -67,8 +67,8 @@ export class ProductsController {
   }
 
   @Get(':id')
-  @Roles('admin', 'store-manager', 'cashier', 'accountant', 'viewer')
-  @ApiOperation({ summary: 'Get product by ID — cashier gets 404 for deactivated' })
+  @Roles('OWNER', 'ADMIN')
+  @ApiOperation({ summary: 'Get product by ID' })
   @ApiResponse({ status: 200, type: ProductResponseDto })
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
@@ -77,9 +77,10 @@ export class ProductsController {
     return this.productsService.findOne(id, user.storeId, user.role) as unknown as ProductResponseDto;
   }
 
-  @Patch(':id')
-  @Roles('admin', 'store-manager')
-  @ApiOperation({ summary: 'Update product — SKU immutable' })
+  @Put(':id')
+  @Roles('OWNER', 'ADMIN')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update product' })
   @ApiResponse({ status: 200, type: ProductResponseDto })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -87,17 +88,5 @@ export class ProductsController {
     @CurrentUser() user: AuthUser,
   ): Promise<ProductResponseDto> {
     return this.productsService.update(id, dto, user.storeId) as unknown as ProductResponseDto;
-  }
-
-  @Patch(':id/deactivate')
-  @Roles('admin', 'store-manager')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Deactivate product (idempotent)' })
-  @ApiResponse({ status: 200, type: ProductResponseDto })
-  async deactivate(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: AuthUser,
-  ): Promise<ProductResponseDto> {
-    return this.productsService.deactivate(id, user.storeId) as unknown as ProductResponseDto;
   }
 }

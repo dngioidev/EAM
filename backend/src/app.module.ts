@@ -15,6 +15,7 @@ import { InvoicesModule } from './modules/invoices/invoices.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { User } from './modules/users/entities/user.entity';
 import { Store } from './modules/stores/entities/store.entity';
 import { Product } from './modules/products/entities/product.entity';
@@ -82,6 +83,7 @@ import { Transaction } from './modules/inventory/entities/transaction.entity';
     ReportsModule,
     DashboardModule,
     InventoryModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

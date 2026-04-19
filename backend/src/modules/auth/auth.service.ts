@@ -1,7 +1,6 @@
 import {
   Injectable,
   UnauthorizedException,
-  BadRequestException,
   ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -11,11 +10,10 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import * as IORedis from 'ioredis';
 import { UsersService } from '../users/users.service';
-import { User } from '../users/entities/user.entity';
+import { User, UserRole } from '../users/entities/user.entity';
+import { Store } from '../stores/entities/store.entity';
 import { Product } from '../products/entities/product.entity';
-import { Order } from '../orders/entities/order.entity';
 import { AuthResponseDto } from './dto/auth-response.dto';
-import { CreateUserDto } from './dto/create-user.dto';
 
 const BCRYPT_COST = 12;
 
@@ -27,6 +25,13 @@ interface JwtPayload {
   tokenVersion: number;
 }
 
+export interface AdminStats {
+  total_users: number;
+  disabled_users: number;
+  total_products: number;
+  total_transactions: number;
+}
+
 @Injectable()
 export class AuthService {
   private readonly redis: IORedis.Redis;
@@ -34,10 +39,10 @@ export class AuthService {
 
   constructor(
     private readonly usersService: UsersService,
+    @InjectRepository(Store)
+    private readonly storesRepository: Repository<Store>,
     @InjectRepository(Product)
     private readonly productsRepository: Repository<Product>,
-    @InjectRepository(Order)
-    private readonly ordersRepository: Repository<Order>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
@@ -108,55 +113,61 @@ export class AuthService {
     await this.redis.del(`refresh:${userId}`);
   }
 
-  async revokeAllForStore(storeId: string): Promise<void> {
-    const users = await this.usersService.findActiveByStoreId(storeId);
-    if (users.length === 0) return;
-
-    const keys = users.map((u) => `refresh:${u.id}`);
-    await this.redis.del(...keys);
-  }
-
-  async registerUser(dto: CreateUserDto): Promise<User> {
-    const exists = await this.usersService.existsByEmail(dto.email);
+  /**
+   * Public OWNER self-registration. Auto-creates a workspace store so the
+   * new user can immediately create and manage products.
+   */
+  async registerOwner(email: string, password: string): Promise<AuthResponseDto> {
+    const exists = await this.usersService.existsByEmail(email);
     if (exists) {
       throw new ConflictException('Email already registered');
     }
-    const passwordHash = await this.hashPassword(dto.password);
-    return this.usersService.create({
-      email: dto.email,
-      passwordHash,
-      name: dto.name,
-      role: dto.role,
-      storeId: dto.storeId ?? null,
-    });
-  }
 
-  async deactivateUser(userId: string): Promise<User> {
-    // Flush Redis session before deactivating (BR-ADMIN-03)
-    return this.setUserStatus(userId, false);
+    const passwordHash = await this.hashPassword(password);
+
+    // Auto-create a workspace store so OWNER can access products immediately
+    const store = this.storesRepository.create({
+      name: `${email.split('@')[0]} Workspace`,
+      taxCode: `WS-${Date.now()}`,
+      address: null,
+      isActive: true,
+    });
+    const savedStore = await this.storesRepository.save(store);
+
+    const user = await this.usersService.create({
+      email,
+      passwordHash,
+      name: email.split('@')[0],
+      role: UserRole.OWNER,
+      storeId: savedStore.id,
+    });
+
+    return this.issueTokens(user);
   }
 
   async setUserStatus(userId: string, isActive: boolean): Promise<User> {
     if (!isActive) {
-      // Force re-login for disabled users.
       await this.redis.del(`refresh:${userId}`);
     }
     return this.usersService.setActiveStatus(userId, isActive, !isActive);
   }
 
-  async getAdminStats() {
-    const [totalUsers, disabledUsers, totalProducts, totalTransactions] = await Promise.all([
+  async deactivateUser(userId: string): Promise<User> {
+    return this.setUserStatus(userId, false);
+  }
+
+  async getAdminStats(): Promise<AdminStats> {
+    const [total_users, disabled_users, total_products] = await Promise.all([
       this.usersService.countAll(),
       this.usersService.countDisabled(),
       this.productsRepository.count(),
-      this.ordersRepository.count(),
     ]);
 
     return {
-      totalUsers,
-      disabledUsers,
-      totalProducts,
-      totalTransactions,
+      total_users,
+      disabled_users,
+      total_products,
+      total_transactions: 0,
     };
   }
 
@@ -185,9 +196,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
         role: user.role,
-        storeId: user.storeId,
       },
     };
   }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -6,13 +6,10 @@ import { User } from './entities/user.entity';
 export interface AdminUserView {
   id: string;
   email: string;
-  name: string;
-  role: User['role'];
-  storeId: string | null;
-  isActive: boolean;
-  tokenVersion: number;
-  createdAt: Date;
-  updatedAt: Date;
+  role: string;
+  status: 'ACTIVE' | 'DISABLED';
+  created_at: string;
+  product_count: number;
 }
 
 export interface PaginatedUsersResult {
@@ -74,13 +71,6 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async deactivate(id: string): Promise<User> {
-    const user = await this.findById(id);
-    if (!user.isActive) return user; // idempotent
-    user.isActive = false;
-    return this.usersRepository.save(user);
-  }
-
   async setActiveStatus(
     id: string,
     isActive: boolean,
@@ -121,13 +111,10 @@ export class UsersService {
     return {
       id: user.id,
       email: user.email,
-      name: user.name,
       role: user.role,
-      storeId: user.storeId,
-      isActive: user.isActive,
-      tokenVersion: user.tokenVersion,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      status: user.isActive ? 'ACTIVE' : 'DISABLED',
+      created_at: user.createdAt?.toISOString() ?? new Date().toISOString(),
+      product_count: 0,
     };
   }
 

@@ -1,26 +1,22 @@
-import { IsIn, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-
-const VALID_TAX_RATES = [0, 5, 8, 10] as const;
+import { IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateProductDto {
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   @MaxLength(255)
   name?: string;
 
-  @ApiProperty({ required: false, description: 'Integer đồng' })
+  @ApiPropertyOptional({ description: 'SKU (accepted but immutable — use for future edit support)' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  sku?: string;
+
+  @ApiPropertyOptional({ example: 5, description: 'Low-stock alert threshold' })
   @IsInt()
   @Min(0)
   @IsOptional()
-  priceVnd?: number;
-
-  @ApiProperty({ required: false, enum: VALID_TAX_RATES })
-  @IsInt()
-  @IsIn(VALID_TAX_RATES as unknown as number[], {
-    message: 'taxRatePercent must be one of 0, 5, 8, 10',
-  })
-  @IsOptional()
-  taxRatePercent?: number;
+  threshold?: number;
 }

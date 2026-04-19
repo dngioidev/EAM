@@ -79,9 +79,6 @@ export class StoresController {
   async deactivate(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<StoreResponseDto> {
-    // Revoke all active sessions for users of this store (flush Redis keys)
-    await this.authService.revokeAllForStore(id);
-
     return this.storesService.deactivate(id) as unknown as StoreResponseDto;
   }
 }

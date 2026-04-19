@@ -1,21 +1,20 @@
-import { Column, Entity, Index, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Store } from '../../stores/entities/store.entity';
 
 @Entity('products')
-@Index(['sku', 'storeId'], { unique: true })
 export class Product extends BaseEntity {
-  @Column({ type: 'varchar', length: 100 })
-  sku: string;
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  sku: string | null;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @Column({ name: 'price_vnd', type: 'integer' })
-  priceVnd: number;
+  @Column({ name: 'price_vnd', type: 'integer', nullable: true, default: 0 })
+  priceVnd: number | null;
 
-  @Column({ name: 'tax_rate_percent', type: 'smallint' })
-  taxRatePercent: number;
+  @Column({ name: 'tax_rate_percent', type: 'smallint', nullable: true, default: 0 })
+  taxRatePercent: number | null;
 
   @Column({ type: 'integer', default: 0 })
   quantity: number;
@@ -26,10 +25,10 @@ export class Product extends BaseEntity {
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
 
-  @Column({ name: 'store_id', type: 'uuid' })
-  storeId: string;
+  @Column({ name: 'store_id', type: 'uuid', nullable: true })
+  storeId: string | null;
 
-  @ManyToOne(() => Store, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Store, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'store_id' })
   store: Store;
 }
