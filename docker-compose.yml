@@ -4,7 +4,6 @@
 #   :3001 → wiki-app      Documentation viewer
 #   :5050 → pgAdmin       Database admin UI
 #   :5433 → postgres-test Test DB for host-side test runner (npm test)
-#   :8082 → sqlite-web    wiki.db browser (coleifer/sqlite-web, read-only)
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
@@ -159,10 +158,14 @@ services:
     ports:
       - "3001:3001"             # Exposed: documentation browser
     environment:
-      WIKI_DB: /home/node/wiki.db
-      WIKI_PATH: /wiki
-    volumes:
-      - ./wiki.db:/home/node/wiki.db
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - eam_network
     restart: unless-stopped
@@ -202,18 +205,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - eam_network
-
-  sqlite-web:
-    build:
-      context: .
-      dockerfile: sqlite-web.Dockerfile
-    container_name: eam_sqlite_web
-    ports:
-      - "8082:8080"             # Exposed: wiki.db browser (read-only)
-    volumes:
-      - ./wiki.db:/data/wiki.db:ro
     networks:
       - eam_network
 

@@ -21,7 +21,7 @@ interface Dashboard {
 }
 
 export default async function WikiDashboardPage() {
-  const dashboard = getDashboard() as unknown as Dashboard;
+  const dashboard = await getDashboard() as unknown as Dashboard;
   const { meta, quick_facts: qf, content } = dashboard;
 
   return (

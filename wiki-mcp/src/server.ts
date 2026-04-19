@@ -5,7 +5,6 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-import { getDb } from "./db.js";
 
 const server = new Server(
   { name: "eam-wiki", version: "1.0.0" },
@@ -246,7 +245,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     // Search (T008)
     {
       name: "wiki_search",
-      description: "Full-text search across features, bugs, decisions, and contracts using SQLite FTS5.",
+      description: "Full-text search across features, bugs, decisions, and contracts using PostgreSQL tsvector.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -341,14 +340,28 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "wiki_feature_list":
       case "wiki_sprint_get":
       case "wiki_bug_list":
-      case "wiki_contract_get": {
+      case "wiki_contract_get":
+      case "wiki_pages_get":
+      case "wiki_pages_list":
+      case "wiki_bug_get":
+      case "wiki_sprint_list":
+      case "wiki_contract_list":
+      case "wiki_history_get":
+      case "wiki_history_list":
+      case "wiki_decisions_list":
+      case "wiki_changelog_list": {
         const { handleReadTool } = await import("./tools/read.js");
         return await handleReadTool(name, args ?? {});
       }
       // Write tools
       case "wiki_feature_update":
       case "wiki_task_update":
-      case "wiki_session_log": {
+      case "wiki_session_log":
+      case "wiki_pages_update":
+      case "wiki_decision_create":
+      case "wiki_decision_update":
+      case "wiki_changelog_create":
+      case "wiki_changelog_update": {
         const { handleWriteTool } = await import("./tools/write.js");
         return await handleWriteTool(name, args ?? {});
       }

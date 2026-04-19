@@ -11,6 +11,6 @@ export async function GET(request: Request) {
     return NextResponse.json([]);
   }
 
-  const results = searchWiki(query);
+  const results = await searchWiki(query);
   return NextResponse.json(results);
 }

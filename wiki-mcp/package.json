@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "MCP server for EAM-Tax wiki — SQLite-backed tools for AI agent wiki reads/writes",
+  "description": "MCP server for EAM-Tax wiki — PostgreSQL-backed tools for AI agent wiki reads/writes",
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
@@ -12,11 +12,11 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.1",
-    "better-sqlite3": "^12.9.0",
+    "pg": "^8.16.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.11",
+    "@types/pg": "^8.11.0",
     "@types/node": "^22.0.0",
     "tsx": "^4.15.7",
     "typescript": "^5.5.4"

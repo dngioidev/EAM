@@ -23,8 +23,8 @@ const CATEGORY_STYLES: Record<string, string> = {
   technical: 'bg-purple-50 text-purple-700 border-purple-200',
 };
 
-export default function GlossaryPage() {
-  const raw = getEntry('glossary', '_index');
+export default async function GlossaryPage() {
+  const raw = await getEntry('glossary', '_index');
   if (!raw) notFound();
   const data = raw as unknown as Glossary;
   const { meta, quick_facts: qf, content } = data;

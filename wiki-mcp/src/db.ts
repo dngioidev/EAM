@@ -1,30 +1,17 @@
-import Database from "better-sqlite3";
-import { createRequire } from "module";
-import path from "path";
-import { fileURLToPath } from "url";
+import pg from "pg";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// wiki.db lives at repo root: <project>/wiki.db
-const DB_PATH = path.resolve(__dirname, "../../wiki.db");
+const pool = new pg.Pool({
+  host: process.env.DATABASE_HOST ?? "localhost",
+  port: parseInt(process.env.DATABASE_PORT ?? "5432", 10),
+  user: process.env.DATABASE_USER ?? "eam_user",
+  password: process.env.DATABASE_PASSWORD ?? "devpassword123",
+  database: process.env.DATABASE_NAME ?? "eam_db",
+});
 
-let _db: Database.Database | null = null;
-
-export function getDb(): Database.Database {
-  if (_db) return _db;
-
-  _db = new Database(DB_PATH);
-
-  // Performance and safety PRAGMAs
-  _db.pragma("journal_mode = WAL");   // BR-WIKII-06: WAL mode for concurrent reads
-  _db.pragma("foreign_keys = ON");
-  _db.pragma("synchronous = NORMAL"); // Safe with WAL
-
-  return _db;
+export function getPool(): pg.Pool {
+  return pool;
 }
 
-export function closeDb(): void {
-  if (_db) {
-    _db.close();
-    _db = null;
-  }
+export async function closeDb(): Promise<void> {
+  await pool.end();
 }

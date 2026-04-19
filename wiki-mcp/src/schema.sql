@@ -1,190 +1,219 @@
--- EAM Wiki SQLite Schema v1
--- Sprint 4.5 / wiki-infra T002
--- BR-WIKII-06: WAL mode is set at connection time in db.ts (PRAGMA journal_mode=WAL)
--- All tables include a `data` JSON text column for the full typed record,
--- plus indexed columns for filtering without JSON extraction.
+-- ============================================================
+-- EAM Wiki â€” PostgreSQL Schema
+-- Replaces wiki.db (SQLite). Lives in the "wiki" schema
+-- inside the existing eam_db PostgreSQL database.
+-- ============================================================
 
--- ─── Enumerations enforced via CHECK ─────────────────────────────────────────
+CREATE SCHEMA IF NOT EXISTS wiki;
 
--- feature status: todo | planning | in_progress | done | blocked | cancelled
--- sprint status:  planned | active | closed
--- task status:    todo | in_progress | done | blocked
--- bug severity:   low | medium | high | critical
--- bug status:     open | in_progress | fixed | wontfix | deferred
+-- â”€â”€â”€ Core tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
--- ─── Core tables ──────────────────────────────────────────────────────────────
-
-CREATE TABLE IF NOT EXISTS features (
-  id          TEXT PRIMARY KEY,          -- e.g. 'auth', 'wiki-infra'
+CREATE TABLE IF NOT EXISTS wiki.features (
+  id          TEXT PRIMARY KEY,
   title       TEXT NOT NULL,
   status      TEXT NOT NULL DEFAULT 'planning'
                 CHECK(status IN ('todo','planning','in_progress','done','blocked','cancelled')),
-  sprint      TEXT,                      -- sprint id this feature belongs to
-  domain      TEXT,                      -- e.g. 'internal-tooling', 'pos'
+  sprint      TEXT,
+  domain      TEXT,
   priority    INTEGER DEFAULT 5,
-  size        TEXT,                      -- S/M/L/XL
+  size        TEXT,
   owner       TEXT,
-  data        TEXT NOT NULL,             -- full JSON record (pretty-printed)
-  created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
-  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+  data        JSONB NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS sprints (
-  id          TEXT PRIMARY KEY,          -- e.g. 'sprint-4-5'
+CREATE TABLE IF NOT EXISTS wiki.sprints (
+  id          TEXT PRIMARY KEY,
   title       TEXT NOT NULL,
   status      TEXT NOT NULL DEFAULT 'planned'
                 CHECK(status IN ('planned','active','closed')),
-  start_date  TEXT,                      -- ISO date YYYY-MM-DD
-  end_date    TEXT,
+  start_date  DATE,
+  end_date    DATE,
   goal        TEXT,
   velocity    INTEGER DEFAULT 0,
-  data        TEXT NOT NULL,
-  created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
-  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+  data        JSONB NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS tasks (
-  id          TEXT NOT NULL,             -- e.g. 'T001'
-  feature_id  TEXT NOT NULL REFERENCES features(id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS wiki.tasks (
+  id          TEXT NOT NULL,
+  feature_id  TEXT NOT NULL REFERENCES wiki.features(id) ON DELETE CASCADE,
   title       TEXT NOT NULL,
   status      TEXT NOT NULL DEFAULT 'todo'
                 CHECK(status IN ('todo','in_progress','done','blocked')),
-  priority    TEXT DEFAULT 'P1',         -- P0/P1/P2/P3
+  priority    TEXT DEFAULT 'P1',
   size        TEXT,
   notes       TEXT,
-  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (id, feature_id)
 );
 
-CREATE TABLE IF NOT EXISTS api_contracts (
-  module      TEXT PRIMARY KEY,          -- e.g. 'auth', 'order'
+CREATE TABLE IF NOT EXISTS wiki.api_contracts (
+  module      TEXT PRIMARY KEY,
   version     TEXT NOT NULL DEFAULT '1.0.0',
   status      TEXT NOT NULL DEFAULT 'draft'
                 CHECK(status IN ('draft','approved','deprecated')),
-  data        TEXT NOT NULL,
-  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+  data        JSONB NOT NULL,
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS bugs (
-  id          TEXT PRIMARY KEY,          -- e.g. 'BUG-0001'
+CREATE TABLE IF NOT EXISTS wiki.bugs (
+  id          TEXT PRIMARY KEY,
   title       TEXT NOT NULL,
   severity    TEXT NOT NULL DEFAULT 'medium'
                 CHECK(severity IN ('low','medium','high','critical')),
   status      TEXT NOT NULL DEFAULT 'open'
                 CHECK(status IN ('open','in_progress','fixed','wontfix','deferred')),
-  feature     TEXT,                      -- related feature id (optional)
+  feature     TEXT,
   sprint      TEXT,
   description TEXT,
-  data        TEXT NOT NULL,
-  created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
-  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+  data        JSONB NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS history (
-  date        TEXT PRIMARY KEY,          -- ISO date YYYY-MM-DD
+CREATE TABLE IF NOT EXISTS wiki.history (
+  date        DATE PRIMARY KEY,
   title       TEXT,
-  data        TEXT NOT NULL,
-  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+  data        JSONB NOT NULL,
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS decisions (
-  id          TEXT PRIMARY KEY,          -- e.g. 'DEC-0001'
+CREATE TABLE IF NOT EXISTS wiki.decisions (
+  id          TEXT PRIMARY KEY,
   title       TEXT NOT NULL,
   status      TEXT NOT NULL DEFAULT 'accepted'
                 CHECK(status IN ('proposed','accepted','superseded','rejected')),
   feature     TEXT,
-  data        TEXT NOT NULL,
-  created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
-  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+  data        JSONB NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS changelog (
-  version     TEXT PRIMARY KEY,          -- semver e.g. '0.17.0'
-  date        TEXT NOT NULL,
+CREATE TABLE IF NOT EXISTS wiki.changelog (
+  version     TEXT PRIMARY KEY,
+  date        DATE NOT NULL,
   sprint      TEXT,
   summary     TEXT NOT NULL,
-  data        TEXT NOT NULL,
-  created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+  data        JSONB NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- ─── Dashboard singleton ───────────────────────────────────────────────────────
--- Single row (id=1) storing the serialized dashboard.json content
-CREATE TABLE IF NOT EXISTS dashboard (
+CREATE TABLE IF NOT EXISTS wiki.dashboard (
   id          INTEGER PRIMARY KEY CHECK(id = 1),
-  data        TEXT NOT NULL,
-  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+  data        JSONB NOT NULL,
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- ─── Audit log — BR-WIKII-04 ──────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS audit_log (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  tool        TEXT NOT NULL,             -- MCP tool name e.g. 'wiki_feature_update'
+CREATE TABLE IF NOT EXISTS wiki.audit_log (
+  id          SERIAL PRIMARY KEY,
+  tool        TEXT NOT NULL,
   author      TEXT NOT NULL DEFAULT 'vibe-agent',
-  target_type TEXT,                      -- 'feature', 'sprint', 'bug', etc.
-  target_id   TEXT,                      -- the record ID affected
-  changed     TEXT,                      -- JSON diff / patch applied
-  timestamp   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+  target_type TEXT,
+  target_id   TEXT,
+  changed     JSONB,
+  timestamp   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- ─── Indexes for common query patterns ────────────────────────────────────────
-
-CREATE INDEX IF NOT EXISTS idx_features_status   ON features(status);
-CREATE INDEX IF NOT EXISTS idx_features_sprint   ON features(sprint);
-CREATE INDEX IF NOT EXISTS idx_features_domain   ON features(domain);
-CREATE INDEX IF NOT EXISTS idx_tasks_feature     ON tasks(feature_id);
-CREATE INDEX IF NOT EXISTS idx_tasks_status      ON tasks(status);
-CREATE INDEX IF NOT EXISTS idx_bugs_status       ON bugs(status);
-CREATE INDEX IF NOT EXISTS idx_bugs_severity     ON bugs(severity);
-CREATE INDEX IF NOT EXISTS idx_bugs_feature      ON bugs(feature);
-CREATE INDEX IF NOT EXISTS idx_bugs_sprint       ON bugs(sprint);
-CREATE INDEX IF NOT EXISTS idx_audit_target      ON audit_log(target_type, target_id);
-CREATE INDEX IF NOT EXISTS idx_audit_timestamp   ON audit_log(timestamp);
-CREATE INDEX IF NOT EXISTS idx_changelog_date    ON changelog(date);
-CREATE INDEX IF NOT EXISTS idx_sprints_status    ON sprints(status);
-
--- ─── FTS5 virtual tables — T008 ───────────────────────────────────────────────
--- content= tables mirror the base table columns; rowid references base table rowid
--- Tokenizer: unicode61 (handles Vietnamese text and accented characters)
-
-CREATE VIRTUAL TABLE IF NOT EXISTS features_fts USING fts5(
-  id UNINDEXED,
-  title,
-  domain UNINDEXED,
-  body,                                  -- tldr + problem + solution concatenated at insert
-  tokenize = 'unicode61'
-);
-
-CREATE VIRTUAL TABLE IF NOT EXISTS bugs_fts USING fts5(
-  id UNINDEXED,
-  title,
-  description,
-  tokenize = 'unicode61'
-);
-
-CREATE VIRTUAL TABLE IF NOT EXISTS decisions_fts USING fts5(
-  id UNINDEXED,
-  title,
-  body,                                  -- rationale + notes concatenated at insert
-  tokenize = 'unicode61'
-);
-
-CREATE VIRTUAL TABLE IF NOT EXISTS contracts_fts USING fts5(
-  module UNINDEXED,
-  body,                                  -- concatenated endpoint paths + descriptions
-  tokenize = 'unicode61'
-);
-
--- ─── Generic pages — catch-all for sections not in dedicated tables ────────────
--- Stores techstack, rulebook, impact-map, business-workflow, design, plan, etc.
--- Keyed by (section, slug) so the wiki-app can query by URL path segment.
--- Single-file sections (onboarding.json, glossary.json, etc.) use slug = '_index'.
-CREATE TABLE IF NOT EXISTS pages (
-  section     TEXT NOT NULL,             -- e.g. 'techstack', 'rulebook', 'design'
-  slug        TEXT NOT NULL,             -- e.g. 'backend', '_index' for single files
+CREATE TABLE IF NOT EXISTS wiki.pages (
+  section     TEXT NOT NULL,
+  slug        TEXT NOT NULL,
   title       TEXT,
-  data        TEXT NOT NULL,
-  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  data        JSONB NOT NULL,
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (section, slug)
 );
 
-CREATE INDEX IF NOT EXISTS idx_pages_section ON pages(section);
+-- â”€â”€â”€ Indexes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+CREATE INDEX IF NOT EXISTS idx_features_status   ON wiki.features(status);
+CREATE INDEX IF NOT EXISTS idx_features_sprint   ON wiki.features(sprint);
+CREATE INDEX IF NOT EXISTS idx_features_domain   ON wiki.features(domain);
+CREATE INDEX IF NOT EXISTS idx_tasks_feature     ON wiki.tasks(feature_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_status      ON wiki.tasks(status);
+CREATE INDEX IF NOT EXISTS idx_bugs_status       ON wiki.bugs(status);
+CREATE INDEX IF NOT EXISTS idx_bugs_severity     ON wiki.bugs(severity);
+CREATE INDEX IF NOT EXISTS idx_bugs_feature      ON wiki.bugs(feature);
+CREATE INDEX IF NOT EXISTS idx_bugs_sprint       ON wiki.bugs(sprint);
+CREATE INDEX IF NOT EXISTS idx_audit_target      ON wiki.audit_log(target_type, target_id);
+CREATE INDEX IF NOT EXISTS idx_audit_timestamp   ON wiki.audit_log(timestamp);
+CREATE INDEX IF NOT EXISTS idx_changelog_date    ON wiki.changelog(date);
+CREATE INDEX IF NOT EXISTS idx_sprints_status    ON wiki.sprints(status);
+CREATE INDEX IF NOT EXISTS idx_pages_section     ON wiki.pages(section);
+
+-- â”€â”€â”€ Full-Text Search (replaces SQLite FTS5) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-- tsvector columns + GIN indexes + auto-update triggers
+
+ALTER TABLE wiki.features ADD COLUMN IF NOT EXISTS tsv tsvector;
+ALTER TABLE wiki.bugs     ADD COLUMN IF NOT EXISTS tsv tsvector;
+ALTER TABLE wiki.decisions ADD COLUMN IF NOT EXISTS tsv tsvector;
+ALTER TABLE wiki.api_contracts ADD COLUMN IF NOT EXISTS tsv tsvector;
+
+CREATE INDEX IF NOT EXISTS idx_features_fts   ON wiki.features   USING GIN(tsv);
+CREATE INDEX IF NOT EXISTS idx_bugs_fts       ON wiki.bugs       USING GIN(tsv);
+CREATE INDEX IF NOT EXISTS idx_decisions_fts  ON wiki.decisions  USING GIN(tsv);
+CREATE INDEX IF NOT EXISTS idx_contracts_fts  ON wiki.api_contracts USING GIN(tsv);
+
+-- â”€â”€â”€ FTS trigger functions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+CREATE OR REPLACE FUNCTION wiki.features_tsv_trigger() RETURNS trigger AS $$
+BEGIN
+  NEW.tsv := to_tsvector('english',
+    coalesce(NEW.title, '') || ' ' ||
+    coalesce(NEW.domain, '') || ' ' ||
+    coalesce(NEW.data->>'tldr', '') || ' ' ||
+    coalesce(NEW.data->'content'->>'problem', '') || ' ' ||
+    coalesce(NEW.data->'content'->>'solution', '')
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_features_tsv ON wiki.features;
+CREATE TRIGGER trg_features_tsv BEFORE INSERT OR UPDATE ON wiki.features
+  FOR EACH ROW EXECUTE FUNCTION wiki.features_tsv_trigger();
+
+CREATE OR REPLACE FUNCTION wiki.bugs_tsv_trigger() RETURNS trigger AS $$
+BEGIN
+  NEW.tsv := to_tsvector('english',
+    coalesce(NEW.title, '') || ' ' ||
+    coalesce(NEW.description, '')
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_bugs_tsv ON wiki.bugs;
+CREATE TRIGGER trg_bugs_tsv BEFORE INSERT OR UPDATE ON wiki.bugs
+  FOR EACH ROW EXECUTE FUNCTION wiki.bugs_tsv_trigger();
+
+CREATE OR REPLACE FUNCTION wiki.decisions_tsv_trigger() RETURNS trigger AS $$
+BEGIN
+  NEW.tsv := to_tsvector('english',
+    coalesce(NEW.title, '') || ' ' ||
+    coalesce(NEW.data->>'rationale', '') || ' ' ||
+    coalesce(NEW.data->>'notes', '')
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_decisions_tsv ON wiki.decisions;
+CREATE TRIGGER trg_decisions_tsv BEFORE INSERT OR UPDATE ON wiki.decisions
+  FOR EACH ROW EXECUTE FUNCTION wiki.decisions_tsv_trigger();
+
+CREATE OR REPLACE FUNCTION wiki.contracts_tsv_trigger() RETURNS trigger AS $$
+BEGIN
+  NEW.tsv := to_tsvector('english',
+    coalesce(NEW.data::text, '')
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_contracts_tsv ON wiki.api_contracts;
+CREATE TRIGGER trg_contracts_tsv BEFORE INSERT OR UPDATE ON wiki.api_contracts
+  FOR EACH ROW EXECUTE FUNCTION wiki.contracts_tsv_trigger();
+

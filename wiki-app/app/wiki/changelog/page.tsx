@@ -38,7 +38,7 @@ function TagBadge({ tag }: { tag: string }) {
 }
 
 export default async function ChangelogPage() {
-  const entries = getChangelog() as unknown as ChangeEntry[];
+  const entries = await getChangelog() as unknown as ChangeEntry[];
   const lastEntry = entries[0];
   const meta = { title: 'Changelog', last_updated: lastEntry?.date ?? '' };
   const qf = {

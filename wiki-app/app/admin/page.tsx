@@ -1,4 +1,4 @@
-import { getDb } from '@/lib/db';
+import { getPool } from '@/lib/db';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -15,19 +15,19 @@ const TABLES = [
   { name: 'pages',         icon: '📄' },
 ];
 
-export default function AdminPage() {
-  const db = getDb();
+export default async function AdminPage() {
+  const pool = getPool();
 
-  const stats = TABLES.map(({ name, icon }) => {
-    try {
-      const row = db
-        .prepare(`SELECT COUNT(*) AS c FROM "${name}"`)
-        .get() as { c: number };
-      return { name, icon, count: row.c, error: false };
-    } catch {
-      return { name, icon, count: 0, error: true };
-    }
-  });
+  const stats = await Promise.all(
+    TABLES.map(async ({ name, icon }) => {
+      try {
+        const { rows } = await pool.query(`SELECT COUNT(*)::int AS c FROM wiki.${name}`);
+        return { name, icon, count: rows[0].c as number, error: false };
+      } catch {
+        return { name, icon, count: 0, error: true };
+      }
+    })
+  );
 
   const totalRows = stats.reduce((s, t) => s + t.count, 0);
 
@@ -37,7 +37,7 @@ export default function AdminPage() {
         <h2 className="text-base font-semibold text-gray-700">
           {stats.length} tables · {totalRows} total rows
         </h2>
-        <span className="text-xs text-gray-400 font-mono">wiki.db</span>
+        <span className="text-xs text-gray-400 font-mono">PostgreSQL wiki.*</span>
       </div>
 
       <div className="grid grid-cols-3 gap-4">

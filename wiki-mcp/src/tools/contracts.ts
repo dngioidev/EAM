@@ -1,4 +1,4 @@
-import { getDb } from "../db.js";
+import { getPool } from "../db.js";
 
 type ToolResult = { content: Array<{ type: "text"; text: string }>; isError?: boolean };
 
@@ -71,14 +71,14 @@ export async function handleContractTool(
     }
   }
 
-  const db = getDb();
+  const pool = getPool();
 
-  const existing = db
-    .prepare("SELECT data FROM api_contracts WHERE module = ?")
-    .get(module) as { data: string } | null;
-  if (!existing) return fail(`Contract for module '${module}' not found`);
+  const { rows } = await pool.query(
+    "SELECT data FROM wiki.api_contracts WHERE module = $1", [module]
+  );
+  if (!rows[0]) return fail(`Contract for module '${module}' not found`);
 
-  const current = JSON.parse(existing.data) as Record<string, unknown>;
+  const current = rows[0].data as Record<string, unknown>;
   const today = new Date().toISOString().split("T")[0];
 
   const merged = deepMerge(current, p);
@@ -92,21 +92,28 @@ export async function handleContractTool(
     meta.last_updated = today;
   }
 
-  db.transaction(() => {
-    db.prepare(
-      "UPDATE api_contracts SET data = ?, updated_at = datetime('now') WHERE module = ?"
-    ).run(JSON.stringify(merged), module);
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      "UPDATE wiki.api_contracts SET data = $1::jsonb, updated_at = now() WHERE module = $2",
+      [JSON.stringify(merged), module]
+    );
 
-    // Update FTS
-    const body = JSON.stringify(merged);
-    db.prepare(
-      "INSERT OR REPLACE INTO contracts_fts (module, body) VALUES (?, ?)"
-    ).run(module, body);
+    // Audit log
+    await client.query(
+      `INSERT INTO wiki.audit_log (tool, author, target_type, target_id, changed)
+       VALUES ('wiki_contract_update', 'vibe-agent', 'api_contract', $1, $2::jsonb)`,
+      [module, JSON.stringify(patch)]
+    );
 
-    db.prepare(
-      "INSERT INTO audit_log (table_name, row_id, action, patch, ts) VALUES (?, ?, ?, ?, datetime('now'))"
-    ).run("api_contracts", module, "update", JSON.stringify(patch));
-  })();
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
 
   const newVersion = ((merged.meta as Record<string, unknown> | undefined)?.version as string | undefined) ?? "unknown";
   return ok({ ok: true, module, version: newVersion, updated_at: today });

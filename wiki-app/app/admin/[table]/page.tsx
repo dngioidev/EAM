@@ -1,4 +1,4 @@
-import { getDb } from '@/lib/db';
+import { getPool } from '@/lib/db';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -18,6 +18,7 @@ const VALID_TABLES = new Set([
 const PAGE_SIZE = 30;
 
 function tryJson(v: unknown): unknown {
+  if (v !== null && typeof v === 'object') return v; // JSONB already parsed by pg
   if (typeof v !== 'string') return null;
   try {
     return JSON.parse(v);
@@ -26,7 +27,7 @@ function tryJson(v: unknown): unknown {
   }
 }
 
-export default function TablePage({
+export default async function TablePage({
   params,
   searchParams,
 }: {
@@ -47,46 +48,54 @@ export default function TablePage({
   const section = typeof searchParams.section === 'string' ? searchParams.section : undefined;
   const offset  = (page - 1) * PAGE_SIZE;
 
-  const db = getDb();
+  const pool = getPool();
+  const qualifiedTable = `wiki.${table}`;
 
-  // Column metadata
-  const cols    = db.pragma(`table_info("${table}")`) as Array<{ name: string }>;
-  const allCols = cols.map((c) => c.name);
-  const metaCols = allCols.filter((c) => c !== 'data');
+  // Column metadata from information_schema
+  const colResult = await pool.query(
+    `SELECT column_name FROM information_schema.columns
+     WHERE table_schema = 'wiki' AND table_name = $1
+     ORDER BY ordinal_position`,
+    [table]
+  );
+  const allCols = colResult.rows.map((c: { column_name: string }) => c.column_name);
+  const metaCols = allCols.filter((c: string) => c !== 'data' && c !== 'tsv');
   const hasData  = allCols.includes('data');
 
   // Optional section filter (pages table only)
-  const sections: string[] =
-    table === 'pages'
-      ? (
-          db
-            .prepare('SELECT DISTINCT section FROM pages ORDER BY section')
-            .all() as Array<{ section: string }>
-        ).map((r) => r.section)
-      : [];
+  let sections: string[] = [];
+  if (table === 'pages') {
+    const secResult = await pool.query(
+      'SELECT DISTINCT section FROM wiki.pages ORDER BY section'
+    );
+    sections = secResult.rows.map((r: { section: string }) => r.section);
+  }
 
   // Section-filtered counts and rows
   let total: number;
   let rows: Array<Record<string, unknown>>;
 
+  // Build column list for SELECT (exclude tsv column which is a tsvector)
+  const selectCols = allCols.filter((c: string) => c !== 'tsv').join(', ');
+
   if (table === 'pages' && section) {
-    total = (
-      db
-        .prepare(`SELECT COUNT(*) AS c FROM "pages" WHERE section = ?`)
-        .get(section) as { c: number }
-    ).c;
-    rows = db
-      .prepare(
-        `SELECT * FROM "pages" WHERE section = ? ORDER BY slug LIMIT ${PAGE_SIZE} OFFSET ${offset}`,
-      )
-      .all(section) as Array<Record<string, unknown>>;
+    const countResult = await pool.query(
+      `SELECT COUNT(*)::int AS c FROM ${qualifiedTable} WHERE section = $1`, [section]
+    );
+    total = countResult.rows[0].c;
+    const dataResult = await pool.query(
+      `SELECT ${selectCols} FROM ${qualifiedTable} WHERE section = $1 ORDER BY slug LIMIT $2 OFFSET $3`,
+      [section, PAGE_SIZE, offset]
+    );
+    rows = dataResult.rows;
   } else {
-    total = (
-      db.prepare(`SELECT COUNT(*) AS c FROM "${table}"`).get() as { c: number }
-    ).c;
-    rows = db
-      .prepare(`SELECT * FROM "${table}" LIMIT ${PAGE_SIZE} OFFSET ${offset}`)
-      .all() as Array<Record<string, unknown>>;
+    const countResult = await pool.query(`SELECT COUNT(*)::int AS c FROM ${qualifiedTable}`);
+    total = countResult.rows[0].c;
+    const dataResult = await pool.query(
+      `SELECT ${selectCols} FROM ${qualifiedTable} LIMIT $1 OFFSET $2`,
+      [PAGE_SIZE, offset]
+    );
+    rows = dataResult.rows;
   }
 
   const totalPages = Math.ceil(total / PAGE_SIZE);

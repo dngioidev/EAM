@@ -27,7 +27,7 @@ async function loadPreview(section: string, slug: string): Promise<EntryPreview>
   try {
     // Try DB first for known structured sections; fall back to file for static sections
     const d: Record<string, unknown> =
-      getEntry(section, slug) ??
+      await getEntry(section, slug) ??
       await readWikiFile<Record<string, unknown>>(`${section}/${slug}.json`);
     const meta = d.meta as Record<string, unknown> | undefined;
     const content = d.content as Record<string, unknown> | undefined;
@@ -78,13 +78,13 @@ export default async function SectionPage({ params }: PageProps) {
   // Load section metadata from DB (pages table stores _index for most sections).
   // Dedicated-table sections (features, bugs, history …) don't have _index in
   // pages — that's fine: we synthesise the title from the section name below.
-  const rawIndex = getEntry(section, '_index');
+  const rawIndex = await getEntry(section, '_index');
   const index: { meta?: { title?: string; description?: string } } = rawIndex ?? {};
 
   let slugs: string[] = [];
   try {
     // DB first; readWikiFiles is a dead fallback (wiki/ deleted) but harmless
-    const dbSlugs = listSection(section);
+    const dbSlugs = await listSection(section);
     slugs = dbSlugs.length > 0 ? dbSlugs : await listWikiFiles(section);
   } catch {
     slugs = [];

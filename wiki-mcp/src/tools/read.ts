@@ -1,4 +1,4 @@
-import { getDb } from "../db.js";
+import { getPool } from "../db.js";
 
 type ToolResult = { content: Array<{ type: "text"; text: string }>; isError?: boolean };
 
@@ -14,145 +14,137 @@ export async function handleReadTool(
   name: string,
   args: Record<string, unknown>
 ): Promise<ToolResult> {
-  const db = getDb();
+  const pool = getPool();
 
   switch (name) {
     case "wiki_dashboard": {
-      const row = db
-        .prepare("SELECT data FROM dashboard WHERE id = 1")
-        .get() as { data: string } | null;
-      if (!row) return fail("Dashboard not found — run migration first");
-      return ok(JSON.parse(row.data));
+      const { rows } = await pool.query("SELECT data FROM wiki.dashboard WHERE id = 1");
+      if (!rows[0]) return fail("Dashboard not found — run migration first");
+      return ok(rows[0].data);
     }
 
     case "wiki_feature_get": {
       const { id } = args;
       if (!id) return fail("id is required");
-      const row = db
-        .prepare("SELECT data FROM features WHERE id = ?")
-        .get(String(id)) as { data: string } | null;
-      if (!row) return fail(`Feature '${id}' not found`);
-      return ok(JSON.parse(row.data));
+      const { rows } = await pool.query("SELECT data FROM wiki.features WHERE id = $1", [String(id)]);
+      if (!rows[0]) return fail(`Feature '${id}' not found`);
+      return ok(rows[0].data);
     }
 
     case "wiki_feature_list": {
       const { status, sprint, domain } = args;
       const conditions: string[] = [];
       const params: unknown[] = [];
-      if (status) { conditions.push("status = ?"); params.push(status); }
-      if (sprint)  { conditions.push("sprint = ?");  params.push(sprint);  }
-      if (domain)  { conditions.push("domain = ?");  params.push(domain);  }
+      let i = 1;
+      if (status) { conditions.push(`status = $${i++}`); params.push(status); }
+      if (sprint) { conditions.push(`sprint = $${i++}`); params.push(sprint); }
+      if (domain) { conditions.push(`domain = $${i++}`); params.push(domain); }
       const where = conditions.length ? " WHERE " + conditions.join(" AND ") : "";
-      const sql = `SELECT id, title, status, sprint, domain, priority, size, owner FROM features${where} ORDER BY priority ASC, id ASC`;
-      const rows = db.prepare(sql).all(...params);
+      const sql = `SELECT id, title, status, sprint, domain, priority, size, owner FROM wiki.features${where} ORDER BY priority ASC, id ASC`;
+      const { rows } = await pool.query(sql, params);
       return ok(rows);
     }
 
     case "wiki_sprint_get": {
       const { id } = args;
       if (!id) return fail("id is required");
-      const row = db
-        .prepare("SELECT data FROM sprints WHERE id = ?")
-        .get(String(id)) as { data: string } | null;
-      if (!row) return fail(`Sprint '${id}' not found`);
-      return ok(JSON.parse(row.data));
+      const { rows } = await pool.query("SELECT data FROM wiki.sprints WHERE id = $1", [String(id)]);
+      if (!rows[0]) return fail(`Sprint '${id}' not found`);
+      return ok(rows[0].data);
     }
 
     case "wiki_bug_list": {
       const { status, severity, feature } = args;
       const conditions: string[] = [];
       const params: unknown[] = [];
-      if (status)   { conditions.push("status = ?");   params.push(status);   }
-      if (severity) { conditions.push("severity = ?"); params.push(severity); }
-      if (feature)  { conditions.push("feature = ?");  params.push(feature);  }
+      let i = 1;
+      if (status)   { conditions.push(`status = $${i++}`);   params.push(status); }
+      if (severity) { conditions.push(`severity = $${i++}`); params.push(severity); }
+      if (feature)  { conditions.push(`feature = $${i++}`);  params.push(feature); }
       const where = conditions.length ? " WHERE " + conditions.join(" AND ") : "";
-      const sql = `SELECT id, title, severity, status, feature, sprint, created_at FROM bugs${where} ORDER BY created_at DESC`;
-      const rows = db.prepare(sql).all(...params);
+      const sql = `SELECT id, title, severity, status, feature, sprint, created_at FROM wiki.bugs${where} ORDER BY created_at DESC`;
+      const { rows } = await pool.query(sql, params);
       return ok(rows);
     }
 
     case "wiki_contract_get": {
       const { module } = args;
       if (!module) return fail("module is required");
-      const row = db
-        .prepare("SELECT data FROM api_contracts WHERE module = ?")
-        .get(String(module)) as { data: string } | null;
-      if (!row) return fail(`Contract for module '${module}' not found`);
-      return ok(JSON.parse(row.data));
+      const { rows } = await pool.query("SELECT data FROM wiki.api_contracts WHERE module = $1", [String(module)]);
+      if (!rows[0]) return fail(`Contract for module '${module}' not found`);
+      return ok(rows[0].data);
     }
 
     case "wiki_pages_get": {
       const { section, slug } = args;
       if (!section) return fail("section is required");
       if (!slug) return fail("slug is required");
-      const row = db
-        .prepare("SELECT data FROM pages WHERE section = ? AND slug = ?")
-        .get(String(section), String(slug)) as { data: string } | null;
-      if (!row) return fail(`Page '${section}/${slug}' not found`);
-      return ok(JSON.parse(row.data));
+      const { rows } = await pool.query(
+        "SELECT data FROM wiki.pages WHERE section = $1 AND slug = $2",
+        [String(section), String(slug)]
+      );
+      if (!rows[0]) return fail(`Page '${section}/${slug}' not found`);
+      return ok(rows[0].data);
     }
 
     case "wiki_pages_list": {
       const { section } = args;
       if (!section) return fail("section is required");
-      const rows = db
-        .prepare("SELECT section, slug, title, updated_at FROM pages WHERE section = ? ORDER BY slug")
-        .all(String(section)) as Array<{ section: string; slug: string; title: string | null; updated_at: string }>;
+      const { rows } = await pool.query(
+        "SELECT section, slug, title, updated_at FROM wiki.pages WHERE section = $1 ORDER BY slug",
+        [String(section)]
+      );
       return ok(rows);
     }
 
     case "wiki_bug_get": {
       const { id } = args;
       if (!id) return fail("id is required");
-      const row = db
-        .prepare("SELECT data FROM bugs WHERE id = ?")
-        .get(String(id)) as { data: string } | null;
-      if (!row) return fail(`Bug '${id}' not found`);
-      return ok(JSON.parse(row.data));
+      const { rows } = await pool.query("SELECT data FROM wiki.bugs WHERE id = $1", [String(id)]);
+      if (!rows[0]) return fail(`Bug '${id}' not found`);
+      return ok(rows[0].data);
     }
 
     case "wiki_sprint_list": {
-      const rows = db
-        .prepare("SELECT id, title, status, start_date, end_date, goal, velocity FROM sprints ORDER BY id")
-        .all() as Array<{ id: string; title: string; status: string; start_date: string | null; end_date: string | null; goal: string | null; velocity: number }>;
+      const { rows } = await pool.query(
+        "SELECT id, title, status, start_date, end_date, goal, velocity FROM wiki.sprints ORDER BY id"
+      );
       return ok(rows);
     }
 
     case "wiki_contract_list": {
-      const rows = db
-        .prepare("SELECT module, version, status, updated_at FROM api_contracts ORDER BY module")
-        .all() as Array<{ module: string; version: string; status: string; updated_at: string }>;
+      const { rows } = await pool.query(
+        "SELECT module, version, status, updated_at FROM wiki.api_contracts ORDER BY module"
+      );
       return ok(rows);
     }
 
     case "wiki_history_get": {
       const { date } = args;
       if (!date) return fail("date is required (YYYY-MM-DD)");
-      const row = db
-        .prepare("SELECT data FROM history WHERE date = ?")
-        .get(String(date)) as { data: string } | null;
-      if (!row) return fail(`History entry for '${date}' not found`);
-      return ok(JSON.parse(row.data));
+      const { rows } = await pool.query("SELECT data FROM wiki.history WHERE date = $1", [String(date)]);
+      if (!rows[0]) return fail(`History entry for '${date}' not found`);
+      return ok(rows[0].data);
     }
 
     case "wiki_history_list": {
-      const rows = db
-        .prepare("SELECT date, title, updated_at FROM history ORDER BY date DESC")
-        .all() as Array<{ date: string; title: string | null; updated_at: string }>;
+      const { rows } = await pool.query(
+        "SELECT date, title, updated_at FROM wiki.history ORDER BY date DESC"
+      );
       return ok(rows);
     }
 
     case "wiki_decisions_list": {
-      const rows = db
-        .prepare("SELECT id, title, status, feature, created_at FROM decisions ORDER BY created_at DESC")
-        .all() as Array<{ id: string; title: string; status: string; feature: string | null; created_at: string }>;
+      const { rows } = await pool.query(
+        "SELECT id, title, status, feature, created_at FROM wiki.decisions ORDER BY created_at DESC"
+      );
       return ok(rows);
     }
 
     case "wiki_changelog_list": {
-      const rows = db
-        .prepare("SELECT version, date, sprint, summary FROM changelog ORDER BY date DESC")
-        .all() as Array<{ version: string; date: string; sprint: string | null; summary: string }>;
+      const { rows } = await pool.query(
+        "SELECT version, date, sprint, summary FROM wiki.changelog ORDER BY date DESC"
+      );
       return ok(rows);
     }
 

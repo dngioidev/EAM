@@ -32,8 +32,8 @@ interface Onboarding {
   };
 }
 
-export default function OnboardingPage() {
-  const raw = getEntry('onboarding', '_index');
+export default async function OnboardingPage() {
+  const raw = await getEntry('onboarding', '_index');
   if (!raw) notFound();
   const data = raw as unknown as Onboarding;
   const { meta, quick_facts: qf, content } = data;

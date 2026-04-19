@@ -24,7 +24,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const data =
-      getEntry(params.section, params.slug) ??
+      await getEntry(params.section, params.slug) ??
       await readWikiFile<Record<string, unknown>>(`${params.section}/${params.slug}.json`);
     const title = resolveTitle(data, params.slug);
     return { title };
@@ -55,7 +55,7 @@ export default async function WikiEntryPage({ params }: PageProps) {
   let data: Record<string, unknown>;
   try {
     data =
-      getEntry(section, slug) ??
+      await getEntry(section, slug) ??
       await readWikiFile<Record<string, unknown>>(`${section}/${slug}.json`);
   } catch {
     notFound();

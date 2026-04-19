@@ -1,4 +1,4 @@
-import { getDb } from "../db.js";
+import { getPool } from "../db.js";
 
 type ToolResult = { content: Array<{ type: "text"; text: string }>; isError?: boolean };
 
@@ -35,23 +35,25 @@ function deepMerge(
   return result;
 }
 
-function auditLog(
-  db: ReturnType<typeof getDb>,
-  table: string,
-  row_id: string,
-  action: string,
+async function auditLog(
+  pool: ReturnType<typeof getPool>,
+  targetType: string,
+  targetId: string,
+  tool: string,
   patch: unknown
-): void {
-  db.prepare(
-    "INSERT INTO audit_log (table_name, row_id, action, patch, ts) VALUES (?, ?, ?, ?, datetime('now'))"
-  ).run(table, row_id, action, JSON.stringify(patch));
+): Promise<void> {
+  await pool.query(
+    `INSERT INTO wiki.audit_log (tool, author, target_type, target_id, changed)
+     VALUES ($1, 'vibe-agent', $2, $3, $4::jsonb)`,
+    [tool, targetType, targetId, JSON.stringify(patch)]
+  );
 }
 
 export async function handleWriteTool(
   name: string,
   args: Record<string, unknown>
 ): Promise<ToolResult> {
-  const db = getDb();
+  const pool = getPool();
 
   switch (name) {
     case "wiki_feature_update": {
@@ -60,12 +62,12 @@ export async function handleWriteTool(
       if (!patch || typeof patch !== "object" || Array.isArray(patch))
         return fail("patch must be an object");
 
-      const existing = db
-        .prepare("SELECT data FROM features WHERE id = ?")
-        .get(String(id)) as { data: string } | null;
-      if (!existing) return fail(`Feature '${id}' not found`);
+      const { rows } = await pool.query(
+        "SELECT data FROM wiki.features WHERE id = $1", [String(id)]
+      );
+      if (!rows[0]) return fail(`Feature '${id}' not found`);
 
-      const current = JSON.parse(existing.data) as Record<string, unknown>;
+      const current = rows[0].data as Record<string, unknown>;
       const today = new Date().toISOString().split("T")[0];
       const merged = deepMerge(current, patch as Record<string, unknown>);
       if (merged.meta && typeof merged.meta === "object") {
@@ -75,26 +77,35 @@ export async function handleWriteTool(
       const meta = merged.meta as Record<string, unknown> | undefined;
       const qf = merged.quick_facts as Record<string, unknown> | undefined;
 
-      db.transaction(() => {
-        db.prepare(
-          `UPDATE features SET
-            data = ?,
-            title = ?,
-            status = ?,
-            sprint = ?,
-            domain = ?,
-            updated_at = datetime('now')
-          WHERE id = ?`
-        ).run(
-          JSON.stringify(merged),
-          (meta?.title as string | undefined) ?? String(id),
-          (meta?.status as string | undefined) ?? null,
-          (qf?.sprint as string | null | undefined) ?? null,
-          (meta?.domain as string | undefined) ?? null,
-          String(id)
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query(
+          `UPDATE wiki.features SET
+            data = $1::jsonb,
+            title = $2,
+            status = $3,
+            sprint = $4,
+            domain = $5,
+            updated_at = now()
+          WHERE id = $6`,
+          [
+            JSON.stringify(merged),
+            (meta?.title as string | undefined) ?? String(id),
+            (meta?.status as string | undefined) ?? null,
+            (qf?.sprint as string | null | undefined) ?? null,
+            (meta?.domain as string | undefined) ?? null,
+            String(id),
+          ]
         );
-        auditLog(db, "features", String(id), "update", patch);
-      })();
+        await auditLog(pool, "feature", String(id), "wiki_feature_update", patch);
+        await client.query("COMMIT");
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      } finally {
+        client.release();
+      }
 
       return ok({ ok: true, id, updated: today });
     }
@@ -106,32 +117,44 @@ export async function handleWriteTool(
       if (!patch || typeof patch !== "object" || Array.isArray(patch))
         return fail("patch must be an object");
 
-      const existing = db
-        .prepare("SELECT id, data FROM tasks WHERE id = ? AND feature_id = ?")
-        .get(String(task_id), String(feature_id)) as { id: string; data: string } | null;
-      if (!existing) return fail(`Task '${task_id}' not found in feature '${feature_id}'`);
+      const { rows } = await pool.query(
+        "SELECT id FROM wiki.tasks WHERE id = $1 AND feature_id = $2",
+        [String(task_id), String(feature_id)]
+      );
+      if (!rows[0]) return fail(`Task '${task_id}' not found in feature '${feature_id}'`);
 
-      const current = JSON.parse(existing.data) as Record<string, unknown>;
-      const merged = deepMerge(current, patch as Record<string, unknown>);
       const p = patch as Record<string, unknown>;
 
-      db.transaction(() => {
-        db.prepare(
-          `UPDATE tasks SET
-            data = ?,
-            status = COALESCE(?, status),
-            title  = COALESCE(?, title),
-            updated_at = datetime('now')
-          WHERE id = ? AND feature_id = ?`
-        ).run(
-          JSON.stringify(merged),
-          (p.status as string | undefined) ?? null,
-          (p.title  as string | undefined) ?? null,
-          String(task_id),
-          String(feature_id)
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query(
+          `UPDATE wiki.tasks SET
+            status = COALESCE($1, status),
+            title  = COALESCE($2, title),
+            priority = COALESCE($3, priority),
+            size   = COALESCE($4, size),
+            notes  = COALESCE($5, notes),
+            updated_at = now()
+          WHERE id = $6 AND feature_id = $7`,
+          [
+            (p.status as string | undefined) ?? null,
+            (p.title as string | undefined) ?? null,
+            (p.priority as string | undefined) ?? null,
+            (p.size as string | undefined) ?? null,
+            (p.notes as string | undefined) ?? null,
+            String(task_id),
+            String(feature_id),
+          ]
         );
-        auditLog(db, "tasks", String(task_id), "update", patch);
-      })();
+        await auditLog(pool, "task", String(task_id), "wiki_task_update", patch);
+        await client.query("COMMIT");
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      } finally {
+        client.release();
+      }
 
       return ok({ ok: true, task_id, feature_id });
     }
@@ -143,12 +166,30 @@ export async function handleWriteTool(
       if (typeof session !== "object" || Array.isArray(session))
         return fail("session must be an object");
 
-      db.transaction(() => {
-        db.prepare(
-          "INSERT OR REPLACE INTO history (id, data, created_at) VALUES (?, ?, datetime('now'))"
-        ).run(String(date), JSON.stringify(session));
-        auditLog(db, "history", String(date), "session_log", session);
-      })();
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query(
+          `INSERT INTO wiki.history (date, title, data, updated_at)
+           VALUES ($1::date, $2, $3::jsonb, now())
+           ON CONFLICT (date) DO UPDATE SET
+             data = $3::jsonb,
+             title = COALESCE($2, wiki.history.title),
+             updated_at = now()`,
+          [
+            String(date),
+            (session as Record<string, unknown>).title ?? null,
+            JSON.stringify(session),
+          ]
+        );
+        await auditLog(pool, "history", String(date), "wiki_session_log", session);
+        await client.query("COMMIT");
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      } finally {
+        client.release();
+      }
 
       return ok({ ok: true, date });
     }
@@ -160,30 +201,40 @@ export async function handleWriteTool(
       if (!patch || typeof patch !== "object" || Array.isArray(patch))
         return fail("patch must be an object");
 
-      const existing = db
-        .prepare("SELECT data FROM pages WHERE section = ? AND slug = ?")
-        .get(String(section), String(slug)) as { data: string } | null;
-      if (!existing) return fail(`Page '${section}/${slug}' not found`);
+      const { rows } = await pool.query(
+        "SELECT data FROM wiki.pages WHERE section = $1 AND slug = $2",
+        [String(section), String(slug)]
+      );
+      if (!rows[0]) return fail(`Page '${section}/${slug}' not found`);
 
-      const current = JSON.parse(existing.data) as Record<string, unknown>;
+      const current = rows[0].data as Record<string, unknown>;
       const merged = deepMerge(current, patch as Record<string, unknown>);
       const p = patch as Record<string, unknown>;
 
-      db.transaction(() => {
-        db.prepare(
-          `UPDATE pages SET
-            title = COALESCE(?, title),
-            data = ?,
-            updated_at = datetime('now')
-          WHERE section = ? AND slug = ?`
-        ).run(
-          (p.title as string | undefined) ?? null,
-          JSON.stringify(merged),
-          String(section),
-          String(slug)
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query(
+          `UPDATE wiki.pages SET
+            title = COALESCE($1, title),
+            data = $2::jsonb,
+            updated_at = now()
+          WHERE section = $3 AND slug = $4`,
+          [
+            (p.title as string | undefined) ?? null,
+            JSON.stringify(merged),
+            String(section),
+            String(slug),
+          ]
         );
-        auditLog(db, "pages", `${section}/${slug}`, "update", patch);
-      })();
+        await auditLog(pool, "page", `${section}/${slug}`, "wiki_pages_update", patch);
+        await client.query("COMMIT");
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      } finally {
+        client.release();
+      }
 
       return ok({ ok: true, section, slug });
     }
@@ -195,13 +246,23 @@ export async function handleWriteTool(
       if (!decision || typeof decision !== "object" || Array.isArray(decision))
         return fail("decision object is required");
 
-      db.transaction(() => {
-        db.prepare(
-          `INSERT OR IGNORE INTO decisions (id, title, status, feature, data, created_at, updated_at)
-           VALUES (?, ?, 'accepted', ?, ?, datetime('now'), datetime('now'))`
-        ).run(String(id), String(title), feature ? String(feature) : null, JSON.stringify(decision));
-        auditLog(db, "decisions", String(id), "create", decision);
-      })();
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query(
+          `INSERT INTO wiki.decisions (id, title, status, feature, data, created_at, updated_at)
+           VALUES ($1, $2, 'accepted', $3, $4::jsonb, now(), now())
+           ON CONFLICT (id) DO NOTHING`,
+          [String(id), String(title), feature ? String(feature) : null, JSON.stringify(decision)]
+        );
+        await auditLog(pool, "decision", String(id), "wiki_decision_create", decision);
+        await client.query("COMMIT");
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      } finally {
+        client.release();
+      }
 
       return ok({ ok: true, id });
     }
@@ -212,31 +273,40 @@ export async function handleWriteTool(
       if (!patch || typeof patch !== "object" || Array.isArray(patch))
         return fail("patch must be an object");
 
-      const existing = db
-        .prepare("SELECT data FROM decisions WHERE id = ?")
-        .get(String(id)) as { data: string } | null;
-      if (!existing) return fail(`Decision '${id}' not found`);
+      const { rows } = await pool.query(
+        "SELECT data FROM wiki.decisions WHERE id = $1", [String(id)]
+      );
+      if (!rows[0]) return fail(`Decision '${id}' not found`);
 
-      const current = JSON.parse(existing.data) as Record<string, unknown>;
+      const current = rows[0].data as Record<string, unknown>;
       const merged = deepMerge(current, patch as Record<string, unknown>);
       const p = patch as Record<string, unknown>;
 
-      db.transaction(() => {
-        db.prepare(
-          `UPDATE decisions SET
-            title = COALESCE(?, title),
-            status = COALESCE(?, status),
-            data = ?,
-            updated_at = datetime('now')
-          WHERE id = ?`
-        ).run(
-          (p.title as string | undefined) ?? null,
-          (p.status as string | undefined) ?? null,
-          JSON.stringify(merged),
-          String(id)
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query(
+          `UPDATE wiki.decisions SET
+            title = COALESCE($1, title),
+            status = COALESCE($2, status),
+            data = $3::jsonb,
+            updated_at = now()
+          WHERE id = $4`,
+          [
+            (p.title as string | undefined) ?? null,
+            (p.status as string | undefined) ?? null,
+            JSON.stringify(merged),
+            String(id),
+          ]
         );
-        auditLog(db, "decisions", String(id), "update", patch);
-      })();
+        await auditLog(pool, "decision", String(id), "wiki_decision_update", patch);
+        await client.query("COMMIT");
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      } finally {
+        client.release();
+      }
 
       return ok({ ok: true, id });
     }
@@ -249,13 +319,23 @@ export async function handleWriteTool(
       if (!changelog || typeof changelog !== "object" || Array.isArray(changelog))
         return fail("changelog object is required");
 
-      db.transaction(() => {
-        db.prepare(
-          `INSERT OR IGNORE INTO changelog (version, date, sprint, summary, data, created_at)
-           VALUES (?, ?, ?, ?, ?, datetime('now'))`
-        ).run(String(version), String(date), sprint ? String(sprint) : null, String(summary), JSON.stringify(changelog));
-        auditLog(db, "changelog", String(version), "create", changelog);
-      })();
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query(
+          `INSERT INTO wiki.changelog (version, date, sprint, summary, data, created_at)
+           VALUES ($1, $2::date, $3, $4, $5::jsonb, now())
+           ON CONFLICT (version) DO NOTHING`,
+          [String(version), String(date), sprint ? String(sprint) : null, String(summary), JSON.stringify(changelog)]
+        );
+        await auditLog(pool, "changelog", String(version), "wiki_changelog_create", changelog);
+        await client.query("COMMIT");
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      } finally {
+        client.release();
+      }
 
       return ok({ ok: true, version });
     }
@@ -266,29 +346,38 @@ export async function handleWriteTool(
       if (!patch || typeof patch !== "object" || Array.isArray(patch))
         return fail("patch must be an object");
 
-      const existing = db
-        .prepare("SELECT data FROM changelog WHERE version = ?")
-        .get(String(version)) as { data: string } | null;
-      if (!existing) return fail(`Changelog for version '${version}' not found`);
+      const { rows } = await pool.query(
+        "SELECT data FROM wiki.changelog WHERE version = $1", [String(version)]
+      );
+      if (!rows[0]) return fail(`Changelog for version '${version}' not found`);
 
-      const current = JSON.parse(existing.data) as Record<string, unknown>;
+      const current = rows[0].data as Record<string, unknown>;
       const merged = deepMerge(current, patch as Record<string, unknown>);
       const p = patch as Record<string, unknown>;
 
-      db.transaction(() => {
-        db.prepare(
-          `UPDATE changelog SET
-            summary = COALESCE(?, summary),
-            data = ?,
-            created_at = datetime('now')
-          WHERE version = ?`
-        ).run(
-          (p.summary as string | undefined) ?? null,
-          JSON.stringify(merged),
-          String(version)
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query(
+          `UPDATE wiki.changelog SET
+            summary = COALESCE($1, summary),
+            data = $2::jsonb,
+            created_at = now()
+          WHERE version = $3`,
+          [
+            (p.summary as string | undefined) ?? null,
+            JSON.stringify(merged),
+            String(version),
+          ]
         );
-        auditLog(db, "changelog", String(version), "update", patch);
-      })();
+        await auditLog(pool, "changelog", String(version), "wiki_changelog_update", patch);
+        await client.query("COMMIT");
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      } finally {
+        client.release();
+      }
 
       return ok({ ok: true, version });
     }
