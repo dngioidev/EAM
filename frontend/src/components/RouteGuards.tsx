@@ -1,12 +1,9 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@/stores/auth.store';
 
-/** Landing route per role (BR-NAV role_landing_map) */
 const ROLE_LANDING: Record<string, string> = {
-  cashier: '/pos',
-  accountant: '/invoices',
-  'store-manager': '/dashboard',
-  admin: '/admin/stores',
+  OWNER: '/dashboard',
+  ADMIN: '/admin/users',
 };
 
 /** Redirects to /login if no access token is present */
@@ -21,9 +18,8 @@ export function RedirectIfAuth() {
   const token = useAuthStore((s) => s.accessToken);
   const role = useAuthStore((s) => s.user?.role ?? '');
   if (token) {
-    const landing = ROLE_LANDING[role] ?? '/products';
+    const landing = ROLE_LANDING[role] ?? '/dashboard';
     return <Navigate to={landing} replace />;
   }
   return <Outlet />;
 }
-

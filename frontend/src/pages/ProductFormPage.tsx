@@ -2,8 +2,10 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import {
   createProduct,
   fetchProduct,
@@ -13,25 +15,17 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-const TAX_RATES = [0, 5, 8, 10] as const;
 
 const productSchema = z.object({
   sku: z
     .string()
-    .min(1, 'Mã SKU bắt buộc')
     .max(100, 'SKU tối đa 100 ký tự')
-    .regex(/^[A-Z0-9\-_]+$/i, 'SKU chỉ được chứa chữ, số, dấu - và _'),
+    .regex(/^[A-Z0-9\-_]*$/i, 'SKU chỉ được chứa chữ, số, dấu - và _')
+    .optional()
+    .or(z.literal('')),
   name: z.string().min(1, 'Tên sản phẩm bắt buộc').max(255, 'Tên tối đa 255 ký tự'),
-  priceVnd: z
-    .number({ invalid_type_error: 'Giá phải là số nguyên' })
-    .int('Giá là số nguyên đồng')
-    .min(0, 'Giá không được âm'),
-  taxRatePercent: z.coerce.number().refine((v): v is 0 | 5 | 8 | 10 => TAX_RATES.includes(v as 0 | 5 | 8 | 10), {
-    message: 'Thuế suất phải là 0, 5, 8 hoặc 10',
-  }),
+  threshold: z.coerce.number().int('Ngưỡng phải là số nguyên').min(0, 'Ngưỡng không được âm'),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -56,17 +50,15 @@ export default function ProductFormPage() {
     setError,
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: { priceVnd: 0, taxRatePercent: 10 },
+    defaultValues: { sku: '', name: '', threshold: 0 },
   });
 
-  // Populate form when editing
   useEffect(() => {
     if (existing) {
       reset({
-        sku: existing.sku,
+        sku: existing.sku ?? '',
         name: existing.name,
-        priceVnd: existing.priceVnd,
-        taxRatePercent: existing.taxRatePercent as 0 | 5 | 8 | 10,
+        threshold: existing.threshold,
       });
     }
   }, [existing, reset]);
@@ -84,140 +76,145 @@ export default function ProductFormPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['product', id] });
-      navigate('/products', { replace: true });
+      navigate(`/products/${id}`, { replace: true });
     },
   });
 
   const onSubmit = async (data: ProductFormData) => {
     try {
       if (isEdit) {
-        // sku is immutable — omit from update payload
         const { sku: _sku, ...updateData } = data;
         void _sku;
         await updateMutation.mutateAsync(updateData);
       } else {
-        await createMutation.mutateAsync(data as CreateProductPayload);
+        const payload: CreateProductPayload = {
+          name: data.name,
+          threshold: data.threshold,
+          ...(data.sku ? { sku: data.sku } : {}),
+        };
+        await createMutation.mutateAsync(payload);
       }
     } catch (err: unknown) {
-      const resp = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      if (typeof resp === 'string' && resp.toLowerCase().includes('sku')) {
-        setError('sku', { message: 'Mã SKU đã tồn tại trong cửa hàng' });
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      if (typeof msg === 'string' && msg.toLowerCase().includes('sku')) {
+        setError('sku', { message: 'Mã SKU đã tồn tại trong kho' });
       } else {
-        setError('root', { message: resp ?? 'Có lỗi xảy ra. Vui lòng thử lại.' });
+        setError('root', { message: msg ?? 'Có lỗi xảy ra. Vui lòng thử lại.' });
       }
     }
   };
 
   if (isEdit && loadingExisting) {
-    return <div className="min-h-screen flex items-center justify-center">Đang tải…</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[300px] text-sm text-muted-foreground">
+        Đang tải…
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-10">
-      <div className="max-w-lg mx-auto">
-        <div className="mb-6 flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/products')}>
-            ← Quay lại
-          </Button>
-          <h1 className="text-xl font-semibold">
-            {isEdit ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}
-          </h1>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{isEdit ? existing?.name : 'Thông tin sản phẩm'}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-              {/* SKU — read-only in edit mode (BR-PROD-05) */}
-              <div className="space-y-2">
-                <Label htmlFor="sku">
-                  Mã SKU{' '}
-                  {isEdit && <span className="text-xs text-muted-foreground">(không thể đổi)</span>}
-                </Label>
-                <Input
-                  id="sku"
-                  placeholder="SKU-001"
-                  readOnly={isEdit}
-                  className={isEdit ? 'bg-gray-50 cursor-not-allowed' : ''}
-                  {...register('sku')}
-                  aria-invalid={!!errors.sku}
-                />
-                {errors.sku && (
-                  <p className="text-sm text-red-600" role="alert">{errors.sku.message}</p>
-                )}
-              </div>
-
-              {/* Name */}
-              <div className="space-y-2">
-                <Label htmlFor="name">Tên sản phẩm</Label>
-                <Input
-                  id="name"
-                  placeholder="Bánh mì thịt"
-                  {...register('name')}
-                  aria-invalid={!!errors.name}
-                />
-                {errors.name && (
-                  <p className="text-sm text-red-600" role="alert">{errors.name.message}</p>
-                )}
-              </div>
-
-              {/* Price */}
-              <div className="space-y-2">
-                <Label htmlFor="priceVnd">Giá bán (đồng)</Label>
-                <Input
-                  id="priceVnd"
-                  type="number"
-                  min={0}
-                  step={1}
-                  placeholder="25000"
-                  {...register('priceVnd', { valueAsNumber: true })}
-                  aria-invalid={!!errors.priceVnd}
-                />
-                {errors.priceVnd && (
-                  <p className="text-sm text-red-600" role="alert">{errors.priceVnd.message}</p>
-                )}
-              </div>
-
-              {/* Tax rate */}
-              <div className="space-y-2">
-                <Label htmlFor="taxRatePercent">Thuế suất VAT</Label>
-                <Select id="taxRatePercent" {...register('taxRatePercent')}>
-                  {TAX_RATES.map((r) => (
-                    <option key={r} value={r}>
-                      {r}%
-                    </option>
-                  ))}
-                </Select>
-                {errors.taxRatePercent && (
-                  <p className="text-sm text-red-600" role="alert">{errors.taxRatePercent.message}</p>
-                )}
-              </div>
-
-              {errors.root && (
-                <p className="text-sm text-red-600 bg-red-50 rounded-md px-3 py-2" role="alert">
-                  {errors.root.message}
-                </p>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <Button type="submit" disabled={isSubmitting} className="flex-1">
-                  {isSubmitting ? 'Đang lưu…' : isEdit ? 'Lưu thay đổi' : 'Tạo sản phẩm'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/products')}
-                  disabled={isSubmitting}
-                >
-                  Huỷ
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+    <div className="max-w-lg mx-auto space-y-6">
+      <div className="flex items-center gap-3">
+        <Link
+          to="/products"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground min-h-[44px]"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Danh sách sản phẩm
+        </Link>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {isEdit ? `Chỉnh sửa: ${existing?.name ?? ''}` : 'Thêm sản phẩm mới'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+            {/* Name */}
+            <div className="space-y-2">
+              <Label htmlFor="name">Tên sản phẩm *</Label>
+              <Input
+                id="name"
+                placeholder="VD: Gạo tẻ 5kg"
+                className="min-h-[44px]"
+                {...register('name')}
+                aria-invalid={!!errors.name}
+              />
+              {errors.name && (
+                <p className="text-sm text-red-600" role="alert">{errors.name.message}</p>
+              )}
+            </div>
+
+            {/* SKU — read-only in edit mode */}
+            <div className="space-y-2">
+              <Label htmlFor="sku">
+                Mã SKU{' '}
+                <span className="text-xs text-muted-foreground">
+                  {isEdit ? '(không thể đổi)' : '(tuỳ chọn)'}
+                </span>
+              </Label>
+              <Input
+                id="sku"
+                placeholder="VD: GAO-5KG-001"
+                readOnly={isEdit}
+                className={cn('min-h-[44px]', isEdit && 'bg-gray-50 cursor-not-allowed')}
+                {...register('sku')}
+                aria-invalid={!!errors.sku}
+              />
+              {errors.sku && (
+                <p className="text-sm text-red-600" role="alert">{errors.sku.message}</p>
+              )}
+            </div>
+
+            {/* Threshold */}
+            <div className="space-y-2">
+              <Label htmlFor="threshold">Ngưỡng cảnh báo sắp hết hàng</Label>
+              <Input
+                id="threshold"
+                type="number"
+                min={0}
+                className="min-h-[44px]"
+                {...register('threshold')}
+                aria-invalid={!!errors.threshold}
+              />
+              <p className="text-xs text-muted-foreground">
+                Để 0 nếu không cần cảnh báo. Khi tồn kho ≤ ngưỡng này, sản phẩm sẽ hiển thị "Sắp hết".
+              </p>
+              {errors.threshold && (
+                <p className="text-sm text-red-600" role="alert">{errors.threshold.message}</p>
+              )}
+            </div>
+
+            {errors.root && (
+              <p className="text-sm text-red-600 bg-red-50 rounded-md px-3 py-2" role="alert">
+                {errors.root.message}
+              </p>
+            )}
+
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 min-h-[44px]"
+              >
+                {isSubmitting ? 'Đang lưu…' : isEdit ? 'Lưu thay đổi' : 'Tạo sản phẩm'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-[44px]"
+                onClick={() => navigate('/products')}
+                disabled={isSubmitting}
+              >
+                Huỷ
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
+

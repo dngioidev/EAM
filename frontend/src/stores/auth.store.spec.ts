@@ -3,21 +3,19 @@
  * TC-AUTH-FU01: setTokens updates accessToken + refreshToken
  * TC-AUTH-FU02: setUser updates user object
  * TC-AUTH-FU03: logout clears all auth state
- * TC-AUTH-FU04: logout clears persisted localStorage entry
+ * TC-AUTH-FU04: initial state is null across all fields
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useAuthStore } from './auth.store';
 
 const MOCK_USER = {
   id: '550e8400-e29b-41d4-a716-446655440000',
-  email: 'test@eam.local',
-  role: 'cashier',
-  storeId: 'store-uuid-001',
+  email: 'owner@eam.local',
+  role: 'OWNER' as const,
 };
 
 describe('useAuthStore', () => {
   beforeEach(() => {
-    // Reset store state between tests
     useAuthStore.setState({ user: null, accessToken: null, refreshToken: null });
     localStorage.clear();
   });

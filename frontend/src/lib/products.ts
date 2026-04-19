@@ -1,36 +1,37 @@
 import { apiClient } from '@/lib/api-client';
 
+export type StockStatus = 'OUT_OF_STOCK' | 'LOW_STOCK' | 'IN_STOCK';
+
 export interface Product {
   id: string;
-  sku: string;
+  sku: string | null;
   name: string;
-  priceVnd: number;
-  taxRatePercent: number;
-  isActive: boolean;
-  storeId: string;
-  createdAt: string;
-  updatedAt: string;
+  status: StockStatus;
+  quantity: number;
+  threshold: number;
+  updated_at: string;
 }
 
 export interface ProductsPage {
-  data: Product[];
+  items: Product[];
   total: number;
+  page: number;
+  limit: number;
 }
 
 export interface CreateProductPayload {
-  sku: string;
   name: string;
-  priceVnd: number;
-  taxRatePercent: 0 | 5 | 8 | 10;
+  sku?: string;
+  threshold?: number;
 }
 
 export interface UpdateProductPayload {
   name?: string;
-  priceVnd?: number;
-  taxRatePercent?: 0 | 5 | 8 | 10;
+  sku?: string;
+  threshold?: number;
 }
 
-export async function fetchProducts(params: {
+export async function fetchProducts(params?: {
   q?: string;
   page?: number;
   limit?: number;
@@ -50,11 +51,6 @@ export async function createProduct(payload: CreateProductPayload): Promise<Prod
 }
 
 export async function updateProduct(id: string, payload: UpdateProductPayload): Promise<Product> {
-  const { data } = await apiClient.patch<Product>(`/products/${id}`, payload);
-  return data;
-}
-
-export async function deactivateProduct(id: string): Promise<Product> {
-  const { data } = await apiClient.patch<Product>(`/products/${id}/deactivate`);
+  const { data } = await apiClient.put<Product>(`/products/${id}`, payload);
   return data;
 }

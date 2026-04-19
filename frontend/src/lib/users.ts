@@ -1,16 +1,14 @@
 import { apiClient } from '@/lib/api-client';
 
-export type UserRole = 'admin' | 'store-manager' | 'cashier' | 'accountant' | 'viewer';
+export type UserRole = 'OWNER' | 'ADMIN';
 
 export interface AdminUser {
   id: string;
   email: string;
-  name: string;
   role: UserRole;
-  storeId: string | null;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  status: 'ACTIVE' | 'DISABLED';
+  created_at: string;
+  product_count: number;
 }
 
 export interface PaginatedUsersResponse {
@@ -22,46 +20,30 @@ export interface PaginatedUsersResponse {
 }
 
 export interface AdminStats {
-  totalUsers: number;
-  disabledUsers: number;
-  totalProducts: number;
-  totalTransactions: number;
-}
-
-export interface CreateUserPayload {
-  email: string;
-  password: string;
-  name: string;
-  role: UserRole;
-  storeId: string | null;
+  total_users: number;
+  disabled_users: number;
+  total_products: number;
+  total_transactions: number;
 }
 
 export async function fetchUsers(page = 1, limit = 50): Promise<PaginatedUsersResponse> {
-  const { data } = await apiClient.get<PaginatedUsersResponse>('/auth/users', {
+  const { data } = await apiClient.get<PaginatedUsersResponse>('/admin/users', {
     params: { page, limit },
   });
   return data;
 }
 
-export async function createUser(payload: CreateUserPayload): Promise<AdminUser> {
-  const { data } = await apiClient.post<AdminUser>('/auth/register', payload);
+export async function disableUser(id: string): Promise<AdminUser> {
+  const { data } = await apiClient.put<AdminUser>(`/admin/users/${id}/disable`);
   return data;
 }
 
-export async function deactivateUser(id: string): Promise<AdminUser> {
-  const { data } = await apiClient.patch<AdminUser>(`/auth/users/${id}/deactivate`);
-  return data;
-}
-
-export async function setUserStatus(
-  id: string,
-  status: 'ACTIVE' | 'DISABLED',
-): Promise<AdminUser> {
-  const { data } = await apiClient.patch<AdminUser>(`/auth/users/${id}/status`, { status });
+export async function enableUser(id: string): Promise<AdminUser> {
+  const { data } = await apiClient.put<AdminUser>(`/admin/users/${id}/enable`);
   return data;
 }
 
 export async function fetchAdminStats(): Promise<AdminStats> {
-  const { data } = await apiClient.get<AdminStats>('/auth/stats');
+  const { data } = await apiClient.get<AdminStats>('/admin/stats');
   return data;
 }

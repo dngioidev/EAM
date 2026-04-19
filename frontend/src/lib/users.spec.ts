@@ -2,24 +2,21 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { apiClient } from './api-client';
 import {
-  createUser,
-  deactivateUser,
+  disableUser,
+  enableUser,
   fetchAdminStats,
   fetchUsers,
-  setUserStatus,
-  type CreateUserPayload,
 } from './users';
 
 describe('users api client', () => {
   const getSpy = vi.spyOn(apiClient, 'get');
-  const postSpy = vi.spyOn(apiClient, 'post');
-  const patchSpy = vi.spyOn(apiClient, 'patch');
+  const putSpy = vi.spyOn(apiClient, 'put');
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('fetchUsers sends pagination query params', async () => {
+  it('fetchUsers sends pagination query params to /admin/users', async () => {
     const response = {
       data: {
         items: [],
@@ -33,97 +30,64 @@ describe('users api client', () => {
 
     const result = await fetchUsers(2, 25);
 
-    expect(getSpy).toHaveBeenCalledWith('/auth/users', {
+    expect(getSpy).toHaveBeenCalledWith('/admin/users', {
       params: { page: 2, limit: 25 },
     });
     expect(result).toEqual(response.data);
   });
 
-  it('createUser posts payload to register endpoint', async () => {
-    const payload: CreateUserPayload = {
-      email: 'new.user@eam.local',
-      password: 'Admin@123456',
-      name: 'New User',
-      role: 'cashier',
-      storeId: 'store-1',
-    };
-
-    const response = {
-      data: {
-        id: 'u-1',
-        email: payload.email,
-        name: payload.name,
-        role: payload.role,
-        storeId: payload.storeId,
-        isActive: true,
-        createdAt: '2026-04-16T00:00:00Z',
-        updatedAt: '2026-04-16T00:00:00Z',
-      },
-    };
-    postSpy.mockResolvedValue(response);
-
-    const result = await createUser(payload);
-
-    expect(postSpy).toHaveBeenCalledWith('/auth/register', payload);
-    expect(result).toEqual(response.data);
-  });
-
-  it('deactivateUser calls deactivate endpoint', async () => {
+  it('disableUser calls PUT /admin/users/:id/disable', async () => {
     const response = {
       data: {
         id: 'u-2',
-        email: 'staff@eam.local',
-        name: 'Staff',
-        role: 'cashier',
-        storeId: 'store-1',
-        isActive: false,
-        createdAt: '2026-04-16T00:00:00Z',
-        updatedAt: '2026-04-16T00:00:00Z',
+        email: 'owner@eam.local',
+        role: 'OWNER',
+        status: 'DISABLED',
+        created_at: '2026-04-16T00:00:00Z',
+        product_count: 3,
       },
     };
-    patchSpy.mockResolvedValue(response);
+    putSpy.mockResolvedValue(response);
 
-    const result = await deactivateUser('u-2');
+    const result = await disableUser('u-2');
 
-    expect(patchSpy).toHaveBeenCalledWith('/auth/users/u-2/deactivate');
+    expect(putSpy).toHaveBeenCalledWith('/admin/users/u-2/disable');
     expect(result).toEqual(response.data);
   });
 
-  it('setUserStatus calls status endpoint with ACTIVE payload', async () => {
+  it('enableUser calls PUT /admin/users/:id/enable', async () => {
     const response = {
       data: {
         id: 'u-3',
-        email: 'staff2@eam.local',
-        name: 'Staff 2',
-        role: 'viewer',
-        storeId: null,
-        isActive: true,
-        createdAt: '2026-04-16T00:00:00Z',
-        updatedAt: '2026-04-16T00:00:00Z',
+        email: 'owner2@eam.local',
+        role: 'OWNER',
+        status: 'ACTIVE',
+        created_at: '2026-04-16T00:00:00Z',
+        product_count: 5,
       },
     };
-    patchSpy.mockResolvedValue(response);
+    putSpy.mockResolvedValue(response);
 
-    const result = await setUserStatus('u-3', 'ACTIVE');
+    const result = await enableUser('u-3');
 
-    expect(patchSpy).toHaveBeenCalledWith('/auth/users/u-3/status', { status: 'ACTIVE' });
+    expect(putSpy).toHaveBeenCalledWith('/admin/users/u-3/enable');
     expect(result).toEqual(response.data);
   });
 
-  it('fetchAdminStats calls stats endpoint', async () => {
+  it('fetchAdminStats calls GET /admin/stats', async () => {
     const response = {
       data: {
-        totalUsers: 12,
-        disabledUsers: 2,
-        totalProducts: 25,
-        totalTransactions: 40,
+        total_users: 12,
+        disabled_users: 2,
+        total_products: 25,
+        total_transactions: 40,
       },
     };
     getSpy.mockResolvedValue(response);
 
     const result = await fetchAdminStats();
 
-    expect(getSpy).toHaveBeenCalledWith('/auth/stats');
+    expect(getSpy).toHaveBeenCalledWith('/admin/stats');
     expect(result).toEqual(response.data);
   });
 });

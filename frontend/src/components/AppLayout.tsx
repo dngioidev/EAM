@@ -3,12 +3,7 @@ import { NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@/stores/auth.store';
 import { logout } from '@/lib/auth';
 import {
-  ShoppingCart,
-  ClipboardList,
-  FileText,
   Package,
-  BarChart2,
-  Store,
   Users,
   LayoutDashboard,
   LogOut,
@@ -18,8 +13,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// ─── Nav config per role ──────────────────────────────────────────────────────
-
 interface NavItem {
   label: string;
   to: string;
@@ -27,43 +20,21 @@ interface NavItem {
 }
 
 const NAV_ITEMS: Record<string, NavItem[]> = {
-  cashier: [
-    { label: 'Bán hàng (POS)', to: '/pos', icon: ShoppingCart },
-    { label: 'Đơn hàng', to: '/orders', icon: ClipboardList },
-  ],
-  accountant: [
-    { label: 'Hóa đơn', to: '/invoices', icon: FileText },
-    { label: 'Báo cáo', to: '/reports', icon: BarChart2 },
-  ],
-  'store-manager': [
+  OWNER: [
     { label: 'Tổng quan', to: '/dashboard', icon: LayoutDashboard },
-    { label: 'Bán hàng (POS)', to: '/pos', icon: ShoppingCart },
-    { label: 'Đơn hàng', to: '/orders', icon: ClipboardList },
-    { label: 'Hóa đơn', to: '/invoices', icon: FileText },
-    { label: 'Báo cáo', to: '/reports', icon: BarChart2 },
     { label: 'Sản phẩm', to: '/products', icon: Package },
   ],
-  admin: [
+  ADMIN: [
     { label: 'Tổng quan', to: '/dashboard', icon: LayoutDashboard },
-    { label: 'Bán hàng (POS)', to: '/pos', icon: ShoppingCart },
-    { label: 'Đơn hàng', to: '/orders', icon: ClipboardList },
-    { label: 'Hóa đơn', to: '/invoices', icon: FileText },
-    { label: 'Báo cáo', to: '/reports', icon: BarChart2 },
     { label: 'Sản phẩm', to: '/products', icon: Package },
-    { label: 'Cửa hàng', to: '/admin/stores', icon: Store },
     { label: 'Người dùng', to: '/admin/users', icon: Users },
   ],
 };
 
 const ROLE_LABELS: Record<string, string> = {
-  cashier: 'Thu ngân',
-  accountant: 'Kế toán',
-  'store-manager': 'Quản lý',
-  admin: 'Quản trị viên',
-  viewer: 'Xem',
+  OWNER: 'Chủ cửa hàng',
+  ADMIN: 'Quản trị viên',
 };
-
-// ─── AppLayout ────────────────────────────────────────────────────────────────
 
 export default function AppLayout() {
   const user = useAuthStore((s) => s.user);
@@ -98,11 +69,11 @@ export default function AppLayout() {
         )}
         aria-label="Sidebar navigation"
       >
-        {/* Logo / brand */}
+        {/* Brand */}
         <div className="flex h-16 items-center justify-between px-4 border-b">
-          <span className="text-lg font-bold text-primary">V-Smart Ledger</span>
+          <span className="text-lg font-bold text-primary">EAM</span>
           <button
-            className="lg:hidden p-1 rounded hover:bg-gray-100"
+            className="lg:hidden p-2 rounded hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
             onClick={() => setSidebarOpen(false)}
             aria-label="Đóng menu"
           >
@@ -120,7 +91,7 @@ export default function AppLayout() {
                   onClick={() => setSidebarOpen(false)}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                      'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors min-h-[44px]',
                       isActive
                         ? 'bg-primary text-primary-foreground'
                         : 'text-gray-700 hover:bg-gray-100',
@@ -150,7 +121,7 @@ export default function AppLayout() {
           </div>
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors min-h-[44px]"
             aria-label="Đăng xuất"
           >
             <LogOut className="h-4 w-4" />
@@ -164,7 +135,7 @@ export default function AppLayout() {
         {/* Topnav */}
         <header className="flex h-16 items-center gap-3 border-b bg-white px-4 shadow-sm">
           <button
-            className="lg:hidden p-2 rounded hover:bg-gray-100"
+            className="lg:hidden p-2 rounded hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
             onClick={() => setSidebarOpen(true)}
             aria-label="Mở menu"
           >

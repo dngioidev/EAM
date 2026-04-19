@@ -94,7 +94,7 @@ export default function ProductDetailPage() {
   const editForm = useForm<EditFormData>({
     resolver: zodResolver(editSchema),
     values: product
-      ? { name: product.name, threshold: (product as { threshold?: number }).threshold ?? 0 }
+      ? { name: product.name, threshold: product.threshold ?? 0 }
       : undefined,
   });
 
@@ -154,8 +154,8 @@ export default function ProductDetailPage() {
     );
   }
 
-  const threshold = (product as { threshold?: number }).threshold ?? 0;
-  const quantity = (product as { quantity?: number }).quantity ?? 0;
+  const threshold = product.threshold ?? 0;
+  const quantity = product.quantity ?? 0;
   const status: StockStatus = getStatus(quantity, threshold);
 
   const handleStockSubmit = (data: StockFormData) => {
@@ -181,9 +181,9 @@ export default function ProductDetailPage() {
             {isEditing ? null : (
               <>
                 <CardTitle className="text-xl">{product.name}</CardTitle>
-                {(product as { sku?: string }).sku && (
+                {product.sku && (
                   <p className="text-sm text-muted-foreground">
-                    SKU: {(product as { sku?: string }).sku}
+                    SKU: {product.sku}
                   </p>
                 )}
               </>

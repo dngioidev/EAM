@@ -1,19 +1,25 @@
 import { apiClient } from '@/lib/api-client';
 import { useAuthStore, type AuthUser } from '@/stores/auth.store';
 
-interface LoginPayload {
+interface AuthPayload {
   email: string;
   password: string;
 }
 
-interface LoginResponse {
+interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   user: AuthUser;
 }
 
-export async function login(payload: LoginPayload): Promise<void> {
-  const { data } = await apiClient.post<LoginResponse>('/auth/login', payload);
+export async function login(payload: AuthPayload): Promise<void> {
+  const { data } = await apiClient.post<AuthResponse>('/auth/login', payload);
+  useAuthStore.getState().setTokens(data.accessToken, data.refreshToken);
+  useAuthStore.getState().setUser(data.user);
+}
+
+export async function register(payload: AuthPayload): Promise<void> {
+  const { data } = await apiClient.post<AuthResponse>('/auth/register', payload);
   useAuthStore.getState().setTokens(data.accessToken, data.refreshToken);
   useAuthStore.getState().setUser(data.user);
 }

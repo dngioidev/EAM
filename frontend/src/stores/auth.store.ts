@@ -4,8 +4,7 @@ import { persist } from 'zustand/middleware';
 export interface AuthUser {
   id: string;
   email: string;
-  role: string;
-  storeId: string | null;
+  role: 'OWNER' | 'ADMIN';
 }
 
 interface AuthState {
@@ -29,7 +28,6 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'eam-auth',
-      // Only persist tokens — user is re-hydrated from /auth/me if needed
       partialize: (state) => ({
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
