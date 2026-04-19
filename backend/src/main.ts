@@ -36,8 +36,8 @@ async function bootstrap() {
   app.enableCors({ origin: corsOrigins, credentials: true });
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('V-Smart Ledger API')
-    .setDescription('EAM-Tax POS + Electronic Invoice API')
+    .setTitle('EAM API')
+    .setDescription('EAM — Lean Inventory MVP API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
